@@ -1,0 +1,67 @@
+{{>header_autogen}}
+
+unit {{classname}}.Rest;
+
+interface
+uses
+  System.SysUtils,
+  uRestCommandHandler,
+  uHTTPClient,
+  uRestRequest;
+
+type
+{{#operations}}
+  T{{classname}}Rest = class 
+  private
+  public
+    {{#operation}}
+    /// Operation {{{operationId}}}
+    /// <summary>{{{summary}}}</summary>{{#remarks}}
+    /// <remarks>{{.}}</remarks>{{/remarks}}
+    
+    {{#pathParams}}   
+    /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
+    {{/pathParams}}   
+    procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    {{/operation}}
+  end;
+
+implementation
+
+uses
+  whizaxe.serialization,
+  {{className}};
+
+{{#operation}}
+procedure T{{classname}}.{{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult);
+var
+  {{#returnType}}responseObj: {{.}};{{/returnType}}
+{{#allParams}}
+  {{paramName}}: TRestParam<{{dataType}}>;
+{{/allParams}}
+{{#bodyParam}}
+  model : {{dataType}};
+{{/bodyParam}}
+
+begin
+{{#pathParams}}
+  {{paramName}} := ARequest.GetPathParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
+{{/pathParams}}
+{{#bodyParam}}
+  model := ARequest.GetBodyParam<{{dataType}}>({{required}});
+{{/bodyParam}}
+{{#queryParams}}
+  {{paramName}} := ARequest.GetQueryParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
+{{/queryParams}}
+{{#headerParams}}
+  {{paramName}} := ARequest.GetHeaderParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
+{{/headerParams}}
+  responseObj := {{classname}}.{{operationId}}({{#allParams}}const {{{dataType}}} &{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+  AResult.SendResponse(respObj);
+end;
+
+{{/operation}}
+
+  
+{{/operations}}
+end.

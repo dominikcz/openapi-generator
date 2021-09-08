@@ -1,0 +1,36 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  Caption = '{{appName}} test form'
+  ClientHeight = 150
+  ClientWidth = 409
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object edtServerPort: TLabeledEdit
+    Left = 72
+    Top = 56
+    Width = 121
+    Height = 21
+    EditLabel.Width = 58
+    EditLabel.Height = 13
+    EditLabel.Caption = 'server port:'
+    TabOrder = 0
+    Text = '{{serverPort}}{{^serverPort}}8080{{/serverPort}}'
+  end
+  object btnStart: TButton
+    Left = 216
+    Top = 54
+    Width = 75
+    Height = 25
+    Caption = 'start'
+    TabOrder = 1
+    OnClick = btnStartClick
+  end
+end

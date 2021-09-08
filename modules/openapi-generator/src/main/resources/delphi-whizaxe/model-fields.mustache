@@ -1,0 +1,159 @@
+{{>header_autogen}}
+
+unit Model.{{classname}};
+
+interface
+
+{{#imports}}
+uses
+  {{.}}{{^-last}},{{/-last}}
+{{/imports}}
+
+type
+{{#models}}
+{{#model}}
+
+  {$RTTI EXPLICIT PROPERTIES([vcPublic])}
+  T{{classname}} = class
+  private
+    {{#isEnum}}{{#allowableValues}}    enum class e{{classname}} {
+    // To have a valid default value.
+    // Avoiding nameclashes with user defined
+    // enum values
+    INVALID_VALUE_OPENAPI_GENERATED = 0,
+    {{#enumVars}}
+    {{{name}}}{{^-last}}, {{/-last}}
+    {{/enumVars}}
+    };{{/allowableValues}}{{/isEnum}}
+
+
+    {{#vars}}
+    F{{nameInCamelCase}}: {{{dataType}}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
+    F{{nameInCamelCase}}IsSet: boolean;
+    {{/vars}}
+
+    {{#vars}}
+    procedure {{setter}}(AValue: {{{dataType}}});
+    {{/vars}}
+
+    {{#vars}}
+    function {{name}}IsValid: boolean;
+    {{/vars}}
+  public
+    {{#vars}}
+    property {{name}}: {{{dataType}}} read F{{nameInCamelCase}} write {{setter}};
+    property {{name}}IsSet: boolean read F{{nameInCamelCase}}IsSet;
+    {{/vars}}
+
+    /// <summary>
+    /// Validate the current data in the model. Throws a EValidationException on failure.
+    /// </summary>
+    procedure Validate(); overload;
+
+    /// <summary>
+    /// Validate the current data in the model. Returns false and erro message for invalid model.
+    /// </summary>
+    function Validate(out ErrorMsg: string): boolean; overload;
+
+    /// <summary>
+    /// Serialize model to JSON
+    /// </summary>
+    function AsJson: string;
+
+    /// <summary>
+    /// Update model from JSON string
+    /// </summary>
+    procedure UpdateFromJson(AJson: string);
+  end;
+
+// *****************   TEST AREA BEGIN *******************
+//     {{#isEnum}}
+//     {{classname}}::e{{classname}} getValue() const;
+//     void setValue({{classname}}::e{{classname}} value);
+//     {{/isEnum}}{{#vendorExtensions.x-is-string-enum-container}}{{#anyOf}}{{#-first}}
+//     {{{this}}} getValue() const;
+//     void setValue({{{this}}} value);
+//     {{{this}}}::e{{{this}}} getEnumValue() const;
+//     void setEnumValue({{{this}}}::e{{{this}}} value);{{/-first}}{{/anyOf}}{{/vendorExtensions.x-is-string-enum-container}}
+// protected:
+//     {{#isEnum}}{{classname}}::e{{classname}} m_value = {{classname}}::e{{classname}}::INVALID_VALUE_OPENAPI_GENERATED;{{/isEnum}}{{#vendorExtensions.x-is-string-enum-container}}{{#anyOf}}{{#-first}}{{{this}}} m_value;{{/-first}}{{/anyOf}}{{/vendorExtensions.x-is-string-enum-container}}
+// };
+  
+// *****************   TEST AREA END *******************
+  
+{{/model}}
+{{/models}}
+
+implementation
+
+uses
+  whizaxe.serialization;
+  
+{{#models}}
+{{#model}}
+{ T{{classname}} }
+
+function T{{classname}}.AsJson: string;
+begin
+  result := TSerializer.ObjectToJSON(self);
+end;
+
+procedure T{{classname}}.UpdateFromJson(AJson: string);
+begin
+  TSerializer.UpdateObjectFormJson<T{{classname}}>(self, AJson);
+end;
+
+procedure T{{classname}}.Validate;
+var
+  msg: string;
+begin
+  if not this.Validate(msg) then
+    raise EValidationException.Create(msg);
+end;
+
+function T{{classname}}.Validate(out ErrorMsg: string): boolean;
+const
+  MSG = 'Field %s is not set or has invalid value';
+var
+  sb: TStringBuilder;
+begin
+  result := false;
+  sb := TStringBuilder.Create;
+  try
+    {{#vars}}
+    if not {{nameInCamelCase}}IsValid then
+      sb.AppendLine(format(MSG, ['{{name}}']));
+    {{/vars}}
+    errorMsg := sb.Text;
+    result := errorMsg = '';
+  finally
+    sb.Free;
+  end;
+end;
+
+{$region 'Setters'}
+{{#vars}}
+procedure T{{classname}}.{{setter}}(AValue: {{{dataType}}});
+begin
+  F{{nameInCamelCase}} := AValue;
+  F{{nameInCamelCase}}IsSet := true;
+end;
+
+{{/vars}}
+{$endregion}
+
+{$region 'Validations'}
+
+{{#vars}}
+function T{{classname}}.{{name}}IsValid: boolean;
+begin
+  result := {{name}}IsSet;
+end;
+
+{{/vars}}
+{$endregion}
+
+{{/model}}
+
+{{/models}}
+end.

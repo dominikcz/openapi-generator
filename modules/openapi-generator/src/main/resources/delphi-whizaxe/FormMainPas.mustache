@@ -1,0 +1,33 @@
+unit FormMain;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TMainForm = class(TForm)
+    edtServerPort: TLabeledEdit;
+    btnStart: TButton;
+    procedure btnStartClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  MainForm: TMainForm;
+
+implementation
+
+{$R *.dfm}
+
+procedure TMainForm.btnStartClick(Sender: TObject);
+begin
+//  FServer := TRestServer.Create(edtServerPort.text);
+//  FServer.Start;
+end;
+
+end.

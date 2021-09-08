@@ -1,0 +1,18 @@
+{{>header_for_modifications}}
+
+program {{programName}}App;
+
+uses
+  Vcl.Forms,
+  FormMain in 'FormMain.pas' {MainForm},{{#models}}{{#model}}
+  {{classFilename}} in 'models\{{classFilename}}.pas',{{/model}}{{/models}}{{#apiInfo}}{{#apis}}{{#operations}}
+  {{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TMainForm, MainForm);
+  Application.Run;
+end.

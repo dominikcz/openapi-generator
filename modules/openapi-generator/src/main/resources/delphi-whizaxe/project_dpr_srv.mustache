@@ -1,0 +1,19 @@
+{{>header_for_modifications}}
+
+program {{appName}}App;
+
+uses
+  Vcl.Forms,
+  AppForm in 'AppForm.pas' {AppMainForm},
+{{#apiInfo}}{{#apis}}{{#operations}}
+  {{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}
+{{/operations}}{{/apis}}{{/apiInfo}};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TAppForm, AppMAinForm);
+  Application.Run;
+end.

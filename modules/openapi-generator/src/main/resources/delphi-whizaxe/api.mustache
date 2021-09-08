@@ -1,0 +1,37 @@
+{{>header_for_modifications}}
+
+unit {{classname}};
+
+interface
+uses
+  System.SysUtils,
+  uRestCommandHandler,
+  uHTTPClient,
+  uRestRequest;
+
+type
+{{#operations}}
+  T{{classname}} = class 
+  private
+  public
+    {{#operation}}
+    /// Operation {{{operationId}}}
+    /// <summary>{{{summary}}}</summary>
+    /// <remarks>{{remarks}}</remarks>
+    
+    {{#pathParams}}   
+    ///  <param name="Ajson">Json do zdeserializowania</param>
+    ///  <param name="AOwnsObject">Przekazywane do OwnsObject TObjectList
+
+
+    /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
+    {{/pathParams}}   
+    procedure Do{{{operationId}}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    {{/operation}}
+  end;
+{{/operations}}
+
+implementation
+
+end.

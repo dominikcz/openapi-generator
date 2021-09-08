@@ -1,0 +1,11 @@
+generatorName: delphi-whizaxe
+outputDir: samples/server/vpos/delphi/whizaxe
+inputSpec: ../api-vpos/api-vpos.yml
+templateDir: modules/openapi-generator/src/main/resources/delphi-whizaxe
+additionalProperties:
+  hideGenerationTimestamp: "true"
+  modelType: "fields"
+  modelNamePrefix: ""
+  modelFilenamePrefix: "Model."
+  generateAliasAsModel: "true"
+  
