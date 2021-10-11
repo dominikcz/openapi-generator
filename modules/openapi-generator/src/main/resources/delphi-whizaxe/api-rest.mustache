@@ -56,7 +56,7 @@ begin
 {{#headerParams}}
   {{paramName}} := ARequest.GetHeaderParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
 {{/headerParams}}
-  responseObj := {{classname}}.{{operationId}}({{#allParams}}const {{{dataType}}} &{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+  responseObj := {{classname}}.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
   AResult.SendResponse(respObj);
 end;
 
