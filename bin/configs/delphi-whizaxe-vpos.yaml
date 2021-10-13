@@ -8,4 +8,5 @@ additionalProperties:
   modelNamePrefix: ""
   modelFilenamePrefix: "Model."
   generateAliasAsModel: "true"
+  openApiSkipValidateSpec: "true"
   

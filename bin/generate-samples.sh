@@ -50,7 +50,7 @@ echo "$header"
 if [[ ${#files[@]} -eq 1 && "${files[0]}" != *'*'* ]]; then
     # shellcheck disable=SC2086
     # shellcheck disable=SC2068
-    java ${JAVA_OPTS} -jar "$executable" generate -c ${files[0]} ${args[@]}
+    java ${JAVA_OPTS} -jar "$executable" generate --skip-validate-spec -c ${files[0]} ${args[@]}
 else
     echo "Please press CTRL+C to stop or the script will continue in 5 seconds."
 
@@ -63,5 +63,6 @@ else
     # shellcheck disable=SC2086
     # shellcheck disable=SC2068
     java ${JAVA_OPTS} -jar "$executable" batch ${BATCH_OPTS} --includes-base-dir "${root}" --fail-fast  -- ${files[@]}
+    sleep 30
 fi
 

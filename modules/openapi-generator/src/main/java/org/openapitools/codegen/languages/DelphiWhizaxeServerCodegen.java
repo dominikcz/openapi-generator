@@ -85,8 +85,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         typeMapping.put("BigDecimal", "Currency");
 
         super.importMapping = new HashMap<String, String>();
-//        importMapping.put("TList", "Generics.Collections");
-//        importMapping.put("TDictionary", "Generics.Collections");
+        importMapping.put("TList", "Generics.Collections");
+        importMapping.put("TDictionary", "Generics.Collections");
 	}
     
     @Override
@@ -131,9 +131,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
           return null;
         }
         if (importMapping.containsKey(name)) {
-            return "A["+ name + "] -> ["+toModelFilename(importMapping.get(name))+"]";
+            return importMapping.get(name);
         } else {
-            return "QQQ[" + toModelFilename(name)+"]";
+            return name;
         }
     }
 
@@ -146,7 +146,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         codegenModel.imports = new HashSet<>();
         for (String imp : oldImports) {
             String newImp = toModelImport(imp);
-            if (!newImp.isEmpty()) {
+            if (!( newImp.isEmpty() )) {
                 codegenModel.imports.add(newImp);
             }
         }
