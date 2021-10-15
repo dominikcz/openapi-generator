@@ -30,8 +30,23 @@ type
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
     {{/operation}}
   end;
-{{/operations}}
+
 
 implementation
 
+{ T{{classname}} }
+
+{{#operation}}
+procedure T{{classname}}.Do{{operationId}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}});
+begin
+end;
+
+procedure T{{classname}}.{{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult);
+begin
+end;
+
+{{/operation}}
+
+
+{{/operations}}
 end.

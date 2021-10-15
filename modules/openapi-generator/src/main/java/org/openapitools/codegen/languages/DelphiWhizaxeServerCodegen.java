@@ -36,6 +36,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     static final Logger LOGGER = LoggerFactory.getLogger(DelphiWhizaxeServerCodegen.class);
     protected final String PREFIX = "";
 
+    protected Set<String> usedModels = new HashSet<>();
+
     @Override
     public CodegenType getTag() {
         return CodegenType.SERVER;
@@ -72,7 +74,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         typeMapping.put("date", "TDateTime");
         typeMapping.put("DateTime", "TDateTime");
         typeMapping.put("long", "Cardinal");
-        typeMapping.put("array", "TList");
+        typeMapping.put("array", "TObjectList");
         typeMapping.put("map", "TDictionary");
         typeMapping.put("set", "TList");
         typeMapping.put("file", "TStream");
@@ -86,7 +88,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
         super.importMapping = new HashMap<String, String>();
         importMapping.put("TList", "Generics.Collections");
+        importMapping.put("TObjectList", "Generics.Collections");
         importMapping.put("TDictionary", "Generics.Collections");
+        importMapping.put("TObjectDictionary", "Generics.Collections");
 	}
     
     @Override
@@ -133,7 +137,16 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         if (importMapping.containsKey(name)) {
             return importMapping.get(name);
         } else {
-            return name;
+            if (typeMapping.keySet().contains(name) || typeMapping.values().contains(name)
+                    || importMapping.values().contains(name) || defaultIncludes.contains(name)
+                    || languageSpecificPrimitives.contains(name) || usedModels.contains(name)) {
+                if (name == "TExtInfo"){
+                    return "Model.ExtInfo";
+                }else
+                    return name;
+            }else {
+                return modelFilenamePrefix + name;
+            }
         }
     }
 
@@ -148,6 +161,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             String newImp = toModelImport(imp);
             if (!( newImp.isEmpty() )) {
                 codegenModel.imports.add(newImp);
+                usedModels.add(newImp);
             }
         }
 
@@ -288,7 +302,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         if (ModelUtils.isArraySchema(p)) {
             ArraySchema ap = (ArraySchema) p;
             Schema inner = ap.getItems();
-            return getSchemaType(p) + "<T" + getTypeDeclaration(inner) + ">";
+            return getSchemaType(p) + "<" + getTypeDeclaration(inner) + ">";
         }
         if (ModelUtils.isMapSchema(p)) {
             Schema inner = getAdditionalProperties(p);
