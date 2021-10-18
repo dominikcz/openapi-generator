@@ -11,10 +11,11 @@ uses
   Rest.Client,
   Rest.Authenticator.OAuth,
   rest.Authenticator.Basic,{{#apiInfo}}{{#apis}}{{#operations}}
-  {{classname}}{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
+  {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
 
 type
-  T{{programName}}Client = class
+  T{{programName}}Client = class(TInterfacedObject, {{#apiInfo}}{{#apis}}{{#operations}}
+    I{{classname}}{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}})
   private
     FOnAuthenticate: TAuthenticateEvent;
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
@@ -23,7 +24,7 @@ type
     property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
 
     {{#apiInfo}}{{#apis}}{{#operations}}
-    // basename: {{baseName}}
+    { {{baseName}} }
 
     {{#operation}}
     /// Operation {{{operationId}}}
