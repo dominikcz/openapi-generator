@@ -1,10 +1,10 @@
-{{>header_for_modifications}}
-
-program {{programName}}App;
+program {{programName}}ClientApp;
 
 uses
   Vcl.Forms,
-  FormMain in 'FormMain.pas' {MainForm},{{#models}}{{#model}}
+  ClientMainForm in 'ClientMainForm.pas' {MainForm},
+  {{programName}}Client in '{{programName}}Client.pas',
+  whizaxe.openapi.config,{{#models}}{{#model}}
   {{classFilename}} in 'models\{{classFilename}}.pas',{{/model}}{{/models}}{{#apiInfo}}{{#apis}}{{#operations}}
   {{classname}}Interface in 'apis\{{classname}}Interface.pas',
   {{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};

@@ -1,0 +1,35 @@
+unit ClientMainForm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VirtualTrees, Vcl.StdCtrls,
+  {{programName}}Client;
+
+type
+  TMainForm = class(TForm)
+    VirtualStringTree1: TVirtualStringTree;
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  MainForm: TMainForm;
+
+implementation
+
+{$R *.dfm}
+
+procedure TMainForm.Button1Click(Sender: TObject);
+var
+  lClient: T{{programName}}Client;
+begin
+  lClient := T{{programName}}Client.Create(nil);
+end;
+
+end.

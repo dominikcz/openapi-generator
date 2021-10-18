@@ -56,12 +56,11 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     public DelphiWhizaxeServerCodegen() {
         super();
 
-        addOption(CodegenConstants.MODEL_NAME_PREFIX, CodegenConstants.MODEL_NAME_PREFIX_DESC, "");
+        addOption(CodegenConstants.MODEL_NAME_PREFIX, CodegenConstants.MODEL_NAME_PREFIX_DESC, " ");
 
         outputFolder = "generated-code" + File.separator + "delphi-whizaxe";
         apiTemplateFiles.put("api-interface.mustache", ".pas");
         apiTemplateFiles.put("api-rest.mustache", ".pas");
-//        apiTemplateFiles.put("api-client.mustache", ".pas");
         apiTemplateFiles.put("api.mustache", ".pas");
         embeddedTemplateDir = templateDir = "delphi-whizaxe";
         apiPackage = "Apis";
@@ -104,12 +103,6 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         if (additionalProperties.containsKey("modelNamePrefix")) {
             additionalProperties().put("prefix", modelNamePrefix);
         }
-//        supportingFiles.clear();
-        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-        supportingFiles.add(new SupportingFile("project_dpr_app.mustache", "", "projectApp.dpr"));
-        supportingFiles.add(new SupportingFile("project_dpr_srv.mustache", "", "projectSrv.dpr"));
-        supportingFiles.add(new SupportingFile("FormMainPas.mustache", "", "FormMain.pas"));
-        supportingFiles.add(new SupportingFile("FormMainDfm.mustache", "", "FormMain.dfm"));
         if (additionalProperties.containsKey(RESERVED_WORD_PREFIX_OPTION)) {
             reservedWordPrefix = (String) additionalProperties.get(RESERVED_WORD_PREFIX_OPTION);
         }
@@ -121,6 +114,24 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         additionalProperties.put(RESERVED_WORD_PREFIX_OPTION, reservedWordPrefix);
 
         setupModelTemplate();
+    }
+
+    @Override
+    public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
+//        supportingFiles.clear();
+        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+        supportingFiles.add(new SupportingFile("project_dpr_app.mustache", "", this.programName + "App.dpr"));
+        supportingFiles.add(new SupportingFile("project_dpr_srv.mustache", "", this.programName + "Srv.dpr"));
+        supportingFiles.add(new SupportingFile("FormMainPas.mustache", "", "FormMain.pas"));
+        supportingFiles.add(new SupportingFile("FormMainDfm.mustache", "", "FormMain.dfm"));
+
+        supportingFiles.add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
+        supportingFiles.add(new SupportingFile("client\\api-client.mustache", "", this.programName +"Client.pas"));
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas"));
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm"));
+        supportingFiles.add(new SupportingFile("client\\whizaxe.openapi.config.pas", "", "whizaxe.openapi.config.pas"));
+
     }
 
     private void setupModelTemplate() {
@@ -282,6 +293,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             result = result.replace(".pas", ".Rest.pas");
         } else if (templateName.endsWith("interface.mustache")) {
             result = result.replace(".pas", "Interface.pas");
+        } else if (templateName.endsWith("client.mustache")) {
+            result = result.replace(".pas", "Client.pas");
         }
         return result;
     }

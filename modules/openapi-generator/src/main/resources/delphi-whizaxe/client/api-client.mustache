@@ -1,6 +1,6 @@
 {{>header_for_modifications}}
 
-unit {{classname}}Client;
+unit {{programName}}Client;
 
 interface
 uses
@@ -10,20 +10,20 @@ uses
   Rest.Types,
   Rest.Client,
   Rest.Authenticator.OAuth,
-  rest.Authenticator.Basic,
-  {{classname}};
+  rest.Authenticator.Basic,{{#apiInfo}}{{#apis}}{{#operations}}
+  {{classname}}{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
 
 type
-{{#operations}}
-
-type
-  T{{classname}}Client = class
+  T{{programName}}Client = class
   private
     FOnAuthenticate: TAuthenticateEvent;
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
   public
     constructor Create(AConfig: TOpenApiConfig);
     property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
+
+    {{#apiInfo}}{{#apis}}{{#operations}}
+    // basename: {{baseName}}
 
     {{#operation}}
     /// Operation {{{operationId}}}
@@ -35,45 +35,44 @@ type
     {{/pathParams}}
     procedure {{{operationId}}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
     {{/operation}}
+    {{/operations}}{{/apis}}{{/apiInfo}}
   end;
 
 implementation
 
 { TApiClient }
 
-constructor TApiClient.Create(AConfig: TOpenApiConfig);
+constructor T{{programName}}Client.Create(AConfig: TOpenApiConfig);
 var
   lClient: TRESTClient;
   auth: TOAuth2Authenticator;
 begin
   lClient := TRESTClient.Create('{{basePath}}');
-(*
-  {{authMethods}}
+
+  {{#authMethods}}
   {{#isBasicBearer}}
-*)
   auth := TOAuth2Authenticator.Create(nil);
   auth.AccessToken := '<put your token here>';
   auth.TokenType := TOAuth2TokenType.ttBEARER;
-(*
   {{/isBasicBearer}}
   {{/authMethods}}
-*)
 
   lClient.Authenticator := auth;
   lClient.Authenticator.OnAuthenticate := OnAuthenticate;
 end;
 
-procedure TApiClient.SetOnAuthenticate(const Value: TAuthenticateEvent);
+procedure T{{programName}}Client.SetOnAuthenticate(const Value: TAuthenticateEvent);
 begin
   FOnAuthenticate := Value;
 end;
 
+{{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-procedure T{{classname}}.{{operationId}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}});
+procedure T{{programName}}Client.{{operationId}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}});
 begin
 end;
 
 {{/operation}}
-{{/operations}}
+{{/operations}}{{/apis}}{{/apiInfo}}
 
 end.
