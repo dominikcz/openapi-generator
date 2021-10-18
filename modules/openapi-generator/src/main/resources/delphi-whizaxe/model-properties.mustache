@@ -14,7 +14,7 @@ type
 
   {{#isEnum}}
   TEnum{{classname}} = (
-    {{#allowableValues}}{{#enumVars}}{{{name}}}{{^-last}}, {{/-last}}
+    {{#allowableValues}}{{#enumVars}}ev{{{name}}}{{^-last}}, {{/-last}}
     {{/enumVars}}{{/allowableValues}}
   );
   {{/isEnum}}
