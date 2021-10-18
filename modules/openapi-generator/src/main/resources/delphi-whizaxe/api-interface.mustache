@@ -1,17 +1,16 @@
-{{>header_for_modifications}}
+{{>header_autogen}}
 
-unit {{classname}};
+unit {{classname}}Interface;
 
 interface
-uses
-  System.SysUtils,
-  {{classname}}Interface;
 
 type
 {{#operations}}
-  T{{classname}} = class(TInterfacedObject, I{{classname}})
-  private
-  public
+  I{{classname}} = interface
+    ['{355B831D-FB9B-4912-A81A-A22F9C6B01FB}']
+    // TODO: dodac generowanie GUID!
+    // {{apiguid}}
+
     {{#operation}}
     /// Operation {{{operationId}}}
     /// <summary>{{{summary}}}</summary>
@@ -23,19 +22,8 @@ type
     procedure {{{operationId}}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
     {{/operation}}
   end;
-
+{{/operations}}
 
 implementation
 
-{ T{{classname}} }
-
-{{#operation}}
-procedure T{{classname}}.{{operationId}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}});
-begin
-end;
-
-{{/operation}}
-
-
-{{/operations}}
 end.

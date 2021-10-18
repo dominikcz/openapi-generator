@@ -59,7 +59,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         addOption(CodegenConstants.MODEL_NAME_PREFIX, CodegenConstants.MODEL_NAME_PREFIX_DESC, "");
 
         outputFolder = "generated-code" + File.separator + "delphi-whizaxe";
+        apiTemplateFiles.put("api-interface.mustache", ".pas");
         apiTemplateFiles.put("api-rest.mustache", ".pas");
+//        apiTemplateFiles.put("api-client.mustache", ".pas");
         apiTemplateFiles.put("api.mustache", ".pas");
         embeddedTemplateDir = templateDir = "delphi-whizaxe";
         apiPackage = "Apis";
@@ -278,6 +280,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
         if (templateName.endsWith("rest.mustache")) {
             result = result.replace(".pas", ".Rest.pas");
+        } else if (templateName.endsWith("interface.mustache")) {
+            result = result.replace(".pas", "Interface.pas");
         }
         return result;
     }
