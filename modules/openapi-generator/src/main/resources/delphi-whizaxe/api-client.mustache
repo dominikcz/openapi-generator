@@ -1,0 +1,79 @@
+{{>header_for_modifications}}
+
+unit {{classname}}Client;
+
+interface
+uses
+  System.SysUtils,
+  whizaxe.openapi.config,
+  System.Generics.Collections,
+  Rest.Types,
+  Rest.Client,
+  Rest.Authenticator.OAuth,
+  rest.Authenticator.Basic,
+  {{classname}};
+
+type
+{{#operations}}
+
+type
+  T{{classname}}Client = class
+  private
+    FOnAuthenticate: TAuthenticateEvent;
+    procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
+  public
+    constructor Create(AConfig: TOpenApiConfig);
+    property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
+
+    {{#operation}}
+    /// Operation {{{operationId}}}
+    /// <summary>{{{summary}}}</summary>
+    /// <remarks>{{remarks}}</remarks>
+
+    {{#pathParams}}
+    /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
+    {{/pathParams}}
+    procedure {{{operationId}}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    {{/operation}}
+  end;
+
+implementation
+
+{ TApiClient }
+
+constructor TApiClient.Create(AConfig: TOpenApiConfig);
+var
+  lClient: TRESTClient;
+  auth: TOAuth2Authenticator;
+begin
+  lClient := TRESTClient.Create('{{basePath}}');
+(*
+  {{authMethods}}
+  {{#isBasicBearer}}
+*)
+  auth := TOAuth2Authenticator.Create(nil);
+  auth.AccessToken := '<put your token here>';
+  auth.TokenType := TOAuth2TokenType.ttBEARER;
+(*
+  {{/isBasicBearer}}
+  {{/authMethods}}
+*)
+
+  lClient.Authenticator := auth;
+  lClient.Authenticator.OnAuthenticate := OnAuthenticate;
+end;
+
+procedure TApiClient.SetOnAuthenticate(const Value: TAuthenticateEvent);
+begin
+  FOnAuthenticate := Value;
+end;
+
+{{#operation}}
+procedure T{{classname}}.{{operationId}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}});
+begin
+end;
+
+{{/operation}}
+{{/operations}}
+
+end.
