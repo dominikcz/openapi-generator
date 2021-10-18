@@ -95,7 +95,8 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
                         "WideChar",
                         "WideString",
                         "Word",
-                        "WordBool")
+                        "WordBool",
+                        "TDateTime")
         );
     
         /*
