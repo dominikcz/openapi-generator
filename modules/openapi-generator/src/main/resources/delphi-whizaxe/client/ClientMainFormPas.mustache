@@ -4,16 +4,22 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VirtualTrees, Vcl.StdCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VirtualTrees, Vcl.StdCtrls, Vcl.ExtCtrls,
   {{programName}}Client;
 
 type
   TMainForm = class(TForm)
-    VirtualStringTree1: TVirtualStringTree;
-    Button1: TButton;
-    procedure Button1Click(Sender: TObject);
+    FlowPanel1: TFlowPanel;
+    {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+    btn{{operationId}}: TButton;{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+
+    {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+    procedure btn{{operationId}}Click(Sender: TObject);
+    {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+
   private
     { Private declarations }
+    function getClient(): T{{programName}}Client;
   public
     { Public declarations }
   end;
@@ -25,11 +31,19 @@ implementation
 
 {$R *.dfm}
 
-procedure TMainForm.Button1Click(Sender: TObject);
-var
-  lClient: T{{programName}}Client;
+function TMainForm.getClient(): T{{programName}}Client;
 begin
-  lClient := T{{programName}}Client.Create(nil);
+  result := T{{programName}}Client.Create(nil);
 end;
+
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+procedure TMainForm.btn{{operationId}}Click(Sender: TObject);
+var lClient: T{{programName}}Client;
+begin
+  lClient := getClient();
+  lClient.{{operationId}}();
+  lClient.Free;
+end;
+{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 
 end.

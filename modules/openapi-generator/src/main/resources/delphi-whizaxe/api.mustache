@@ -17,10 +17,10 @@ type
     /// <summary>{{{summary}}}</summary>
     /// <remarks>{{remarks}}</remarks>
     
-    {{#pathParams}}   
+    {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-    {{/pathParams}}   
-    procedure {{{operationId}}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    {{/allParams}}   
+    procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
     {{/operation}}
   end;
 
@@ -30,7 +30,7 @@ implementation
 { T{{classname}} }
 
 {{#operation}}
-procedure T{{classname}}.{{operationId}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}});
+procedure T{{classname}}.{{operationId}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
 begin
 end;
 

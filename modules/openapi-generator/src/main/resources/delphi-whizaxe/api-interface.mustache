@@ -4,6 +4,10 @@ unit {{classname}}Interface;
 
 interface
 
+uses
+  System{{#imports}}{{#-first}},{{/-first}}
+  {{{import}}}{{^-last}},{{/-last}}{{/imports}};
+
 type
 {{#operations}}
   I{{classname}} = interface
@@ -17,10 +21,10 @@ type
     /// <summary>{{{summary}}}</summary>
     /// <remarks>{{remarks}}</remarks>
     
-    {{#pathParams}}   
+    {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-    {{/pathParams}}   
-    procedure {{{operationId}}}({{#pathParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/pathParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    {{/allParams}}   
+    procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
     {{/operation}}
   end;
 {{/operations}}

@@ -19,9 +19,9 @@ type
     /// <summary>{{{summary}}}</summary>{{#remarks}}
     /// <remarks>{{.}}</remarks>{{/remarks}}
     
-    {{#pathParams}}   
+    {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-    {{/pathParams}}   
+    {{/allParams}}   
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
     {{/operation}}
   end;
@@ -44,9 +44,9 @@ var
 {{/bodyParam}}
 
 begin
-{{#pathParams}}
+{{#allParams}}
   {{paramName}} := ARequest.GetPathParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
-{{/pathParams}}
+{{/allParams}}
 {{#bodyParam}}
   model := ARequest.GetBodyParam<{{dataType}}>({{required}});
 {{/bodyParam}}
