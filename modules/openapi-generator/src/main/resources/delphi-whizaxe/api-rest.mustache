@@ -8,12 +8,14 @@ uses
   System.SysUtils,
   uRestCommandHandler,
   uHTTPClient,
-  uRestRequest;
+  uRestRequest,
+  {{classname}}Interface;
 
 type
 {{#operations}}
   T{{classname}}Rest = class 
   private
+    FApi: I{{classname}};
   public
     {{#operation}}
     /// Operation {{{operationId}}}
@@ -25,33 +27,39 @@ type
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
     
     {{/operation}}
+    
+    constructor Create();
   end;
 
 implementation
 
 uses
-  whizaxe.serialization{{#imports}}{{#-first}},{{/-first}}
+  whizaxe.serialization,
+  {{classname}}{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
   
 { T{{classname}} }
+
+constructor T{{classname}}Rest.Create;
+begin
+  FAPi := T{{classname}}.Create;
+end;
 
 {{#operation}}
 procedure T{{classname}}Rest.{{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult);
 var
   {{#returnType}}responseObj: {{.}};{{/returnType}}
 {{#allParams}}
-  {{paramName}}: TRestParam<{{dataType}}>;
+  {{paramName}}: {{dataType}};
 {{/allParams}}
-{{#bodyParam}}
-  model : {{dataType}};
-{{/bodyParam}}
+
 
 begin
 {{#pathParams}}
   {{paramName}} := ARequest.GetPathParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
 {{/pathParams}}
 {{#bodyParam}}
-  model := ARequest.GetBodyParam<{{dataType}}>({{required}});
+  {{paramName}} := ARequest.GetBodyParam<{{dataType}}>({{required}});
 {{/bodyParam}}
 {{#queryParams}}
   {{paramName}} := ARequest.GetQueryParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
@@ -59,8 +67,13 @@ begin
 {{#headerParams}}
   {{paramName}} := ARequest.GetHeaderParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
 {{/headerParams}}
-  responseObj := {{classname}}.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-  AResult.SendResponse(respObj);
+{{#returnType}}
+  responseObj := FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+{{/returnType}}
+{{^returnType}}
+  FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+{{/returnType}}
+ // AResult.SendResponse(responseObj);
 end;
 
 {{/operation}}

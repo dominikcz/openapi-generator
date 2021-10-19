@@ -92,6 +92,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         importMapping.put("TObjectList", "Generics.Collections");
         importMapping.put("TDictionary", "Generics.Collections");
         importMapping.put("TObjectDictionary", "Generics.Collections");
+        importMapping.put("TStream", "System.Classes");
 	}
     
     @Override
@@ -267,6 +268,28 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 //                        param.baseType = "Pistache::Optional<" + param.baseType + ">";
 //                    }
 //                }
+            }
+
+            for (CodegenParameter param : op.bodyParams) {
+                if (param.isFormParam) isParsingSupported = false;
+                if (param.isFile) isParsingSupported = false;
+                if (param.isCookieParam) isParsingSupported = false;
+
+                if (param.isModel && !languageSpecificPrimitives.contains(param.dataType)) {
+                    param.dataType = 'T' + toModelName(param.dataType);
+                }
+
+            }
+
+            for (CodegenParameter param : op.pathParams) {
+                if (param.isFormParam) isParsingSupported = false;
+                if (param.isFile) isParsingSupported = false;
+                if (param.isCookieParam) isParsingSupported = false;
+
+                if (param.isModel && !languageSpecificPrimitives.contains(param.dataType)) {
+                    param.dataType = 'T' + toModelName(param.dataType);
+                }
+                ;
             }
 
             if (op.vendorExtensions == null) {

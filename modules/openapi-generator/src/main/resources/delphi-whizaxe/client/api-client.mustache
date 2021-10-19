@@ -6,7 +6,6 @@ interface
 uses
   System.SysUtils,
   whizaxe.openapi.config,
-  System.Generics.Collections,
   Rest.Types,
   Rest.Client,
   Rest.Authenticator.OAuth,
@@ -36,7 +35,9 @@ type
     {{#pathParams}}
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/pathParams}}
-    procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{returnType}}{{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
+    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
+    
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}
   end;
@@ -71,9 +72,14 @@ end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-procedure T{{programName}}Client.{{operationId}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
+{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{returnType}};
 begin
 end;
+{{/returnType}}
+{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
+begin
+end;
+{{/returnType}}
 
 {{/operation}}
 {{/operations}}{{/apis}}{{/apiInfo}}
