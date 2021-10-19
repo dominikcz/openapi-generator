@@ -3,6 +3,7 @@
 unit {{classname}}.Rest;
 
 interface
+
 uses
   System.SysUtils,
   uRestCommandHandler,
@@ -17,23 +18,25 @@ type
     {{#operation}}
     /// Operation {{{operationId}}}
     /// <summary>{{{summary}}}</summary>{{#remarks}}
-    /// <remarks>{{.}}</remarks>{{/remarks}}
-    
+    /// <remarks>{{.}}</remarks>{{/remarks}} 
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    
     {{/operation}}
   end;
 
 implementation
 
 uses
-  whizaxe.serialization,
-  {{className}};
+  whizaxe.serialization{{#imports}}{{#-first}},{{/-first}}
+  {{{import}}}{{^-last}},{{/-last}}{{/imports}};
+  
+{ T{{classname}} }
 
 {{#operation}}
-procedure T{{classname}}.{{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult);
+procedure T{{classname}}Rest.{{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult);
 var
   {{#returnType}}responseObj: {{.}};{{/returnType}}
 {{#allParams}}
@@ -44,9 +47,9 @@ var
 {{/bodyParam}}
 
 begin
-{{#allParams}}
+{{#pathParams}}
   {{paramName}} := ARequest.GetPathParam<{{dataType}}>('{{paramName}}', '{{defaultValue}}', {{required}});
-{{/allParams}}
+{{/pathParams}}
 {{#bodyParam}}
   model := ARequest.GetBodyParam<{{dataType}}>({{required}});
 {{/bodyParam}}

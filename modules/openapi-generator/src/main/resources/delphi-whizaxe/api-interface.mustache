@@ -5,7 +5,7 @@ unit {{classname}}Interface;
 interface
 
 uses
-  System{{#imports}}{{#-first}},{{/-first}}
+  System.SysUtils{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
 type
@@ -20,11 +20,11 @@ type
     /// Operation {{{operationId}}}
     /// <summary>{{{summary}}}</summary>
     /// <remarks>{{remarks}}</remarks>
-    
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
     procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    
     {{/operation}}
   end;
 {{/operations}}

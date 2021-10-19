@@ -11,8 +11,10 @@ uses
   Rest.Client,
   Rest.Authenticator.OAuth,
   rest.Authenticator.Basic,{{#apiInfo}}{{#apis}}{{#operations}}
-  {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
-
+  {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
+  {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}}
+  ,Model.ExtInfo
+  ,Model.UNKNOWN_BASE_TYPE;
 type
   T{{programName}}Client = class(TInterfacedObject, {{#apiInfo}}{{#apis}}{{#operations}}
     I{{classname}}{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}})
@@ -31,9 +33,9 @@ type
     /// <summary>{{{summary}}}</summary>
     /// <remarks>{{remarks}}</remarks>
 
-    {{#allParams}}
+    {{#pathParams}}
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-    {{/allParams}}
+    {{/pathParams}}
     procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}

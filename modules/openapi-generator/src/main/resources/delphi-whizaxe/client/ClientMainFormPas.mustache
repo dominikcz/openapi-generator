@@ -41,7 +41,7 @@ procedure TMainForm.btn{{operationId}}Click(Sender: TObject);
 var lClient: T{{programName}}Client;
 begin
   lClient := getClient();
-  lClient.{{operationId}}();
+  //lClient.{{operationId}}();
   lClient.Free;
 end;
 {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}

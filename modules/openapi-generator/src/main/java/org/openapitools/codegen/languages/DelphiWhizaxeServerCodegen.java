@@ -131,6 +131,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas"));
         supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm"));
         supportingFiles.add(new SupportingFile("client\\whizaxe.openapi.config.pas", "", "whizaxe.openapi.config.pas"));
+        supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
+        supportingFiles.add(new SupportingFile("Model.UNKNOWN_BASE_TYPE.pas", "models", "Model.UNKNOWN_BASE_TYPE.pas"));
 
     }
 
@@ -248,18 +250,23 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 if (param.isFile) isParsingSupported = false;
                 if (param.isCookieParam) isParsingSupported = false;
 
+                if (param.isModel && !languageSpecificPrimitives.contains(param.dataType))
+                {
+                    param.dataType = 'T' + toModelName(param.dataType);
+                };
+
                 //TODO: This changes the info about the real type but it is needed to parse the header params
-                if (param.isHeaderParam) {
-                    param.dataType = "Pistache::Optional<Pistache::Http::Header::Raw>";
-                    param.baseType = "Pistache::Optional<Pistache::Http::Header::Raw>";
-                } else if (param.isQueryParam) {
-                    if (param.isPrimitiveType) {
-                        param.dataType = "Pistache::Optional<" + param.dataType + ">";
-                    } else {
-                        param.dataType = "Pistache::Optional<" + param.dataType + ">";
-                        param.baseType = "Pistache::Optional<" + param.baseType + ">";
-                    }
-                }
+//                if (param.isHeaderParam) {
+//                    param.dataType = "Pistache::Optional<Pistache::Http::Header::Raw>";
+//                    param.baseType = "Pistache::Optional<Pistache::Http::Header::Raw>";
+//                } else if (param.isQueryParam) {
+//                    if (param.isPrimitiveType) {
+//                        param.dataType = "Pistache::Optional<" + param.dataType + ">";
+//                    } else {
+//                        param.dataType = "Pistache::Optional<" + param.dataType + ">";
+//                        param.baseType = "Pistache::Optional<" + param.baseType + ">";
+//                    }
+//                }
             }
 
             if (op.vendorExtensions == null) {

@@ -7,6 +7,7 @@ uses
   FormMain in 'FormMain.pas' {MainForm},{{#models}}{{#model}}
   {{classFilename}} in 'models\{{classFilename}}.pas',{{/model}}{{/models}}{{#apiInfo}}{{#apis}}{{#operations}}
   {{classname}}Interface in 'apis\{{classname}}Interface.pas',
+  {{classname}}.Rest in 'apis\{{classname}}.Rest.pas',
   {{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
 
 {$R *.res}

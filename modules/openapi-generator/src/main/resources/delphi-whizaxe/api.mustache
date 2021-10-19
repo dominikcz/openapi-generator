@@ -5,23 +5,26 @@ unit {{classname}};
 interface
 uses
   System.SysUtils,
-  {{classname}}Interface;
+  {{classname}}Interface{{#imports}}{{#-first}},{{/-first}}
+  {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
 type
 {{#operations}}
   T{{classname}} = class(TInterfacedObject, I{{classname}})
   private
   public
+  
     {{#operation}}
     /// Operation {{{operationId}}}
     /// <summary>{{{summary}}}</summary>
-    /// <remarks>{{remarks}}</remarks>
-    
+    /// <remarks>{{remarks}}</remarks>   
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
     procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    
     {{/operation}}
+    
   end;
 
 
