@@ -10,12 +10,15 @@ uses
 type
   TMainForm = class(TForm)
     FlowPanel1: TFlowPanel;
+    Splitter1: TSplitter;
     {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     btn{{operationId}}: TButton;{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
-
+    Memo1: TMemo;  
+    
     {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     procedure btn{{operationId}}Click(Sender: TObject);
     {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+
 
   private
     { Private declarations }

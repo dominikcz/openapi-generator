@@ -13,6 +13,16 @@ object MainForm: TMainForm
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
+  object Splitter1: TSplitter
+    Left = 0
+    Top = 392
+    Width = 880
+    Height = 3
+    Cursor = crVSplit
+    Align = alBottom
+    ExplicitTop = 0
+    ExplicitWidth = 395
+  end
   object FlowPanel1: TFlowPanel
     Left = 0
     Top = 0
@@ -31,5 +41,18 @@ object MainForm: TMainForm
       Caption = '{{operationId}}'
       OnClick = btn{{operationId}}Click
     end{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+  end
+  object Memo1: TMemo
+    Left = 0
+    Top = 461
+    Width = 880
+    Height = 89
+    Align = alBottom
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 1
+    ExplicitLeft = 576
+    ExplicitTop = 544
+    ExplicitWidth = 185
   end
 end

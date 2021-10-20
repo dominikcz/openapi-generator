@@ -40,6 +40,9 @@ type
     function {{name}}IsValid: boolean;
     {{/vars}}
   public
+    {{#isArray}}{{^items.isPrimitiveType}}
+    constructor Create;
+    {{/items.isPrimitiveType}}{{/isArray}}
     {{#vars}}
     property {{name}}: {{{dataType}}} read F{{nameInCamelCase}} write {{setter}};
     property {{name}}IsSet: boolean read F{{nameInCamelCase}}IsSet;
@@ -100,6 +103,13 @@ uses
 {{#models}}
 {{#model}}
 { T{{classname}} }
+
+{{#isArray}}{{^items.isPrimitiveType}}
+constructor T{{classname}}.Create;
+begin
+  inherited Create(true);
+end;
+{{/items.isPrimitiveType}}{{/isArray}}
 
 function T{{classname}}.AsJson: string;
 begin

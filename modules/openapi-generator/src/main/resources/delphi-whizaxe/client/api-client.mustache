@@ -16,12 +16,17 @@ uses
   ,Model.UNKNOWN_BASE_TYPE
   ,Generics.Collections
   ,System.Classes;
+  
+  
 type
   T{{programName}}Client = class(TInterfacedObject, {{#apiInfo}}{{#apis}}{{#operations}}
     I{{classname}}{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}})
   private
     FOnAuthenticate: TAuthenticateEvent;
     FConfig: TOpenApiConfig;
+    {{#authMethods}}{{#isBasicBearer}}
+    FAuth: TOAuth2Authenticator;
+    {{/isBasicBearer}}{{/authMethods}}
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
     function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
     function MakeRestClient: TRestClient;
@@ -40,7 +45,7 @@ type
     {{#pathParams}}
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/pathParams}}
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{returnType}}{{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
     {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
     
     {{/operation}}
@@ -60,18 +65,16 @@ var
   auth: TOAuth2Authenticator;
 begin
   FConfig := AConfig;
-  lClient := TRESTClient.Create('{{basePath}}');
-
+ 
   {{#authMethods}}
   {{#isBasicBearer}}
-  auth := TOAuth2Authenticator.Create(nil);
-  auth.AccessToken := '<put your token here>';
-  auth.TokenType := TOAuth2TokenType.ttBEARER;
+  FAuth := TOAuth2Authenticator.Create(nil);
+  FAuth.AccessToken := '<put your token here>';
+  FAuth.TokenType := TOAuth2TokenType.ttBEARER;
+  FAuth.OnAuthenticate := OnAuthenticate;
   {{/isBasicBearer}}
   {{/authMethods}}
 
-  lClient.Authenticator := auth;
-  lClient.Authenticator.OnAuthenticate := OnAuthenticate;
 end;
 
 function T{{programName}}Client.GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
@@ -99,11 +102,14 @@ end;
 function T{{programName}}Client.MakeRestClient: TRestClient;
 begin
   Result := TRESTClient.Create(FConfig.basePath);
+  {{#authMethods}}{{#isBasicBearer}}
+  Result.Authenticator := FAuth;
+  {{/isBasicBearer}}{{/authMethods}}
 end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{returnType}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
+{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
 var 
   restRequest: TRestRequest;
   restClient: TRestClient;
@@ -123,20 +129,10 @@ begin
     {{#bodyParams}}
     restRequest.AddBody(TSerializer.ObjectToJSON({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
-    try
-      restRequest.Execute;
-      {{#returnType}}if restResponse.StatusCode = 200 then
-        Result := TSerializer.JsonToObject<{{returnType}}>(restRequest.Response.Content);;{{/returnType}}
-    except
-      on E:Exception do
-      begin
-
-      end;
-
-    end;
-    {{#returnType}}
-
-    {{/returnType}}
+    restRequest.Execute;
+    {{#returnType}}if restResponse.StatusCode = 200 then
+      Result := {{#isArray}}TSerializer.JsonToObjectList<T{{returnBaseType}}>{{/isArray}}{{^isArray}}TSerializer.JsonToObject<{{returnType}}>{{/isArray}}(restRequest.Response.Content);{{/returnType}}
+   
   finally
     restClient.Free;
   end;
