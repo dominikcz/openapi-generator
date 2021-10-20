@@ -60,16 +60,21 @@ var
   {{#returnType}}responseObj: {{{.}}};{{/returnType}}
 begin
 {{#pathParams}}
-  {{paramName}} := ARequest.GetPathParam<{{{dataType}}}>('{{paramName}}', '{{defaultValue}}', {{required}});
+{{#isInteger}}  {{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
+{{#isBoolean}}  {{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
+{{#isString}}  {{paramName}} := ARequest.GetPathParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
 {{/pathParams}}
 {{#bodyParam}}
   {{paramName}} := ARequest.GetBodyParam<{{{dataType}}}>({{required}});
+  {{^isArray}}{{paramName}}.Validate;{{/isArray}}
 {{/bodyParam}}
 {{#queryParams}}
-  {{paramName}} := ARequest.GetQueryParam<{{{dataType}}}>('{{paramName}}', '{{defaultValue}}', {{required}});
+{{#isInteger}}  {{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
+{{#isBoolean}}  {{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
+{{#isString}}  {{paramName}} := ARequest.GetQueryParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
 {{/queryParams}}
 {{#headerParams}}
-  {{paramName}} := ARequest.GetHeaderParam<{{{dataType}}}>('{{paramName}}', '{{defaultValue}}', {{required}});
+  {{paramName}} := ARequest.GetHeaderParam('{{paramName}}', '{{{defaultValue}}}', {{required}});
 {{/headerParams}}
 {{#returnType}}
   responseObj := nil;

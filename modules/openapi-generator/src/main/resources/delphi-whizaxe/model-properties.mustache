@@ -126,7 +126,7 @@ var
   msg: string;
 begin
   if not self.Validate(msg) then
-    raise ERestValidationException.Create(msg);
+    raise EWxRestValidationException.Create(msg);
 end;
 
 function T{{classname}}.Validate(out ErrorMsg: string): boolean;
