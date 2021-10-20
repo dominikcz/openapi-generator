@@ -4,15 +4,19 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  {{programName}}Server;
 
 type
   TMainForm = class(TForm)
     edtServerPort: TLabeledEdit;
     btnStart: TButton;
     procedure btnStartClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
+    FServer: T{{programName}}Server;
   public
     { Public declarations }
   end;
@@ -26,8 +30,20 @@ implementation
 
 procedure TMainForm.btnStartClick(Sender: TObject);
 begin
-//  FServer := TRestServer.Create(edtServerPort.text);
-//  FServer.Start;
+  FServer.Port := StrToIntDef(edtServerPort.Text, 5546);
+  FServer.Start;
+end;
+
+procedure TMainForm.FormCreate(Sender: TObject);
+begin
+  FServer := T{{programName}}Server.Create();
+end;
+
+procedure TMainForm.FormDestroy(Sender: TObject);
+begin
+  FServer.Stop;
+  sleep(1000);
+  FServer.Free;
 end;
 
 end.
