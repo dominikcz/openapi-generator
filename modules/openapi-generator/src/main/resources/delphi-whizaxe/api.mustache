@@ -38,6 +38,7 @@ implementation
 {{#operation}}
 {{#returnType}}function T{{classname}}.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};
 begin
+{{{vendorExtensions.x-codegen-delphi-demo-code}}}
 end;
 {{/returnType}}
 {{^returnType}}procedure T{{classname}}.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});

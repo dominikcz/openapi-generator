@@ -72,8 +72,13 @@ begin
   {{paramName}} := ARequest.GetHeaderParam<{{{dataType}}}>('{{paramName}}', '{{defaultValue}}', {{required}});
 {{/headerParams}}
 {{#returnType}}
-  responseObj := FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-  AResult.SetResult(hs2xx_OK, TSerializer.ObjectToJSON(responseObj), 'OK');
+  responseObj := nil;
+  try
+    responseObj := FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+    AResult.SetResult(hs2xx_OK, TSerializer.ObjectToJSON(responseObj), 'OK');
+  finally
+    responseObj.Free;
+  end;
 {{/returnType}}
 {{^returnType}}
   FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});

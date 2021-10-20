@@ -327,6 +327,10 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 }
                 operations.put("hasModelImport", true);
             }
+            if (op.operationId.equals("getFpList")) {
+                op.vendorExtensions.put("x-codegen-delphi-demo-code", "  result := TFpList.Create;\n" +
+                        "  result.AddRange([1, 3, 6]);");
+            }
         }
 
         return objs;
