@@ -13,13 +13,18 @@ uses
   {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}}
   ,Model.ExtInfo
-  ,Model.UNKNOWN_BASE_TYPE;
+  ,Model.UNKNOWN_BASE_TYPE
+  ,Generics.Collections
+  ,System.Classes;
 type
   T{{programName}}Client = class(TInterfacedObject, {{#apiInfo}}{{#apis}}{{#operations}}
     I{{classname}}{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}})
   private
     FOnAuthenticate: TAuthenticateEvent;
+    FConfig: TOpenApiConfig;
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
+    function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
+    function MakeRestClient: TRestClient;
   public
     constructor Create(AConfig: TOpenApiConfig);
     property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
@@ -44,6 +49,9 @@ type
 
 implementation
 
+uses
+  whizaxe.serialization;
+
 { TApiClient }
 
 constructor T{{programName}}Client.Create(AConfig: TOpenApiConfig);
@@ -51,6 +59,7 @@ var
   lClient: TRESTClient;
   auth: TOAuth2Authenticator;
 begin
+  FConfig := AConfig;
   lClient := TRESTClient.Create('{{basePath}}');
 
   {{#authMethods}}
@@ -65,21 +74,74 @@ begin
   lClient.Authenticator.OnAuthenticate := OnAuthenticate;
 end;
 
+function T{{programName}}Client.GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
+var
+  methodName: string;
+begin
+  methodName := AMethodName.ToUpper();
+  if methodName = 'POST' then
+    Result := rmPOST
+  else if methodName = 'PUT' then
+    Result := rmPUT
+  else if methodName = 'DELETE' then
+    Result := rmDELETE
+  else if methodName = 'PATCH' then
+    Result := rmPATCH
+  else
+    Result := rmGET;
+end;
+
 procedure T{{programName}}Client.SetOnAuthenticate(const Value: TAuthenticateEvent);
 begin
   FOnAuthenticate := Value;
 end;
 
+function T{{programName}}Client.MakeRestClient: TRestClient;
+begin
+  Result := TRESTClient.Create(FConfig.basePath);
+end;
+
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{returnType}};
+{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{returnType}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
+var 
+  restRequest: TRestRequest;
+  restClient: TRestClient;
+  restResponse: TRESTResponse;
 begin
+  restClient := MakeRestClient;
+  {{#returnType}}Result := nil;{{/returnType}}
+  try
+    restRequest := TRESTRequest.Create(restClient);
+    restRequest.Resource := '{{path}}';
+    {{#pathParams}}
+    restRequest.AddParameter('{{paramName}}', {{paramName}}{{^isString}}.ToString(){{/isString}}, pkURLSEGMENT);
+    {{/pathParams}}
+    {{#queryParams}}
+    restRequest.AddParameter('{{paramName}}', {{paramName}}{{^isString}}.ToString(){{/isString}}, pkQUERY);
+    {{/queryParams}}
+    {{#bodyParams}}
+    restRequest.AddBody(TSerializer.ObjectToJSON({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
+    {{/bodyParams}}
+    try
+      restRequest.Execute;
+      {{#returnType}}if restResponse.StatusCode = 200 then
+        Result := TSerializer.JsonToObject<{{returnType}}>(restRequest.Response.Content);;{{/returnType}}
+    except
+      on E:Exception do
+      begin
+
+      end;
+
+    end;
+    {{#returnType}}
+
+    {{/returnType}}
+  finally
+    restClient.Free;
+  end;
 end;
-{{/returnType}}
-{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
-begin
-end;
-{{/returnType}}
+
 
 {{/operation}}
 {{/operations}}{{/apis}}{{/apiInfo}}
