@@ -77,7 +77,7 @@ begin
 {{/returnType}}
 {{^returnType}}
   FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-  AResult.SetResult(hs2xx_OK, '', 'OK');
+  AResult.SetResult(hs2xx_OK);
 {{/returnType}}
 end;
 
