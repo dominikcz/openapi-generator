@@ -5,16 +5,14 @@ unit {{classname}}Interface;
 interface
 
 uses
-  System.SysUtils{{#imports}}{{#-first}},{{/-first}}
+  System.SysUtils,
+  Generics.Collections{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
 type
 {{#operations}}
   I{{classname}} = interface
-    ['{355B831D-FB9B-4912-A81A-A22F9C6B01FB}']
-    // TODO: dodac generowanie GUID!
-    // {{apiguid}}
-
+    ['{{{x-codegen-delphi-api-guid}}}']
 
     {{#operation}}
     /// Operation {{{operationId}}}
@@ -23,7 +21,7 @@ type
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{returnType}}{{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
     {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
     
     {{/operation}}

@@ -132,6 +132,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas"));
         supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm"));
         supportingFiles.add(new SupportingFile("client\\whizaxe.openapi.config.pas", "", "whizaxe.openapi.config.pas"));
+        supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas"));
         supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
         supportingFiles.add(new SupportingFile("Model.UNKNOWN_BASE_TYPE.pas", "models", "Model.UNKNOWN_BASE_TYPE.pas"));
 
@@ -165,7 +166,6 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             }
         }
     }
-
 
     @Override
     public CodegenModel fromModel(String name, Schema model) {
@@ -213,6 +213,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
 //        String pathForPistache = path.replaceAll("\\{(.*?)}", ":$1");
 //        op.vendorExtensions.put("x-codegen-pistache-path", pathForPistache);
+        op.vendorExtensions.put("x-codegen-delphi-needs-var", op.returnType != null || op.hasParams);
 
         return op;
     }
@@ -224,6 +225,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         String classname = (String) operations.get("classname");
         operations.put("classnameSnakeUpperCase", underscore(classname).toUpperCase(Locale.ROOT));
         operations.put("classnameSnakeLowerCase", underscore(classname).toLowerCase(Locale.ROOT));
+        operations.put("x-codegen-delphi-api-guid", "{" + java.util.UUID.randomUUID().toString().toUpperCase(Locale.ROOT) + "}");
+
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
         for (CodegenOperation op : operationList) {
             boolean consumeJson = false;
@@ -255,6 +258,15 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 {
                     param.dataType = 'T' + toModelName(param.dataType);
                 };
+
+                //DC: nadmiarowe usesy Generics.Collections dla api z parametrami
+//                if (param.baseType != null){
+//                    String newImp = toModelImport(param.baseType);
+//                    if (!( newImp.isEmpty() )) {
+//                        op.imports.add(newImp);
+//                        usedModels.add(newImp);
+//                    }
+//                }
 
                 //TODO: This changes the info about the real type but it is needed to parse the header params
 //                if (param.isHeaderParam) {
@@ -289,14 +301,24 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 if (param.isModel && !languageSpecificPrimitives.contains(param.dataType)) {
                     param.dataType = 'T' + toModelName(param.dataType);
                 }
-                ;
             }
+
+//            if (op.returnBaseType != null) {
+//                if (op.returnContainer == "array") {
+//                    op.imports.add("TObjectList");
+//                }
+//                String newImp = toModelImport(op.returnBaseType);
+//                if (!(newImp.isEmpty())) {
+//                    op.imports.add(newImp);
+//                    usedModels.add(newImp);
+//                }
+//            }
 
             if (op.vendorExtensions == null) {
                 op.vendorExtensions = new HashMap<>();
             }
-            op.vendorExtensions.put("x-codegen-pistache-consumes-json", consumeJson);
-            op.vendorExtensions.put("x-codegen-pistache-is-parsing-supported", isParsingSupported);
+            op.vendorExtensions.put("x-codegen-consumes-json", consumeJson);
+            op.vendorExtensions.put("x-codegen-is-parsing-supported", isParsingSupported);
 
             // Check if any one of the operations needs a model, then at API file level, at least one model has to be included.
             for (String hdr : op.imports) {

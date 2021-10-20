@@ -1,0 +1,46 @@
+unit {{programName}}Server;
+
+interface
+
+uses
+  whizaxe.rest.server,
+  whizaxe.rest.CommandHandler,{{#apiInfo}}{{#apis}}{{#operations}}
+  {{classname}}.Rest,{{/operations}}{{/apis}}{{/apiInfo}}
+   
+  whizaxe.http.types;
+
+type
+  T{{programName}}Server = class(TRESTServer)
+  private{{#apiInfo}}{{#apis}}{{#operations}}
+    F{{classname}}Rest: T{{classname}}Rest;{{/operations}}{{/apis}}{{/apiInfo}}
+
+    procedure hndAssignHandlers(ACmdHandlers: TRestCommandHandlers);
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+implementation
+
+{ T{{programName}}Server }
+
+constructor T{{programName}}Server.Create;
+begin
+  inherited;
+  self.OnAssignHandlers := hndAssignHandlers;{{#apiInfo}}{{#apis}}{{#operations}}
+  F{{classname}}Rest := T{{classname}}Rest.Create;{{/operations}}{{/apis}}{{/apiInfo}}
+end;
+
+destructor T{{programName}}Server.Destroy;
+begin{{#apiInfo}}{{#apis}}{{#operations}}
+  F{{classname}}Rest.Free;{{/operations}}{{/apis}}{{/apiInfo}}
+  inherited;
+end;
+
+procedure T{{programName}}Server.hndAssignHandlers(ACmdHandlers: TRestCommandHandlers);
+begin{{#apiInfo}}{{#apis}}{{#operations}}
+  ACmdHandlers.RegisterApi(F{{classname}}Rest);{{/operations}}{{/apis}}{{/apiInfo}}
+//  ACmdHandlers.AddCommand(THTTPMethods.hmGET, '', FBasketManagementApiRest.addItemToBasket);
+end;
+
+end.
