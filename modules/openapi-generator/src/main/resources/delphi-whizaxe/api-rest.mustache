@@ -14,8 +14,8 @@ uses
 type
 {{#operations}}
 
-  {$RTTI EXPLICIT METHODS([vcPublic])}
-  T{{classname}}Rest = class
+  // {$RTTI EXPLICIT METHODS([vcPublic])}
+  T{{classname}}Rest = class 
   private
     FApi: I{{classname}};
   public
@@ -25,7 +25,7 @@ type
     /// <remarks>{{.}}</remarks>{{/remarks}} 
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-    {{/allParams}}
+    {{/allParams}}   
     [RestApi('{{httpMethod}}', '{{{path}}}')]
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
     
@@ -77,7 +77,7 @@ begin
 {{/returnType}}
 {{^returnType}}
   FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-  AResult.SetResult(hs2xx_OK, '', 'OK');
+  AResult.SetResult(hs2xx_OK);
 {{/returnType}}
 end;
 
