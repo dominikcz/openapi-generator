@@ -19,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.openapitools.codegen.utils.StringUtils.underscore;
@@ -135,7 +138,6 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         supportingFiles.add(new SupportingFile("client\\whizaxe.openapi.config.pas", "", "whizaxe.openapi.config.pas"));
         supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
         supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
-        supportingFiles.add(new SupportingFile("Model.UNKNOWN_BASE_TYPE.pas", "models", "Model.UNKNOWN_BASE_TYPE.pas"));
 
     }
 
@@ -330,50 +332,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 }
                 operations.put("hasModelImport", true);
             }
-            if (op.operationId.equals("getFpList")) {
-                op.vendorExtensions.put("x-codegen-delphi-demo-code-api", "begin\n" +
-                        "  result := TFpList.Create;\n" +
-                        "  result.AddRange([1, 3, 6]);\n" +
-                        "end;");
-                op.vendorExtensions.put("x-codegen-delphi-demo-code-client",
-                        "var lClient: TvPOSAPIClient;\n" +
-                                "FpList: TFpList;\n" +
-                                "begin\n" +
-                                "  lClient := getClient();\n" +
-                                "  FpList := lClient.getFpList();\n" +
-                                "  memo1.Lines.Add(FpList.AsJson);\n" +
-                                "  lClient.Free;\n" +
-                                "end;"
-                        );
-            }
-            if (op.operationId.equals("addItemToBasket")) {
-                op.vendorExtensions.put("x-codegen-delphi-demo-code-api",
-                    "begin\n" +
-                            "  if basketId <> '1' then\n" +
-                            "    raise EWxRestBusinessLogicException.Create('Basket Id nie jest jeden', TErrorCodes.AsString(evCE_UNKNOWN_PLU) );\n" +
-                            "end;");
-                op.vendorExtensions.put("x-codegen-delphi-demo-code-client",
-                   "var\n" +
-                           "  lClient: TvPOSAPIClient;\n" +
-                           "  item: TBasketItemRequest;\n" +
-                           "  errorMsg: string;\n" +
-                           "begin\n" +
-                           "  lClient := getClient();\n" +
-                           "  item := TBasketItemRequest.Create;\n" +
-                           "  try\n" +
-                           "    lClient.addItemToBasket('1234', item);\n" +
-                           "  except\n" +
-                           "    on E: Exception do\n" +
-                           "    begin\n" +
-                           "      errorMsg := E.Message;\n" +
-                           "      memo1.Lines.Add(errorMsg);\n" +
-                           "    end;\n" +
-                           "\n" +
-                           "  end;\n" +
-                           "  lClient.Free;\n" +
-                           "end;\n"
-                        );
-            }
+            op.vendorExtensions.put("x-codegen-delphi-demo-code-api", this.getOperationDemoSnippet(op.operationId));
+            op.vendorExtensions.put("x-codegen-delphi-demo-code-client", this.getClientOperationDemoSnippet(op.operationId));
         }
 
         return objs;
@@ -533,6 +493,28 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     @Override
     public String apiFileFolder() {
         return (outputFolder + "/APIs").replace("/", File.separator);
+    }
+
+    protected String doGetSnippet(String fileName) {
+        String s = null;
+        fileName = (templateDir + "/DemoSnippets/"+ fileName).replace("/", File.separator);
+        Path p = Path.of(fileName);
+        if (Files.exists(p)) {
+            try {
+                s = Files.readString(p);
+            } catch (IOException e) {
+
+            }
+        }
+        return s;
+    }
+
+    public String getOperationDemoSnippet(String operationId) {
+        return doGetSnippet("operations/"+operationId+".pas");
+    }
+
+    public String getClientOperationDemoSnippet(String operationId) {
+        return doGetSnippet("client/"+operationId+".pas");
     }
 
     /**
