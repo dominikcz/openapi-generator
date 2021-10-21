@@ -61,8 +61,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         outputFolder = "generated-code" + File.separator + "delphi-whizaxe";
         apiTemplateFiles.put("api-interface.mustache", ".pas");
         apiTemplateFiles.put("api-rest.mustache", ".pas");
-        apiTemplateFiles.put("api.mustache", ".pas");
-        apiTemplateFiles.put("api.mustache", ".default");
+        apiTemplateFiles.put("api-pas.mustache", ".pas");
+        apiTemplateFiles.put("api-default.mustache", ".default");
         embeddedTemplateDir = templateDir = "delphi-whizaxe";
         apiPackage = "Apis";
         modelPackage = "Models";
@@ -144,8 +144,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             modelType = (String) additionalProperties.get(OPTION_MODEL_TYPE);
 
         LOGGER.info("Using [" + modelType + "] model template");
-        modelTemplateFiles.put("model-"+ modelType+ ".mustache", ".pas");
-        modelTemplateFiles.put("model-"+ modelType+ ".mustache", ".default");
+        modelTemplateFiles.put("model-"+ modelType+ "-pas.mustache", ".pas");
+        modelTemplateFiles.put("model-"+ modelType+ "-default.mustache", ".default");
     }
 
     @Override
