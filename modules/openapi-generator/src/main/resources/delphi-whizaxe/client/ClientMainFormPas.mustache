@@ -49,12 +49,15 @@ end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
 procedure TMainForm.btn{{operationId}}Click(Sender: TObject);
+{{^vendorExtensions.x-codegen-delphi-demo-code-client}}
 var lClient: T{{programName}}Client;
 begin
   lClient := getClient();
   //lClient.{{operationId}}();
   lClient.Free;
 end;
+{{/vendorExtensions.x-codegen-delphi-demo-code-client}}
+{{{vendorExtensions.x-codegen-delphi-demo-code-client}}}
 {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 
 end.

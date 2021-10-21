@@ -59,36 +59,49 @@ var
 {{/allParams}}
   {{#returnType}}responseObj: {{{.}}};{{/returnType}}
 begin
+{{#returnType}}
+  responseObj := nil;
+{{/returnType}}
 {{#pathParams}}
-{{#isInteger}}  {{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
-{{#isBoolean}}  {{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
-{{#isString}}  {{paramName}} := ARequest.GetPathParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
+  {{#isInteger}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
+  {{#isBoolean}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
+  {{#isString}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
 {{/pathParams}}
+{{#queryParams}}
+  {{#isInteger}}{{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
+  {{#isBoolean}}{{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
+  {{#isString}}{{paramName}} := ARequest.GetQueryParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
+{{/queryParams}}
 {{#bodyParam}}
   {{paramName}} := ARequest.GetBodyParam<{{{dataType}}}>({{required}});
-  {{^isArray}}{{paramName}}.Validate;{{/isArray}}
 {{/bodyParam}}
-{{#queryParams}}
-{{#isInteger}}  {{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
-{{#isBoolean}}  {{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
-{{#isString}}  {{paramName}} := ARequest.GetQueryParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
-{{/queryParams}}
+{{#vendorExtensions.x-codegen-delphi-needs-free}}
+  try
+{{/vendorExtensions.x-codegen-delphi-needs-free}}
+{{#bodyParam}}
+    {{^isArray}}{{paramName}}.Validate;{{/isArray}}
+{{/bodyParam}}
 {{#headerParams}}
   {{paramName}} := ARequest.GetHeaderParam('{{paramName}}', '{{{defaultValue}}}', {{required}});
 {{/headerParams}}
 {{#returnType}}
-  responseObj := nil;
-  try
     responseObj := FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
     AResult.SetResult(hs2xx_OK, TSerializer.ObjectToJSON(responseObj), 'OK');
-  finally
-    responseObj.Free;
-  end;
 {{/returnType}}
 {{^returnType}}
-  FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-  AResult.SetResult(hs2xx_OK);
+    FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+    AResult.SetResult(hs2xx_OK);
 {{/returnType}}
+{{#vendorExtensions.x-codegen-delphi-needs-free}}
+  finally
+{{#returnType}}
+    responseObj.Free;
+{{/returnType}}
+{{#bodyParam}}
+    {{paramName}}.Free;
+{{/bodyParam}}
+  end;
+{{/vendorExtensions.x-codegen-delphi-needs-free}}
 end;
 
 {{/operation}}

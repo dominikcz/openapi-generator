@@ -26,7 +26,7 @@ import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     protected String modelType = "properties"; // properties/files - must match template file name!
-    protected String modelFilenamePrefix = "Model.";
+    protected String modelFilenamePrefix = "ApiModel.";
     public static final String PROJECT_NAME = "projectName";
     public static final String OPTION_MODEL_TYPE = "fields";
     public static final String OPTION_MODEL_TYPE_DESC = "type of model to use";
@@ -130,10 +130,10 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
         supportingFiles.add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
         supportingFiles.add(new SupportingFile("client\\api-client.mustache", "", this.programName +"Client.pas"));
-        supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas")/*.doNotOverwrite()*/);
-        supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm")/*.doNotOverwrite()*/);
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas").doNotOverwrite());
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm").doNotOverwrite());
         supportingFiles.add(new SupportingFile("client\\whizaxe.openapi.config.pas", "", "whizaxe.openapi.config.pas"));
-        supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas"));
+        supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
         supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
         supportingFiles.add(new SupportingFile("Model.UNKNOWN_BASE_TYPE.pas", "models", "Model.UNKNOWN_BASE_TYPE.pas"));
 
@@ -216,6 +216,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 //        String pathForPistache = path.replaceAll("\\{(.*?)}", ":$1");
 //        op.vendorExtensions.put("x-codegen-pistache-path", pathForPistache);
         op.vendorExtensions.put("x-codegen-delphi-needs-var", op.returnType != null || op.hasParams);
+        op.vendorExtensions.put("x-codegen-delphi-needs-free", (op.returnType != null && !op.returnTypeIsPrimitive) || op.bodyParams != null );
 
         return op;
     }
@@ -330,8 +331,48 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 operations.put("hasModelImport", true);
             }
             if (op.operationId.equals("getFpList")) {
-                op.vendorExtensions.put("x-codegen-delphi-demo-code", "  result := TFpList.Create;\n" +
-                        "  result.AddRange([1, 3, 6]);");
+                op.vendorExtensions.put("x-codegen-delphi-demo-code-api", "begin\n" +
+                        "  result := TFpList.Create;\n" +
+                        "  result.AddRange([1, 3, 6]);\n" +
+                        "end;");
+                op.vendorExtensions.put("x-codegen-delphi-demo-code-client",
+                        "var lClient: TvPOSAPIClient;\n" +
+                                "FpList: TFpList;\n" +
+                                "begin\n" +
+                                "  lClient := getClient();\n" +
+                                "  FpList := lClient.getFpList();\n" +
+                                "  memo1.Lines.Add(FpList.AsJson);\n" +
+                                "  lClient.Free;\n" +
+                                "end;"
+                        );
+            }
+            if (op.operationId.equals("addItemToBasket")) {
+                op.vendorExtensions.put("x-codegen-delphi-demo-code-api",
+                    "begin\n" +
+                            "  if basketId <> '1' then\n" +
+                            "    raise EWxRestBusinessLogicException.Create('Basket Id nie jest jeden', TErrorCodes.AsString(evCE_UNKNOWN_PLU) );\n" +
+                            "end;");
+                op.vendorExtensions.put("x-codegen-delphi-demo-code-client",
+                   "var\n" +
+                           "  lClient: TvPOSAPIClient;\n" +
+                           "  item: TBasketItemRequest;\n" +
+                           "  errorMsg: string;\n" +
+                           "begin\n" +
+                           "  lClient := getClient();\n" +
+                           "  item := TBasketItemRequest.Create;\n" +
+                           "  try\n" +
+                           "    lClient.addItemToBasket('1234', item);\n" +
+                           "  except\n" +
+                           "    on E: Exception do\n" +
+                           "    begin\n" +
+                           "      errorMsg := E.Message;\n" +
+                           "      memo1.Lines.Add(errorMsg);\n" +
+                           "    end;\n" +
+                           "\n" +
+                           "  end;\n" +
+                           "  lClient.Free;\n" +
+                           "end;\n"
+                        );
             }
         }
 

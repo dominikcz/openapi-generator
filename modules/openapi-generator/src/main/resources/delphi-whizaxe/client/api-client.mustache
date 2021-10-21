@@ -57,7 +57,7 @@ implementation
 
 uses
   whizaxe.serialization,
-  whizaxe.Rest.exception;
+  whizaxe.Rest.exceptions;
 
 { TApiClient }
 
@@ -112,6 +112,7 @@ end;
 function T{{programName}}Client.TryExecuteRequest(ARequest: TRestRequest): boolean;
 var
   Error: TError;
+  RestErrorModel: TWxRestErrorModel;
 begin
   Result := false;
   try
@@ -120,13 +121,16 @@ begin
     on E: Exception do
     begin
       if assigned(ARequest.Response) then
-        raise EWxRestException.Create(ARequest.Response.ErrorMessage,
-          ARequest.Response.StatusCode)
+      begin
+        RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(ARequest.Response.Content);
+        //TODO zrobić case z tworzeniem różnych typów wyjątków zależnie od statusCode
+        raise EWxRestException.Create(RestErrorModel.message, ARequest.Response.StatusCode, RestErrorModel.errorCode);
+      end
       else
         raise EWxRestException.Create(E.Message, 0)
     end;
   end;
-  
+
   if ARequest.Response.StatusCode <> 200 then
   begin
     try
