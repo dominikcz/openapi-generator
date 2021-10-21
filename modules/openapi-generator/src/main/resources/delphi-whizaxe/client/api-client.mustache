@@ -113,13 +113,13 @@ end;
 var 
   restRequest: TRestRequest;
   restClient: TRestClient;
-  restResponse: TRESTResponse;
 begin
   restClient := MakeRestClient;
   {{#returnType}}Result := nil;{{/returnType}}
   try
     restRequest := TRESTRequest.Create(restClient);
     restRequest.Resource := '{{path}}';
+    restRequest.Method := GetRESTRequestMethod('{{httpMethod}}');
     {{#pathParams}}
     restRequest.AddParameter('{{paramName}}', {{paramName}}{{^isString}}.ToString(){{/isString}}, pkURLSEGMENT);
     {{/pathParams}}
@@ -130,7 +130,7 @@ begin
     restRequest.AddBody(TSerializer.ObjectToJSON({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
     restRequest.Execute;
-    {{#returnType}}if restResponse.StatusCode = 200 then
+    {{#returnType}}if restRequest.Response.StatusCode = 200 then
       Result := {{#isArray}}TSerializer.JsonToObjectList<T{{returnBaseType}}>{{/isArray}}{{^isArray}}TSerializer.JsonToObject<{{returnType}}>{{/isArray}}(restRequest.Response.Content);{{/returnType}}
    
   finally
