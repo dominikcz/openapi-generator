@@ -32,11 +32,19 @@ var
 
 implementation
 
+uses
+   whizaxe.openapi.config{{#models}}{{#-first}},{{/-first}}{{#model}}
+  {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}};
+
 {$R *.dfm}
 
 function TMainForm.getClient(): T{{programName}}Client;
+var
+  lConfig: TOpenApiConfig;
 begin
-  result := T{{programName}}Client.Create(nil);
+  lConfig := TOpenApiConfig.Create;
+  lconfig.basePath := 'http:\\localhost:5546';
+  result := TvPOSAPIClient.Create(lConfig);
 end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
