@@ -61,7 +61,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         outputFolder = "generated-code" + File.separator + "delphi-whizaxe";
         apiTemplateFiles.put("api-interface.mustache", ".pas");
         apiTemplateFiles.put("api-rest.mustache", ".pas");
-        apiTemplateFiles.put("api.mustache", ".pas");
+        apiTemplateFiles.put("api-pas.mustache", ".pas");
+        apiTemplateFiles.put("api-default.mustache", ".default");
         embeddedTemplateDir = templateDir = "delphi-whizaxe";
         apiPackage = "Apis";
         modelPackage = "Models";
@@ -124,13 +125,13 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("project_dpr_app.mustache", "", this.programName + "App.dpr"));
         supportingFiles.add(new SupportingFile("project_dpr_srv.mustache", "", this.programName + "Srv.dpr"));
-        supportingFiles.add(new SupportingFile("FormMainPas.mustache", "", "FormMain.pas"));
-        supportingFiles.add(new SupportingFile("FormMainDfm.mustache", "", "FormMain.dfm"));
+        supportingFiles.add(new SupportingFile("FormMainPas.mustache", "", "FormMain.pas")/*.doNotOverwrite()*/);
+        supportingFiles.add(new SupportingFile("FormMainDfm.mustache", "", "FormMain.dfm")/*.doNotOverwrite()*/);
 
         supportingFiles.add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
         supportingFiles.add(new SupportingFile("client\\api-client.mustache", "", this.programName +"Client.pas"));
-        supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas"));
-        supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm"));
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas")/*.doNotOverwrite()*/);
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm")/*.doNotOverwrite()*/);
         supportingFiles.add(new SupportingFile("client\\whizaxe.openapi.config.pas", "", "whizaxe.openapi.config.pas"));
         supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas"));
         supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
@@ -143,7 +144,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             modelType = (String) additionalProperties.get(OPTION_MODEL_TYPE);
 
         LOGGER.info("Using [" + modelType + "] model template");
-        modelTemplateFiles.put("model-"+ modelType+ ".mustache", ".pas");
+        modelTemplateFiles.put("model-"+ modelType+ "-pas.mustache", ".pas");
+        modelTemplateFiles.put("model-"+ modelType+ "-default.mustache", ".default");
     }
 
     @Override
