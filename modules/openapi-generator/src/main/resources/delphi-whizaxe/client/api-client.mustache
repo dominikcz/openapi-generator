@@ -30,6 +30,7 @@ type
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
     function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
     function MakeRestClient: TRestClient;
+    function TryExecuteRequest(ARequest: TRestRequest): boolean;
   public
     constructor Create(AConfig: TOpenApiConfig);
     property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
@@ -55,7 +56,8 @@ type
 implementation
 
 uses
-  whizaxe.serialization;
+  whizaxe.serialization,
+  whizaxe.Rest.exception;
 
 { TApiClient }
 
@@ -107,6 +109,42 @@ begin
   {{/isBasicBearer}}{{/authMethods}}
 end;
 
+function T{{programName}}Client.TryExecuteRequest(ARequest: TRestRequest): boolean;
+var
+  Error: TError;
+begin
+  Result := false;
+  try
+    ARequest.Execute;
+  except
+    on E: Exception do
+    begin
+      if assigned(ARequest.Response) then
+        raise EWxRestException.Create(ARequest.Response.ErrorMessage,
+          ARequest.Response.StatusCode)
+      else
+        raise EWxRestException.Create(E.Message, 0)
+    end;
+  end;
+  
+  if ARequest.Response.StatusCode <> 200 then
+  begin
+    try
+      Error := TSerializer.JsonToObject<TError>(ARequest.Response.Content);
+      if Error.messageIsSet then
+        raise EWxRestException.Create(Error.Message,
+          ARequest.Response.StatusCode, '')
+      else
+        raise EWxRestException.Create(ARequest.Response.Content,
+          ARequest.Response.StatusCode);
+    finally
+      Error.Free;
+    end;
+  end
+  else
+    Result := true;
+end;
+
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
 {{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
@@ -129,8 +167,8 @@ begin
     {{#bodyParams}}
     restRequest.AddBody(TSerializer.ObjectToJSON({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
-    restRequest.Execute;
-    {{#returnType}}if restRequest.Response.StatusCode = 200 then
+    
+    {{#returnType}}if {{/returnType}}TryExecuteRequest(restRequest){{#returnType}} then
       Result := {{#isArray}}TSerializer.JsonToObjectList<T{{returnBaseType}}>{{/isArray}}{{^isArray}}TSerializer.JsonToObject<{{returnType}}>{{/isArray}}(restRequest.Response.Content);{{/returnType}}
    
   finally
