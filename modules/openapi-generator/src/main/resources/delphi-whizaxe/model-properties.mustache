@@ -1,6 +1,6 @@
 {{>header_autogen}}
 
-unit Model.{{classname}};
+unit {{#models}}{{#model}}{{classFilename}}{{/model}}{{/models}};
 
 interface
 
@@ -28,7 +28,7 @@ type
   {{/isArray}}
   private
     {{#vars}}
-    F{{nameInCamelCase}}: {{{dataType}}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
+    F{{nameInCamelCase}}: {{{dataType}}} {{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
     F{{nameInCamelCase}}IsSet: boolean;
     {{/vars}}
 
