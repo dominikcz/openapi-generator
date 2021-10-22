@@ -6,6 +6,7 @@ interface
 uses
   System.SysUtils,
   whizaxe.openapi.config,
+  whizaxe.Rest.exceptions,
   Rest.Types,
   Rest.Client,
   Rest.Authenticator.OAuth,
@@ -30,6 +31,7 @@ type
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
     function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
     function MakeRestClient: TRestClient;
+    function ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
     function TryExecuteRequest(ARequest: TRestRequest): boolean;
   public
     constructor Create(AConfig: TOpenApiConfig);
@@ -56,8 +58,7 @@ type
 implementation
 
 uses
-  whizaxe.serialization,
-  whizaxe.Rest.exceptions;
+  whizaxe.serialization;
 
 { TApiClient }
 
@@ -109,10 +110,26 @@ begin
   {{/isBasicBearer}}{{/authMethods}}
 end;
 
-function T{{programName}}Client.TryExecuteRequest(ARequest: TRestRequest): boolean;
+function T{{programName}}Client.ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
 var
-  Error: TError;
   RestErrorModel: TWxRestErrorModel;
+begin
+  try
+    RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(AResponse.Content);
+    case AResponse.StatusCode of
+      400:
+        Result := EWxRestValidationException.Create(RestErrorModel.message, RestErrorModel.errorCode);
+      422:
+        Result := EWxRestBusinessLogicException.Create(RestErrorModel.message, RestErrorModel.errorCode);
+    else
+      Result := EWxRestException.Create(RestErrorModel.message, AResponse.StatusCode, RestErrorModel.errorCode);
+    end;
+  finally
+    RestErrorModel.Free;
+  end;
+end;
+
+function T{{programName}}Client.TryExecuteRequest(ARequest: TRestRequest): boolean;
 begin
   Result := false;
   try
@@ -121,30 +138,14 @@ begin
     on E: Exception do
     begin
       if assigned(ARequest.Response) then
-      begin
-        RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(ARequest.Response.Content);
-        //TODO zrobić case z tworzeniem różnych typów wyjątków zależnie od statusCode
-        raise EWxRestException.Create(RestErrorModel.message, ARequest.Response.StatusCode, RestErrorModel.errorCode);
-      end
+        raise ParseResponseErrorToRestException(ARequest.Response)
       else
         raise EWxRestException.Create(E.Message, 0)
     end;
   end;
 
   if ARequest.Response.StatusCode <> 200 then
-  begin
-    try
-      Error := TSerializer.JsonToObject<TError>(ARequest.Response.Content);
-      if Error.messageIsSet then
-        raise EWxRestException.Create(Error.Message,
-          ARequest.Response.StatusCode, '')
-      else
-        raise EWxRestException.Create(ARequest.Response.Content,
-          ARequest.Response.StatusCode);
-    finally
-      Error.Free;
-    end;
-  end
+     raise ParseResponseErrorToRestException(ARequest.Response)
   else
     Result := true;
 end;
