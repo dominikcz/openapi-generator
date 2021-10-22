@@ -3,6 +3,7 @@
 unit {{classname}};
 
 interface
+
 uses
   System.SysUtils,
   Generics.Collections,
@@ -12,9 +13,7 @@ uses
 type
 {{#operations}}
   T{{classname}} = class(TInterfacedObject, I{{classname}})
-  private
   public
-  
     {{#operation}}
     /// Operation {{{operationId}}}
     /// <summary>{{{summary}}}</summary>
@@ -22,14 +21,10 @@ type
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
-    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
-    
-    
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}{{^returnType}}
+    procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
     {{/operation}}
-    
   end;
-
 
 implementation
 
