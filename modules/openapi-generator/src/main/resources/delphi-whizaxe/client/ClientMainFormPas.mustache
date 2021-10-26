@@ -57,23 +57,36 @@ var
   resp: {{{.}}};{{/returnType}}{{#allParams}}
   {{{paramName}}}: {{{dataType}}};{{/allParams}}
 begin
+  // TODO: initilize params
+  
+  {{#allParams}}
+  // {{{paramName}}} := ;
+  {{/allParams}}
+
   lClient := getClient();
+  try
+    {{#returnType}}
+    {{#vendorExtensions.x-codegen-delphi-returns-model}}
+    try
+    {{/vendorExtensions.x-codegen-delphi-returns-model}}
+      resp := lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
+      {{^vendorExtensions.x-codegen-delphi-returns-model}}
+      Memo1.Lines.Add(resp);
+      {{/vendorExtensions.x-codegen-delphi-returns-model}}{{#vendorExtensions.x-codegen-delphi-returns-model}}
+      Memo1.Lines.Add(TSerializer.SerializeObject(resp));
+    finally
+      resp.Free;
+    end;
+      {{/vendorExtensions.x-codegen-delphi-returns-model}}
+  
+    {{/returnType}}{{^returnType}}
+    lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
+    Memo1.Lines.Add('OK');
+    {{/returnType}}
 
-  {{#returnType}}
-  resp := lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
-  {{^vendorExtensions.x-codegen-delphi-returns-model}}
-  Memo1.Lines.Add(resp);
-  {{/vendorExtensions.x-codegen-delphi-returns-model}}{{#vendorExtensions.x-codegen-delphi-returns-model}}
-  Memo1.Lines.Add(TSerializer.SerializeObject(resp));
-  resp.Free;
-  {{/vendorExtensions.x-codegen-delphi-returns-model}}
- 
-  {{/returnType}}{{^returnType}}
-  lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
-  Memo1.Lines.Add('OK');
-  {{/returnType}}
-
-  lClient.Free;
+  finally
+    lClient.Free;
+  end;
 end;
 {{/vendorExtensions.x-codegen-delphi-demo-code-client}}
 {{{vendorExtensions.x-codegen-delphi-demo-code-client}}}
