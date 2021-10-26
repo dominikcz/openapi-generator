@@ -218,6 +218,10 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
 //        String pathForPistache = path.replaceAll("\\{(.*?)}", ":$1");
 //        op.vendorExtensions.put("x-codegen-pistache-path", pathForPistache);
+        if (op.returnContainer != null){
+            op.imports.add("Generics.Collections");
+        }
+
         op.vendorExtensions.put("x-codegen-delphi-needs-var", op.returnType != null || op.hasParams);
         op.vendorExtensions.put("x-codegen-delphi-needs-free", (op.returnType != null && !op.returnTypeIsPrimitive) || op.bodyParams != null );
 

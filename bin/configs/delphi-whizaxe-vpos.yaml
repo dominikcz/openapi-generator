@@ -6,7 +6,7 @@ additionalProperties:
   hideGenerationTimestamp: "true"
   modelType: "fields"
   modelNamePrefix: ""
-  modelFilenamePrefix: "Model."
+  modelFilenamePrefix: "ApiModel."
   generateAliasAsModel: "true"
   openApiSkipValidateSpec: "true"
   

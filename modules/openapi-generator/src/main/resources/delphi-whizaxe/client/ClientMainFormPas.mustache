@@ -45,7 +45,7 @@ var
   lConfig: TOpenApiConfig;
 begin
   lConfig := TOpenApiConfig.Create;
-  lconfig.basePath := 'http:\\localhost:5546';
+  lconfig.basePath := '{{#servers}}{{#-first}}{{url}}{{/-first}}{{/servers}}';
   result := T{{programName}}Client.Create(lConfig);
 end;
 

@@ -7,6 +7,7 @@ uses
   System.SysUtils,
   whizaxe.openapi.config,
   whizaxe.Rest.exceptions,
+  Generics.Collections,
   Rest.Types,
   Rest.Client,
   Rest.Authenticator.OAuth,
@@ -14,7 +15,6 @@ uses
   {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}}
   ,Model.ExtInfo
-  ,Generics.Collections
   ,System.Classes;
   
   

@@ -5,8 +5,8 @@ unit {{classname}}Interface;
 interface
 
 uses
-  System.SysUtils,
-  Generics.Collections{{#imports}}{{#-first}},{{/-first}}
+  System.SysUtils
+  {{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
 type
