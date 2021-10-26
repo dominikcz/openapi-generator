@@ -224,6 +224,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
         op.vendorExtensions.put("x-codegen-delphi-needs-var", op.returnType != null || op.hasParams);
         op.vendorExtensions.put("x-codegen-delphi-needs-free", (op.returnType != null && !op.returnTypeIsPrimitive) || op.bodyParams != null );
+        op.vendorExtensions.put("x-codegen-delphi-returns-model", op.returnType != null && (!op.returnTypeIsPrimitive || op.isArray || op.isMap));
 
         return op;
     }

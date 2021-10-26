@@ -157,7 +157,7 @@ var
   restClient: TRestClient;
 begin
   restClient := MakeRestClient;
-  {{#returnType}}{{^returnTypeIsPrimitive}}Result := nil;{{/returnTypeIsPrimitive}}{{/returnType}}
+  {{#returnType}}{{^returnSimpleType}}Result := nil;{{/returnSimpleType}}{{/returnType}}
   try
     restRequest := TRESTRequest.Create(restClient);
     restRequest.Resource := '{{path}}';
@@ -174,12 +174,12 @@ begin
     
     {{#returnType}}if TryExecuteRequest(restRequest) then
     begin
-      {{^returnTypeIsPrimitive}}
+      {{#vendorExtensions.x-codegen-delphi-returns-model}}
       result := {{{.}}}.Create;
       TSerializer.DeserializeObject(result, restRequest.Response.Content);
-      {{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}
+      {{/vendorExtensions.x-codegen-delphi-returns-model}}{{^vendorExtensions.x-codegen-delphi-returns-model}}
       result := restRequest.Response.Content;
-      {{/returnTypeIsPrimitive}}
+      {{/vendorExtensions.x-codegen-delphi-returns-model}}
     end;
     {{/returnType}}
    

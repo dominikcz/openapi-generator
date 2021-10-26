@@ -76,27 +76,6 @@ type
     {{/isEnum}}
 
   end;
-// *****************   TEST AREA BEGIN *******************
-//     {{#isEnum}}
-//     {{classname}}::e{{classname}} getValue() const;
-//     void setValue({{classname}}::e{{classname}} value);
-//     {{/isEnum}}{{#vendorExtensions.x-is-string-enum-container}}{{#anyOf}}{{#-first}}
-//     {{{this}}} getValue() const;
-//     void setValue({{{this}}} value);
-//     {{{this}}}::e{{{this}}} getEnumValue() const;
-//     void setEnumValue({{{this}}}::e{{{this}}} value);{{/-first}}{{/anyOf}}{{/vendorExtensions.x-is-string-enum-container}}
-
-//  {{#vars}}{{^isContainer}}{{#isPrimitiveType}}m_{{name}} = {{{defaultValue}}};
-//  {{/isPrimitiveType}}{{^isPrimitiveType}}{{#isString}}m_{{name}} = {{{defaultValue}}};
-//  {{/isString}}{{#isDateTime}}m_{{name}} = {{{defaultValue}}};
-//  {{/isDateTime}}{{/isPrimitiveType}}{{/isContainer}}{{^required}}m_{{name}}IsSet = false;
-//  {{/required}}{{/vars}}
-
-// protected:
-//     {{#isEnum}}{{classname}}::e{{classname}} m_value = {{classname}}::e{{classname}}::INVALID_VALUE_OPENAPI_GENERATED;{{/isEnum}}{{#vendorExtensions.x-is-string-enum-container}}{{#anyOf}}{{#-first}}{{{this}}} m_value;{{/-first}}{{/anyOf}}{{/vendorExtensions.x-is-string-enum-container}}
-// };
-  
-// *****************   TEST AREA END *******************
  
 {{/model}}
 {{/models}}

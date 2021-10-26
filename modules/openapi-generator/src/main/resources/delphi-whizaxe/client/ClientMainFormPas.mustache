@@ -61,12 +61,12 @@ begin
 
   {{#returnType}}
   resp := lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
-  {{#returnTypeIsPrimitive}}
+  {{^vendorExtensions.x-codegen-delphi-returns-model}}
   Memo1.Lines.Add(resp);
-  {{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}
+  {{/vendorExtensions.x-codegen-delphi-returns-model}}{{#vendorExtensions.x-codegen-delphi-returns-model}}
   Memo1.Lines.Add(TSerializer.SerializeObject(resp));
   resp.Free;
-  {{/returnTypeIsPrimitive}}
+  {{/vendorExtensions.x-codegen-delphi-returns-model}}
  
   {{/returnType}}{{^returnType}}
   lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
