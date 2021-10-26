@@ -27,7 +27,7 @@ type
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
     [RestApi('{{httpMethod}}', '{{{path}}}')]
-    procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}} @deprecated{{/isDeprecated}};
+    procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}}; deprecated{{/isDeprecated}};
     
     {{/operation}}
     
@@ -55,12 +55,14 @@ procedure T{{classname}}Rest.{{operationId}}(ARequest: TRestRequest; var AResult
 var
 {{/vendorExtensions.x-codegen-delphi-needs-var}}
 {{#allParams}}
-  {{paramName}}: {{{dataType}}};
+  {{{paramName}}}: {{{dataType}}};
 {{/allParams}}
   {{#returnType}}responseObj: {{{.}}};{{/returnType}}
 begin
 {{#returnType}}
+  {{^returnSimpleType}}
   responseObj := nil;
+  {{/returnSimpleType}}
 {{/returnType}}
 {{#pathParams}}
   {{#isInteger}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
@@ -85,17 +87,19 @@ begin
   {{paramName}} := ARequest.GetHeaderParam('{{paramName}}', '{{{defaultValue}}}', {{required}});
 {{/headerParams}}
 {{#returnType}}
-    responseObj := FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-    AResult.SetResult(hs2xx_OK, TSerializer.ObjectToJSON(responseObj), 'OK');
+    responseObj := FApi.{{operationId}}({{#allParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
+    AResult.SetResult(hs2xx_OK, responseObj, 'OK');
 {{/returnType}}
 {{^returnType}}
-    FApi.{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+    FApi.{{operationId}}({{#allParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
     AResult.SetResult(hs2xx_OK);
 {{/returnType}}
 {{#vendorExtensions.x-codegen-delphi-needs-free}}
   finally
 {{#returnType}}
+  {{^returnSimpleType}}
     responseObj.Free;
+  {{/returnSimpleType}}
 {{/returnType}}
 {{#bodyParam}}
     {{paramName}}.Free;
@@ -105,7 +109,6 @@ begin
 end;
 
 {{/operation}}
-
   
 {{/operations}}
 end.

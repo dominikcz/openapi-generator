@@ -33,7 +33,9 @@ var
 implementation
 
 uses
-   whizaxe.openapi.config{{#models}}{{#-first}},{{/-first}}{{#model}}
+   Generics.Collections,
+   whizaxe.openapi.config,
+   whizaxe.serialization{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}};
 
 {$R *.dfm}
@@ -44,16 +46,33 @@ var
 begin
   lConfig := TOpenApiConfig.Create;
   lconfig.basePath := 'http:\\localhost:5546';
-  result := TvPOSAPIClient.Create(lConfig);
+  result := T{{programName}}Client.Create(lConfig);
 end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
 procedure TMainForm.btn{{operationId}}Click(Sender: TObject);
 {{^vendorExtensions.x-codegen-delphi-demo-code-client}}
-var lClient: T{{programName}}Client;
+var 
+  lClient: T{{programName}}Client;{{#returnType}}
+  resp: {{{.}}};{{/returnType}}{{#allParams}}
+  {{{paramName}}}: {{{dataType}}};{{/allParams}}
 begin
   lClient := getClient();
-  //lClient.{{operationId}}();
+
+  {{#returnType}}
+  resp := lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
+  {{#returnTypeIsPrimitive}}
+  Memo1.Lines.Add(resp);
+  {{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}
+  Memo1.Lines.Add(TSerializer.SerializeObject(resp));
+  resp.Free;
+  {{/returnTypeIsPrimitive}}
+ 
+  {{/returnType}}{{^returnType}}
+  lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
+  Memo1.Lines.Add('OK');
+  {{/returnType}}
+
   lClient.Free;
 end;
 {{/vendorExtensions.x-codegen-delphi-demo-code-client}}

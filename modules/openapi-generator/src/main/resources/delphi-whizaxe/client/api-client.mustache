@@ -14,7 +14,6 @@ uses
   {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}}
   ,Model.ExtInfo
-  ,Model.UNKNOWN_BASE_TYPE
   ,Generics.Collections
   ,System.Classes;
   
@@ -48,8 +47,8 @@ type
     {{#pathParams}}
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/pathParams}}
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
-    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}
@@ -152,13 +151,13 @@ end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
+{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
 var 
   restRequest: TRestRequest;
   restClient: TRestClient;
 begin
   restClient := MakeRestClient;
-  {{#returnType}}Result := nil;{{/returnType}}
+  {{#returnType}}{{^returnTypeIsPrimitive}}Result := nil;{{/returnTypeIsPrimitive}}{{/returnType}}
   try
     restRequest := TRESTRequest.Create(restClient);
     restRequest.Resource := '{{path}}';
@@ -173,8 +172,16 @@ begin
     restRequest.AddBody(TSerializer.ObjectToJSON({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
     
-    {{#returnType}}if {{/returnType}}TryExecuteRequest(restRequest){{#returnType}} then
-      Result := {{#isArray}}TSerializer.JsonToObjectList<T{{returnBaseType}}>{{/isArray}}{{^isArray}}TSerializer.JsonToObject<{{returnType}}>{{/isArray}}(restRequest.Response.Content);{{/returnType}}
+    {{#returnType}}if TryExecuteRequest(restRequest) then
+    begin
+      {{^returnTypeIsPrimitive}}
+      result := {{{.}}}.Create;
+      TSerializer.DeserializeObject(result, restRequest.Response.Content);
+      {{/returnTypeIsPrimitive}}{{#returnTypeIsPrimitive}}
+      result := restRequest.Response.Content;
+      {{/returnTypeIsPrimitive}}
+    end;
+    {{/returnType}}
    
   finally
     restClient.Free;

@@ -9,9 +9,8 @@ uses
   {{classname}}Interface in 'apis\{{classname}}Interface.pas',
   {{classname}}.Rest in 'apis\{{classname}}.Rest.pas',
   {{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}},
-  {{programName}}Server
-,Model.ExtInfo in 'models\Model.ExtInfo.pas'
-,Model.UNKNOWN_BASE_TYPE in 'models\Model.UNKNOWN_BASE_TYPE.pas';
+  {{programName}}Server in '{{programName}}Server.pas'
+,Model.ExtInfo in 'models\Model.ExtInfo.pas';
 
 {$R *.res}
 

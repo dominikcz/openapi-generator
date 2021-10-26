@@ -28,24 +28,24 @@ type
   {{/isArray}}
   private
     {{#vars}}
-    F{{nameInCamelCase}}: {{{dataType}}} {{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
-    F{{nameInCamelCase}}IsSet: boolean;
+    {{vendorExtensions.x-delphi-field-name}}: {{{dataType}}} {{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
+    {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;
     {{/vars}}
 
     {{#vars}}
-    procedure {{setter}}(AValue: {{{dataType}}});
+    procedure {{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
     {{/vars}}
 
     {{#vars}}
-    function {{name}}IsValid: boolean;
+    function {{baseName}}IsValid: boolean;
     {{/vars}}
   public
     {{#isArray}}{{^items.isPrimitiveType}}
     constructor Create;
     {{/items.isPrimitiveType}}{{/isArray}}
     {{#vars}}
-    property {{name}}: {{{dataType}}} read F{{nameInCamelCase}} write {{setter}};
-    property {{name}}IsSet: boolean read F{{nameInCamelCase}}IsSet;
+    property {{{vendorExtensions.x-delphi-property-name}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-field-name}} write {{vendorExtensions.x-delphi-setter-name}};
+    property {{{vendorExtensions.x-delphi-property-name}}}IsSet: boolean read {{vendorExtensions.x-delphi-field-name}}IsSet;
     {{/vars}}
 
     /// <summary>
@@ -149,7 +149,7 @@ begin
   sb := TStringBuilder.Create;
   try
     {{#vars}}{{#required}}
-    if not {{nameInCamelCase}}IsValid then
+    if not {{baseName}}IsValid then
       sb.AppendLine(format(MSG, ['{{name}}']));
     {{/required}}{{/vars}}
     errorMsg := sb.ToString();
@@ -168,10 +168,10 @@ end;
 
 {$region 'Setters'}
 {{#vars}}
-procedure T{{classname}}.{{setter}}(AValue: {{{dataType}}});
+procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
-  F{{nameInCamelCase}} := AValue;
-  F{{nameInCamelCase}}IsSet := true;
+  {{vendorExtensions.x-delphi-field-name}} := AValue;
+  {{vendorExtensions.x-delphi-field-name}}IsSet := true;
 end;
 
 {{/vars}}
@@ -180,9 +180,9 @@ end;
 {$region 'Validations'}
 
 {{#vars}}
-function T{{classname}}.{{name}}IsValid: boolean;
+function T{{classname}}.{{baseName}}IsValid: boolean;
 begin
-  result := {{name}}IsSet;
+  result := {{baseName}}IsSet;
 end;
 
 {{/vars}}

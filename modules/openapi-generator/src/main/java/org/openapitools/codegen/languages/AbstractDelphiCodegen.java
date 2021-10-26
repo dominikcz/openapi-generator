@@ -254,7 +254,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         if (this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
-        return sanitizeName(reservedWordPrefix + name);
+        return reservedWordPrefix + sanitizeName(name);
     }
 
     @Override
@@ -278,12 +278,17 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     @SuppressWarnings("rawtypes")
     @Override
     public CodegenProperty fromProperty(String name, Schema p) {
+        String camelName = camelize(name);
         CodegenProperty property = super.fromProperty(name, p);
         String nameInCamelCase = property.nameInCamelCase;
         if (isReservedWord(nameInCamelCase) || nameInCamelCase.matches("^\\d.*")) {
             nameInCamelCase = escapeReservedWord(nameInCamelCase);
         }
         property.nameInCamelCase = nameInCamelCase;
+        property.vendorExtensions.put("x-delphi-field-name", "F"+ camelName);
+        property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
+        property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
+        property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
         return property;
     }
 

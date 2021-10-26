@@ -21,29 +21,28 @@ type
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}{{^returnType}}
-    procedure {{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}{{^returnType}}
+    procedure {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
     {{/operation}}
   end;
 
 implementation
 
 uses
-  whizaxe.rest.Exceptions,
-  model.ErrorCodes;
+  whizaxe.rest.Exceptions;
 
 { T{{classname}} }
 
 {{#operation}}
 
-{{#returnType}}function T{{classname}}.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};
+{{#returnType}}function T{{classname}}.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};
 {{^vendorExtensions.x-codegen-delphi-demo-code-api}}
 begin
 end;
 {{/vendorExtensions.x-codegen-delphi-demo-code-api}}
 {{{vendorExtensions.x-codegen-delphi-demo-code-api}}}
 {{/returnType}}
-{{^returnType}}procedure T{{classname}}.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
+{{^returnType}}procedure T{{classname}}.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
 {{^vendorExtensions.x-codegen-delphi-demo-code-api}}
 begin
 end;

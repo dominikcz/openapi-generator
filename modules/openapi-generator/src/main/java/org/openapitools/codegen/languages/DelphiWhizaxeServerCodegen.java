@@ -79,7 +79,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         typeMapping.put("date", "TDateTime");
         typeMapping.put("DateTime", "TDateTime");
         typeMapping.put("long", "Cardinal");
-        typeMapping.put("array", "TObjectList");
+        typeMapping.put("array", "TList");
         typeMapping.put("map", "TDictionary");
         typeMapping.put("set", "TList");
         typeMapping.put("file", "TStream");
@@ -93,6 +93,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
         super.importMapping = new HashMap<String, String>();
         importMapping.put("TList", "Generics.Collections");
+        importMapping.put("TArray", "Generics.Collections");
         importMapping.put("TObjectList", "Generics.Collections");
         importMapping.put("TDictionary", "Generics.Collections");
         importMapping.put("TObjectDictionary", "Generics.Collections");
@@ -263,6 +264,14 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 {
                     param.dataType = 'T' + toModelName(param.dataType);
                 };
+
+//                if (param.dataType.equals("array")){
+//                    if (param.isPrimitiveType) {
+//                        param.dataType = "Tlist";
+//                    } else {
+//                        param.dataType = "TObjectlist";
+//                    }
+//                }
 
                 //DC: nadmiarowe usesy Generics.Collections dla api z parametrami
 //                if (param.baseType != null){
