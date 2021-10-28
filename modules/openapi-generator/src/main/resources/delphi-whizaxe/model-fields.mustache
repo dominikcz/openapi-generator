@@ -148,6 +148,15 @@ end;
 function T{{classname}}.{{name}}IsValid: boolean;
 begin
   result := {{name}}IsSet;
+  {{#isString}}
+  {{#minLength}}result := result and ({{name}}.Length >= {{minLength}}){{/minLength}};
+  {{#maxLength}}result := result and ({{name}}.Length <= {{maxLength}}){{/maxLength}};
+  {{/isString}}
+  
+  {{#isNumeric}}
+  {{#minimum}}result := result and ({{name}} >= {{minimum}}){{/minimum}};
+  {{#maximum}}result := result and ({{name}} <= {{maximum}}){{/maximum}};
+  {{/isNumeric}}
 end;
 
 {{/vars}}

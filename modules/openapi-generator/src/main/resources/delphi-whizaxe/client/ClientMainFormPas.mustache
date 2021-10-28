@@ -67,6 +67,7 @@ begin
   try
     {{#returnType}}
     {{#vendorExtensions.x-codegen-delphi-returns-model}}
+    resp := nil;
     try
     {{/vendorExtensions.x-codegen-delphi-returns-model}}
       resp := lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
@@ -86,6 +87,10 @@ begin
 
   finally
     lClient.Free;
+    {{#allParams}}
+    {{#isModel}}{{{paramName}}}.Free;{{/isModel}}
+  {{/allParams}}
+    
   end;
 end;
 {{/vendorExtensions.x-codegen-delphi-demo-code-client}}

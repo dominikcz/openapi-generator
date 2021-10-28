@@ -27,13 +27,14 @@ type
     {{#authMethods}}{{#isBasicBearer}}
     FAuth: TOAuth2Authenticator;
     {{/isBasicBearer}}{{/authMethods}}
+    FParseResponseErrors: boolean;
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
     function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
     function MakeRestClient: TRestClient;
     function ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
     function TryExecuteRequest(ARequest: TRestRequest): boolean;
   public
-    constructor Create(AConfig: TOpenApiConfig);
+    constructor Create(AConfig: TOpenApiConfig; AParseResponseErrors: boolean = false);
     property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
 
     {{#apiInfo}}{{#apis}}{{#operations}}
@@ -61,13 +62,13 @@ uses
 
 { TApiClient }
 
-constructor T{{programName}}Client.Create(AConfig: TOpenApiConfig);
+constructor T{{programName}}Client.Create(AConfig: TOpenApiConfig; AParseResponseErrors: boolean);
 var
   lClient: TRESTClient;
   auth: TOAuth2Authenticator;
 begin
   FConfig := AConfig;
- 
+  FParseResponseErrors := AParseResponseErrors;
   {{#authMethods}}
   {{#isBasicBearer}}
   FAuth := TOAuth2Authenticator.Create(nil);
@@ -129,6 +130,8 @@ begin
 end;
 
 function T{{programName}}Client.TryExecuteRequest(ARequest: TRestRequest): boolean;
+var
+  errorMessage: string;
 begin
   Result := false;
   try
@@ -136,15 +139,27 @@ begin
   except
     on E: Exception do
     begin
-      if assigned(ARequest.Response) then
+      if assigned(ARequest.Response) and FParseResponseErrors then
         raise ParseResponseErrorToRestException(ARequest.Response)
       else
-        raise EWxRestException.Create(E.Message, 0)
+        raise EWxRestRawException.Create(E.Message, 0);
     end;
   end;
 
   if ARequest.Response.StatusCode <> 200 then
-     raise ParseResponseErrorToRestException(ARequest.Response)
+  begin
+    if FParseResponseErrors then
+      raise ParseResponseErrorToRestException(ARequest.Response)
+    else
+    begin
+      if ARequest.Response.ErrorMessage.IsEmpty then
+        errorMessage := ARequest.Response.Content
+      else
+        errorMessage := ARequest.Response.ErrorMessage;
+
+      raise EWxRestRawException.Create(errorMessage, ARequest.Response.StatusCode);
+    end
+  end
   else
     Result := true;
 end;
