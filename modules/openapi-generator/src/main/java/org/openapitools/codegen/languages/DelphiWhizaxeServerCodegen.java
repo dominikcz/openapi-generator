@@ -192,8 +192,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 && !codegenModel.anyOf.contains("AnyType")
                 && codegenModel.interfaces.size()==1
         ){
-            codegenModel.vendorExtensions.put("x-is-string-enum-container",true);
+            codegenModel.vendorExtensions.put("x-is-string-enum-container", true);
         }
+        codegenModel.vendorExtensions.put("x-codegen-delphi-enum", codegenModel.isEnum || codegenModel.allowableValues.size() > 0);
         return codegenModel;
     }
 
@@ -237,6 +238,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         operations.put("classnameSnakeUpperCase", underscore(classname).toUpperCase(Locale.ROOT));
         operations.put("classnameSnakeLowerCase", underscore(classname).toLowerCase(Locale.ROOT));
         operations.put("x-codegen-delphi-api-guid", "{" + java.util.UUID.randomUUID().toString().toUpperCase(Locale.ROOT) + "}");
+        operations.put("x-codegen-delphi-demo-code-api-uses", this.getApiUsesDemoSnippet(classname));
 
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
         for (CodegenOperation op : operationList) {
@@ -525,6 +527,10 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
     public String getOperationDemoSnippet(String operationId) {
         return doGetSnippet("operations/"+operationId+".pas");
+    }
+
+    public String getApiUsesDemoSnippet(String classname) {
+        return doGetSnippet("operations/uses/"+classname+".pas");
     }
 
     public String getClientOperationDemoSnippet(String operationId) {
