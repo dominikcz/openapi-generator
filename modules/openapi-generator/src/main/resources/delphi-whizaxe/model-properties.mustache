@@ -27,6 +27,7 @@ type
   T{{classname}} = class
   {{/isArray}}
   private
+    {{#vendorExtensions.x-codegen-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-codegen-delphi-enum}}
     {{#vars}}
     {{vendorExtensions.x-delphi-field-name}}: {{{dataType}}} {{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
     {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;
@@ -37,7 +38,7 @@ type
     {{/vars}}
 
     {{#vars}}
-    function {{baseName}}IsValid: boolean;
+    function {{baseName}}IsValid(out AErrorMessage: string): boolean;
     {{/vars}}
   public
     {{#isArray}}{{^items.isPrimitiveType}}
@@ -56,7 +57,7 @@ type
     /// <summary>
     /// Validate the current data in the model. Returns false and erro message for invalid model.
     /// </summary>
-    function Validate(out ErrorMsg: string): boolean; overload;
+    function Validate(out AErrorMsg: string): boolean; overload;
 
     /// <summary>
     /// Serialize model to JSON
@@ -67,14 +68,19 @@ type
     /// Update model from JSON string
     /// </summary>
     procedure UpdateFromJson(AJson: string);
-    {{#isEnum}}
 
+    {{#vendorExtensions.x-codegen-delphi-enum}}
+    
     /// <summary>
-    /// Update model from JSON string
+    /// Convert enum to string value 
     /// </summary>
     class function AsString(Value: TEnum{{classname}}): string;
-    {{/isEnum}}
-
+    
+    /// <summary>
+    /// Convert string to enum value 
+    /// </summary>
+    class function FromString(Value: string): TEnum{{classname}};
+    {{/vendorExtensions.x-codegen-delphi-enum}}
   end;
  
 {{/model}}
@@ -87,7 +93,8 @@ uses
   System.SysUtils,{{#models}}{{#model}}{{#isEnum}}
   whizaxe.reflections,
 {{/isEnum}}{{/model}}{{/models}}
-  whizaxe.serialization;
+  whizaxe.serialization,
+  whizaxe.OpenApi.validators;
   
 {{#models}}
 {{#model}}
@@ -118,32 +125,39 @@ begin
     raise EWxRestValidationException.Create(msg);
 end;
 
-function T{{classname}}.Validate(out ErrorMsg: string): boolean;
-const
-  MSG = 'Field %s is not set or has invalid value';
+function T{{classname}}.Validate(out AErrorMsg: string): boolean;
 var
   sb: TStringBuilder;
+  errorMsg: string;
 begin
+  errorMsg := '';
   result := false;
   sb := TStringBuilder.Create;
   try
-    {{#vars}}{{#required}}
-    if not {{baseName}}IsValid then
-      sb.AppendLine(format(MSG, ['{{name}}']));
-    {{/required}}{{/vars}}
-    errorMsg := sb.ToString();
-    result := errorMsg = '';
+    {{#vars}}
+    if not {{baseName}}IsValid(errorMsg) then
+      sb.AppendLine(errorMsg);
+    {{/vars}}
+    AErrorMsg := sb.ToString();
+    result := AErrorMsg = '';
   finally
     sb.Free;
   end;
 end;
 
-{{#isEnum}}
+{{#vendorExtensions.x-codegen-delphi-enum}}
 class function T{{classname}}.AsString(Value: TEnum{{classname}}): string;
 begin
   result := TReflection.EnumToString(TypeInfo(TEnum{{classname}}), ord(Value));
+  if Result.startsWith('ev_') then
+    Result := Result.substring(3);
 end;
-{{/isEnum}}
+
+class function T{{classname}}.FromString(Value: string): TEnum{{classname}};
+begin
+  result := TEnum{{classname}}(TReflection.StringToEnum(TypeInfo(TEnum{{classname}}), 'ev_' + Value));
+end;
+{{/vendorExtensions.x-codegen-delphi-enum}}
 
 {$region 'Setters'}
 {{#vars}}
@@ -159,18 +173,24 @@ end;
 {$region 'Validations'}
 
 {{#vars}}
-function T{{classname}}.{{baseName}}IsValid: boolean;
+function T{{classname}}.{{baseName}}IsValid(out AErrorMessage: string): boolean;
+{{#hasValidation}}var
+  validator: IValidator<{{{dataType}}}>;
+{{/hasValidation}}
 begin
-  result := {{baseName}}IsSet;
-  {{#isString}}
-  {{#minLength}}result := result and ({{name}}.Length >= {{minLength}}){{/minLength}};
-  {{#maxLength}}result := result and ({{name}}.Length <= {{maxLength}}){{/maxLength}};
+  result := true;
+  {{#hasValidation}}
+  {{#isString}} 
+  validator := TStringValidator.Create({{#required}}TRequiredStringValidator.Create(nil){{/required}}{{^required}}nil{{/required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}}); 
   {{/isString}}
-  
-  {{#isNumeric}}
-  {{#minimum}}result := result and ({{name}} >= {{minimum}}){{/minimum}};
-  {{#maximum}}result := result and ({{name}} <= {{maximum}}){{/maximum}};
-  {{/isNumeric}}
+  {{#isInteger}}
+  validator := TIntegerValidator.Create(nil,{{#minimum}}true, {{minimum}},{{/minimum}}{{^minimum}}false, 0,{{/minimum}}{{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});
+  {{/isInteger}}
+  {{#isNumber}}
+  validator := TCurrencyValidator.Create({{#multipleOf}}TPrecisionValidator.Create(nil,{{multipleOf}}){{/multipleOf}}{{^multipleOf}}nil{{/multipleOf}},{{#minimum}} true, {{minimum}},{{/minimum}}{{^minimum}} false, 0,{{/minimum}}{{#maximum}} true, {{maximum}}{{/maximum}}{{^maximum}} false, 0{{/maximum}});
+  {{/isNumber}}
+  result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);
+  {{/hasValidation}}
 end;
 
 {{/vars}}
