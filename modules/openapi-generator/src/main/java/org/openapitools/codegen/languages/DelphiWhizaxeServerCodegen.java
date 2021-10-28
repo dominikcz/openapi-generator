@@ -194,7 +194,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         ){
             codegenModel.vendorExtensions.put("x-is-string-enum-container", true);
         }
-        codegenModel.vendorExtensions.put("x-codegen-delphi-enum", codegenModel.isEnum || codegenModel.allowableValues.size() > 0);
+        codegenModel.vendorExtensions.put("x-codegen-delphi-enum", codegenModel.isEnum || (codegenModel.allowableValues != null && codegenModel.allowableValues.size() > 0));
         return codegenModel;
     }
 
