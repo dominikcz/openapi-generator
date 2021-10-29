@@ -13,11 +13,15 @@ uses
 
 type
 {{#operations}}
-
+  
+  T{{classname}}NeededEvent = function(): I{{classname}} of object;
+  
   // {$RTTI EXPLICIT METHODS([vcPublic])}
   T{{classname}}Rest = class 
   private
     FApi: I{{classname}};
+    FOn{{classname}}Needed: T{{classname}}NeededEvent;
+    procedure AskForApi;
   public
     {{#operation}}
     /// Operation {{{operationId}}}
@@ -32,20 +36,35 @@ type
     {{/operation}}
     
     constructor Create();
+    
+    property On{{classname}}Needed: T{{classname}}NeededEvent read FOn{{classname}}Needed write FOn{{classname}}Needed;
   end;
 
 implementation
 
 uses
   whizaxe.serialization,
+  whizaxe.OpenAPI.validators,
+  whizaxe.REST.Exceptions,
   {{classname}}{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
   
 { T{{classname}} }
 
-constructor T{{classname}}Rest.Create;
+constructor T{{classname}}Rest.Create();
 begin
-  FAPi := T{{classname}}.Create;
+ inherited;
+end;
+
+procedure T{{classname}}Rest.AskForApi;
+begin
+  if not Assigned(FApi) then
+  begin
+    if Assigned(On{{classname}}Needed) then
+      FApi := On{{classname}}Needed
+    else
+      raise EWxRestServiceException.Create('{{classname}} not initialized');
+  end;
 end;
 
 {{#operation}}
@@ -76,6 +95,16 @@ begin
 {{#bodyParam}}
   {{paramName}} := ARequest.GetBodyParam<{{{dataType}}}>({{required}});
 {{/bodyParam}}
+
+{{#pathParams}}
+  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true,{{minimum}}{{/minimum}}{{^minimum}}false,0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
+  {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
+{{/pathParams}}
+{{#queryParams}}
+  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true,{{minimum}}{{/minimum}}{{^minimum}}false,0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
+  {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
+{{/queryParams}}
+
 {{#vendorExtensions.x-codegen-delphi-needs-free}}
   try
 {{/vendorExtensions.x-codegen-delphi-needs-free}}
