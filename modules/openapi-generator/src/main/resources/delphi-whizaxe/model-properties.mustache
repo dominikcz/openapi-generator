@@ -37,7 +37,6 @@ type
     {{#vendorExtensions.x-codegen-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-codegen-delphi-enum}}
     {{#vars}}
     {{vendorExtensions.x-delphi-field-name}}: {{{dataType}}} {{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
-    {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;
     {{/vars}}
 
     {{#vars}}
@@ -53,7 +52,6 @@ type
     {{/items.isPrimitiveType}}{{/isArray}}
     {{#vars}}
     property {{{vendorExtensions.x-delphi-property-name}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-field-name}} write {{vendorExtensions.x-delphi-setter-name}};
-    property {{{vendorExtensions.x-delphi-property-name}}}IsSet: boolean read {{vendorExtensions.x-delphi-field-name}}IsSet;
     {{/vars}}
 
     /// <summary>
@@ -117,7 +115,7 @@ end;
 
 procedure T{{classname}}.UpdateFromJson(AJson: string);
 begin
-  TSerializer.UpdateObjectFormJson<T{{classname}}>(self, AJson);
+  TSerializer.DeserializeObject(self, AJson);
 end;
 
 procedure T{{classname}}.Validate;
@@ -154,7 +152,6 @@ end;
 procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
   {{vendorExtensions.x-delphi-field-name}} := AValue;
-  {{vendorExtensions.x-delphi-field-name}}IsSet := true;
 end;
 
 {{/vars}}
