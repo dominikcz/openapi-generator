@@ -37,6 +37,7 @@ type
     {{#vendorExtensions.x-codegen-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-codegen-delphi-enum}}
     {{#vars}}
     {{vendorExtensions.x-delphi-field-name}}: {{{dataType}}} {{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
+    {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;
     {{/vars}}
 
     {{#vars}}
@@ -45,6 +46,7 @@ type
 
     {{#vars}}
     function {{baseName}}IsValid(out AErrorMessage: string): boolean;
+    function {{baseName}}IsSet: boolean;
     {{/vars}}
   public
     {{#isArray}}{{^items.isPrimitiveType}}
@@ -91,7 +93,8 @@ uses
   whizaxe.reflections,
 {{/isEnum}}{{/model}}{{/models}}
   whizaxe.serialization,
-  whizaxe.OpenApi.validators;
+  whizaxe.OpenApi.validators,
+  Neon.Core.Types;
 {{/isEnum}} 
 {{/model}}
 {{/models}}
@@ -110,12 +113,17 @@ end;
 
 function T{{classname}}.AsJson: string;
 begin
-  result := TSerializer.SerializeObject(self);
+  Result := TSerializer.SerializeObject(self);
 end;
 
 procedure T{{classname}}.UpdateFromJson(AJson: string);
 begin
-  TSerializer.DeserializeObject(self, AJson);
+   try
+    TSerializer.DeserializeObject(self, AJson);
+  except
+    on E: ENeonException do
+      raise EWxRestValidationException.Create('Cannot deserialize json');
+  end;
 end;
 
 procedure T{{classname}}.Validate;
@@ -152,6 +160,7 @@ end;
 procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
   {{vendorExtensions.x-delphi-field-name}} := AValue;
+  {{vendorExtensions.x-delphi-field-name}}IsSet := true;
 end;
 
 {{/vars}}
@@ -179,6 +188,12 @@ begin
   result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);
   {{/hasValidation}}
 end;
+
+function T{{classname}}.{{name}}IsSet: boolean;
+begin
+  result := {{name}}IsSet;
+end;
+
 
 {{/vars}}
 {$endregion}
