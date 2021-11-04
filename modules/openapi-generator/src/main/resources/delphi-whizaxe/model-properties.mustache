@@ -9,8 +9,11 @@ uses
   whizaxe.REST.Exceptions{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
   
-{{#models}}{{#model}}{{#isEnum}}const
-  cEnumNames = {{#allowableValues}}{{#enumVars}}'{{^-first}},{{/-first}}{{{name}}}'{{^-last}} + {{/-last}}{{/enumVars}}{{/allowableValues}};
+
+{{#models}}{{#model}}{{#isEnum}}const{{#allowableValues}}{{#enumVars}}
+  c{{name}} = '{{{name}}}';{{/enumVars}}{{/allowableValues}}
+  cEnumNames = {{#allowableValues}}{{#enumVars}}
+             {{^-first}}+ {{/-first}}c{{{name}}}{{^-last}} + ',' {{/-last}}{{/enumVars}}{{/allowableValues}};
 {{/isEnum}}{{/model}}{{/models}}  
 
 type
