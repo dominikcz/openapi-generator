@@ -103,7 +103,7 @@ begin
 {{/pathParams}}
 {{#queryParams}}
   {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true,{{minimum}}{{/minimum}}{{^minimum}}false,0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
-  {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
+  {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
 {{/queryParams}}
 
 {{#vendorExtensions.x-codegen-delphi-needs-free}}
