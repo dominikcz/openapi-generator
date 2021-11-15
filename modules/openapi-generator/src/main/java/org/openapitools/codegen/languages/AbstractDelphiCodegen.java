@@ -54,6 +54,8 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     protected static final String VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC = "Make first character of variable name uppercase (eg. value -> Value)";
     protected boolean variableNameFirstCharacterUppercase = false;
 
+    protected Set<String> languageSpecificTypes = new HashSet<String>();
+
     public AbstractDelphiCodegen() {
         super();
 
@@ -98,6 +100,8 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
                         "WordBool",
                         "TDateTime")
         );
+
+        languageSpecificTypes = new HashSet<String>(Arrays.asList("TStream", "TExtInfo"));
     
         /*
          * Reserved words.  Override this with reserved words specific to your language
@@ -289,6 +293,11 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
         property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
         property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
+
+        if (property.isArray && property.items != null && property.items.isModel){
+            property.dataType = "TObjectList<" + getTypeDeclaration(property.items.baseType) +">";
+        }
+
         return property;
     }
 

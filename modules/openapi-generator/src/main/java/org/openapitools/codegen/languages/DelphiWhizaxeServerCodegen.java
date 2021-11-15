@@ -1,5 +1,6 @@
 package org.openapitools.codegen.languages;
 
+import com.google.common.util.concurrent.Callables;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.Operation;
@@ -30,11 +31,15 @@ import static org.openapitools.codegen.utils.StringUtils.camelize;
 public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     protected String modelType = "properties"; // properties/files - must match template file name!
     protected String modelFilenamePrefix = "ApiModel.";
+    protected boolean useModelsFullNamespace = true;
     public static final String PROJECT_NAME = "projectName";
-    public static final String OPTION_MODEL_TYPE = "fields";
+    public static final String OPTION_MODEL_TYPE = "modelType";
     public static final String OPTION_MODEL_TYPE_DESC = "type of model to use";
     public static final String OPTION_MODEL_FILENAME_PREFIX = "modelFilenamePrefix";
     public static final String OPTION_MODEL_FILENAME_PREFIX_DESC = "Prefix of model filename";
+    public static final String OPTION_USE_MODELS_FULL_NAMESPACE = "useModelsFullNamespace";
+    public static final String OPTION_USE_MODELS_FULL_NAMESPACE_DESC = "use full namespace for models dataType";
+
 
     static final Logger LOGGER = LoggerFactory.getLogger(DelphiWhizaxeServerCodegen.class);
     protected final String PREFIX = "";
@@ -75,6 +80,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC,
                 Boolean.toString(this.variableNameFirstCharacterUppercase));
         addOption(OPTION_MODEL_FILENAME_PREFIX, OPTION_MODEL_FILENAME_PREFIX_DESC, this.modelFilenamePrefix);
+        addOption (OPTION_USE_MODELS_FULL_NAMESPACE, OPTION_USE_MODELS_FULL_NAMESPACE_DESC, String.valueOf(this.useModelsFullNamespace));
         typeMapping = new HashMap<String, String>();
         typeMapping.put("date", "TDateTime");
         typeMapping.put("DateTime", "TDateTime");
@@ -195,7 +201,16 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             codegenModel.vendorExtensions.put("x-is-string-enum-container", true);
         }
         codegenModel.vendorExtensions.put("x-codegen-delphi-enum", codegenModel.isEnum || (codegenModel.allowableValues != null && codegenModel.allowableValues.size() > 0));
+
+        if (!languageSpecificPrimitives.contains(codegenModel.dataType) && !languageSpecificTypes.contains(codegenModel.dataType))
+                {
+                    if (useModelsFullNamespace)
+                        codegenModel.dataType = toModelFilename(codegenModel.classname) + ".T" + toModelName(codegenModel.dataType);
+                };
+
         return codegenModel;
+
+
     }
 
     @Override
@@ -209,10 +224,15 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 Schema response = ModelUtils.getSchemaFromResponse(apiResponse);
                 if (response != null) {
                     CodegenProperty cm = fromProperty("response", response);
+
                     op.vendorExtensions.put("x-codegen-response", cm);
                     if ("HttpContent".equals(cm.dataType)) {
                         op.vendorExtensions.put("x-codegen-response-ishttpcontent", true);
                     }
+                    if(cm.isArray && cm.items != null && cm.items.isModel){
+                        op.returnType = "TObjectList<" + getTypeDeclaration(op.returnBaseType) + ">";
+                    }else
+                        op.returnType = getTypeDeclaration(op.returnBaseType);
                 }
             }
         }
@@ -251,7 +271,12 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
                 boolean isStringOrDate = op.bodyParam.isString || op.bodyParam.isDate;
                 op.bodyParam.vendorExtensions.put("x-codegen-delphi-whizaxe-is-string-or-date", isStringOrDate);
+
+                if (op.bodyParam.isArray && op.bodyParam.items != null && op.bodyParam.items.isModel){
+                        op.bodyParam.dataType = "TObjectList<" + getTypeDeclaration(op.bodyParam.baseType) + ">";
+                    }
             }
+
             if (op.consumes != null) {
                 for (Map<String, String> consume : op.consumes) {
                     if (consume.get("mediaType") != null && consume.get("mediaType").equals("application/json")) {
@@ -267,18 +292,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 if (param.isFile) isParsingSupported = false;
                 if (param.isCookieParam) isParsingSupported = false;
 
-                if (param.isModel && !languageSpecificPrimitives.contains(param.dataType))
-                {
-                    param.dataType = 'T' + toModelName(param.dataType);
-                };
 
-//                if (param.dataType.equals("array")){
-//                    if (param.isPrimitiveType) {
-//                        param.dataType = "Tlist";
-//                    } else {
-//                        param.dataType = "TObjectlist";
-//                    }
-//                }
 
                 //DC: nadmiarowe usesy Generics.Collections dla api z parametrami
 //                if (param.baseType != null){
@@ -303,14 +317,12 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 //                }
             }
 
+
             for (CodegenParameter param : op.bodyParams) {
                 if (param.isFormParam) isParsingSupported = false;
                 if (param.isFile) isParsingSupported = false;
                 if (param.isCookieParam) isParsingSupported = false;
 
-                if (param.isModel && !languageSpecificPrimitives.contains(param.dataType)) {
-                    param.dataType = 'T' + toModelName(param.dataType);
-                }
 
             }
 
@@ -319,10 +331,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 if (param.isFile) isParsingSupported = false;
                 if (param.isCookieParam) isParsingSupported = false;
 
-                if (param.isModel && !languageSpecificPrimitives.contains(param.dataType)) {
-                    param.dataType = 'T' + toModelName(param.dataType);
-                }
             }
+
 
 //            if (op.returnBaseType != null) {
 //                if (op.returnContainer == "array") {
@@ -394,7 +404,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         if (ModelUtils.isArraySchema(p)) {
             ArraySchema ap = (ArraySchema) p;
             Schema inner = ap.getItems();
-            return getSchemaType(p) + "<" + getTypeDeclaration(inner) + ">";
+            String schemaType = getSchemaType(p);
+            return schemaType + "<" + getTypeDeclaration(inner) + ">";
         }
         if (ModelUtils.isMapSchema(p)) {
             Schema inner = getAdditionalProperties(p);
@@ -482,9 +493,6 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         } else if (ModelUtils.isArraySchema(p)) {
             ArraySchema ap = (ArraySchema) p;
             String inner = getSchemaType(ap.getItems());
-            if (!languageSpecificPrimitives.contains(inner)) {
-                inner = "TArray<" + inner + ">";
-            }
             return "TArray<" + inner + ">()";
         } else if (!StringUtils.isEmpty(p.get$ref())) {
             return "TTTTTT<" + toModelName(ModelUtils.getSimpleRef(p.get$ref())) + ">()";
@@ -514,14 +522,14 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     protected String doGetSnippet(String fileName) {
         String s = null;
         fileName = (templateDir + "/DemoSnippets/"+ fileName).replace("/", File.separator);
-        Path p = Path.of(fileName);
-        if (Files.exists(p)) {
-            try {
-                s = Files.readString(p);
-            } catch (IOException e) {
-
-            }
-        }
+//        Path p = Path.of(fileName);
+//        if (Files.exists(p)) {
+//            try {
+//                s = Files.readString(p);
+//            } catch (IOException e) {
+//
+//            }
+//        }
         return s;
     }
 
@@ -560,7 +568,10 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
     @Override
     public String getTypeDeclaration(String str) {
-        return toModelName(str);
+        if (useModelsFullNamespace && ! languageSpecificPrimitives.contains(str) && !languageSpecificTypes.contains(str))
+            return toModelFilename(str) + ".T" +  toModelName(str);
+        else
+            return toModelName(str);
     }
 
 }

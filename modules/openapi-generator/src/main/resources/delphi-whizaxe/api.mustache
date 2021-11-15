@@ -38,6 +38,7 @@ uses
 {{#returnType}}function T{{classname}}.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};
 {{^vendorExtensions.x-codegen-delphi-demo-code-api}}
 begin
+  raise EWxRestNotImplementedException.Create('');
 end;
 {{/vendorExtensions.x-codegen-delphi-demo-code-api}}
 {{{vendorExtensions.x-codegen-delphi-demo-code-api}}}
@@ -45,6 +46,7 @@ end;
 {{^returnType}}procedure T{{classname}}.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
 {{^vendorExtensions.x-codegen-delphi-demo-code-api}}
 begin
+  raise EWxRestNotImplementedException.Create('');
 end;
 {{/vendorExtensions.x-codegen-delphi-demo-code-api}}
 {{{vendorExtensions.x-codegen-delphi-demo-code-api}}}

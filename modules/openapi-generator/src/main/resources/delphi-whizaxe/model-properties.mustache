@@ -10,18 +10,22 @@ uses
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
   
 
-{{#models}}{{#model}}{{#isEnum}}const{{#allowableValues}}{{#enumVars}}
-  c{{name}} = '{{{name}}}';{{/enumVars}}{{/allowableValues}}
-  cEnumNames = {{#allowableValues}}{{#enumVars}}
-             {{^-first}}+ {{/-first}}c{{{name}}}{{^-last}} + ',' {{/-last}}{{/enumVars}}{{/allowableValues}};
-{{/isEnum}}{{/model}}{{/models}}  
-
 type
+
+{{#models}}{{#model}}{{#isEnum}}
+  T{{classname}}Names = class
+  public const{{#allowableValues}}{{#enumVars}}
+    c{{name}} = '{{{name}}}';{{/enumVars}}{{/allowableValues}}
+    {{className}}EnumNames = {{#allowableValues}}{{#enumVars}}
+           {{^-first}}+ {{/-first}}c{{{name}}}{{^-last}} + ',' {{/-last}}{{/enumVars}}{{/allowableValues}};
+  end;{{/isEnum}}{{/model}}{{/models}}  
+
+
 {{#models}}
 {{#model}}
 
   {{#isEnum}}
-  [NeonEnumNames(cEnumNames)]
+  [NeonEnumNames(T{{classname}}Names.{{className}}Enumnames)]
   T{{classname}} = (
     {{#allowableValues}}{{#enumVars}}ev{{{name}}}{{^-last}}, {{/-last}}
     {{/enumVars}}{{/allowableValues}}
@@ -49,14 +53,23 @@ type
 
     {{#vars}}
     function {{baseName}}IsValid(out AErrorMessage: string): boolean;
-    function {{baseName}}IsSet: boolean;
     {{/vars}}
   public
+    {{^isArray}}
+    constructor Create;
+    destructor Destroy; override;
+    {{/isArray}}
     {{#isArray}}{{^items.isPrimitiveType}}
     constructor Create;
     {{/items.isPrimitiveType}}{{/isArray}}
+    
     {{#vars}}
-    property {{{vendorExtensions.x-delphi-property-name}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-field-name}} write {{vendorExtensions.x-delphi-setter-name}};
+    
+    property {{{baseName}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-field-name}} write {{vendorExtensions.x-delphi-setter-name}};
+    {{/vars}}
+    
+    {{#vars}}
+    function {{baseName}}IsSet: boolean;
     {{/vars}}
 
     /// <summary>
@@ -114,6 +127,25 @@ begin
 end;
 {{/items.isPrimitiveType}}{{/isArray}}
 
+{{^isArray}}
+constructor T{{classname}}.Create;
+begin
+  inherited Create;
+  {{#vars}}
+  {{#isModel}}{{vendorExtensions.x-delphi-field-name}} := {{dataType}}.Create;{{/isModel}}
+  {{/vars}}
+end;
+
+destructor T{{classname}}.Destroy;
+begin
+  {{#vars}}
+  {{#isModel}}{{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}
+  {{/vars}}
+  inherited;
+end;
+{{/isArray}}
+
+
 function T{{classname}}.AsJson: string;
 begin
   Result := TSerializer.SerializeObject(self);
@@ -141,6 +173,8 @@ function T{{classname}}.Validate(out AErrorMsg: string): boolean;
 var
   sb: TStringBuilder;
   errorMsg: string;
+const
+  MSG = 'Field % is not set or has invalid value. %s';
 begin
   errorMsg := '';
   result := false;
@@ -148,7 +182,7 @@ begin
   try
     {{#vars}}
     if not {{baseName}}IsValid(errorMsg) then
-      sb.AppendLine(errorMsg);
+      sb.AppendLine(format(MSG, ['{{name}}', errorMsg]));
     {{/vars}}
     AErrorMsg := sb.ToString();
     result := AErrorMsg = '';

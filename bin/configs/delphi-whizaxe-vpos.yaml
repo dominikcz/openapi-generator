@@ -4,9 +4,10 @@ inputSpec: ../api-vpos/api-vpos.yml
 templateDir: modules/openapi-generator/src/main/resources/delphi-whizaxe
 additionalProperties:
   hideGenerationTimestamp: "true"
-  modelType: "fields"
+  modelType: "properties"
   modelNamePrefix: ""
   modelFilenamePrefix: "ApiModel."
   generateAliasAsModel: "true"
   openApiSkipValidateSpec: "true"
+  useModelsFullNamespace: "true"
   
