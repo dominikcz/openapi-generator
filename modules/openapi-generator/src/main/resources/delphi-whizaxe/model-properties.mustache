@@ -212,17 +212,24 @@ function T{{classname}}.{{baseName}}IsValid(out AErrorMessage: string): boolean;
 {{/hasValidation}}
 begin
   result := true;
+  {{#required}}
+  if not {{vendorExtensions.x-delphi-field-name}}IsSet then
+    exit(false);
+  {{/required}}
   {{#hasValidation}}
+  if {{vendorExtensions.x-delphi-field-name}}IsSet then
+  begin
   {{#isString}} 
-  validator := TStringLengthValidator.Create({{#required}}TStringRequiredValidator.Create(nil){{/required}}{{^required}}nil{{/required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}}); 
+    validator := TStringLengthValidator.Create({{#required}}TStringRequiredValidator.Create(nil){{/required}}{{^required}}nil{{/required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}}); 
   {{/isString}}
   {{#isInteger}}
-  validator := TIntegerValidator.Create(nil, {{#minimum}}true, {{minimum}},{{/minimum}}{{^minimum}}false, 0,{{/minimum}}{{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});
+    validator := TIntegerValidator.Create(nil, {{#minimum}}true, {{minimum}},{{/minimum}}{{^minimum}}false, 0,{{/minimum}}{{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});
   {{/isInteger}}
   {{#isNumber}}
-  validator := TCurrencyValidator.Create({{#multipleOf}}TPrecisionValidator.Create(nil,{{multipleOf}}){{/multipleOf}}{{^multipleOf}}nil{{/multipleOf}},{{#minimum}} true, {{minimum}},{{/minimum}}{{^minimum}} false, 0,{{/minimum}}{{#maximum}} true, {{maximum}}{{/maximum}}{{^maximum}} false, 0{{/maximum}});
+    validator := TCurrencyValidator.Create({{#multipleOf}}TPrecisionValidator.Create(nil,{{multipleOf}}){{/multipleOf}}{{^multipleOf}}nil{{/multipleOf}},{{#minimum}} true, {{minimum}},{{/minimum}}{{^minimum}} false, 0,{{/minimum}}{{#maximum}} true, {{maximum}}{{/maximum}}{{^maximum}} false, 0{{/maximum}});
   {{/isNumber}}
-  result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);
+    result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);
+  end;
   {{/hasValidation}}
 end;
 
