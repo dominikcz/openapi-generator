@@ -222,10 +222,6 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         }
     }
 
-    @Override
-    public String toEnumValue(String value, String datatype) {
-        return escapeText(value);
-    }
 
     @Override
     public String toVarName(String name) {
@@ -288,7 +284,12 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         if (isReservedWord(nameInCamelCase) || nameInCamelCase.matches("^\\d.*")) {
             nameInCamelCase = escapeReservedWord(nameInCamelCase);
         }
+        String propName = property.name;
+        if (isReservedWord(propName) || propName.matches("^\\d.*")) {
+            propName = escapeReservedWord(propName);
+        }
         property.nameInCamelCase = nameInCamelCase;
+        property.name = propName;
         property.vendorExtensions.put("x-delphi-field-name", "F"+ camelName);
         property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
         property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);

@@ -65,7 +65,7 @@ type
     
     {{#vars}}
     
-    property {{{baseName}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-field-name}} write {{vendorExtensions.x-delphi-setter-name}};
+    property {{{name}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-field-name}} write {{vendorExtensions.x-delphi-setter-name}};
     {{/vars}}
     
     {{#vars}}
@@ -174,7 +174,7 @@ var
   sb: TStringBuilder;
   errorMsg: string;
 const
-  MSG = 'Field % is not set or has invalid value. %s';
+  MSG = 'Field %s is not set or has invalid value. %s';
 begin
   errorMsg := '';
   result := false;
@@ -233,7 +233,7 @@ begin
   {{/hasValidation}}
 end;
 
-function T{{classname}}.{{name}}IsSet: boolean;
+function T{{classname}}.{{baseName}}IsSet: boolean;
 begin
   result := {{vendorExtensions.x-delphi-field-name}}IsSet;
 end;
