@@ -407,7 +407,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
             if (cm.isArray){
                 CodegenProperty items = cm.getItems();
                 if (items != null) {
-                    cm.dataType = (items.isModel ? "TObjectList" : "TList") + "<" + getTypeDeclaration(items.baseName) + ">";
+                    cm.dataType = (items.isModel ? "TObjectList" : "TList") + "<" + getTypeDeclaration(items.baseType) + ">";
                 }
             }
         }
