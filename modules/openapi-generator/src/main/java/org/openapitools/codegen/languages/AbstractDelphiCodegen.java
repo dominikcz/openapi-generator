@@ -295,8 +295,13 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
         property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
 
+
         if (property.isArray && property.items != null && property.items.isModel){
             property.dataType = "TObjectList<" + getTypeDeclaration(property.items.baseType) +">";
+        }
+
+        if (!property.isPrimitiveType && !property.isModel && !(property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0))) {
+                property.isModel = true;
         }
 
         return property;
@@ -398,6 +403,12 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
             // cannot handle inheritance from maps and arrays in C++
             if((cm.isArray || cm.isMap ) && (cm.parentModel == null)) {
                 cm.parent = null;
+            }
+            if (cm.isArray){
+                CodegenProperty items = cm.getItems();
+                if (items != null) {
+                    cm.dataType = (items.isModel ? "TObjectList" : "TList") + "<" + getTypeDeclaration(items.baseName) + ">";
+                }
             }
         }
         return postProcessModelsEnum(objs);

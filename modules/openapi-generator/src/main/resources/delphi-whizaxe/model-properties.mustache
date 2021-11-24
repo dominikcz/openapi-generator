@@ -34,12 +34,8 @@ type
   
   {{^isEnum}}
 //  {$RTTI EXPLICIT PROPERTIES([vcPublic])}
-  {{#isArray}}
-  T{{classname}} = class(T{{^items.isPrimitiveType}}Object{{/items.isPrimitiveType}}List<{{items.dataType}}>)
-  {{/isArray}}
-  {{^isArray}}
-  T{{classname}} = class
-  {{/isArray}}
+
+  T{{classname}} = class{{#isArray}}({{{dataType}}}){{/isArray}}
   private
     {{#vendorExtensions.x-codegen-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-codegen-delphi-enum}}
     {{#vars}}
@@ -132,7 +128,7 @@ constructor T{{classname}}.Create;
 begin
   inherited Create;
   {{#vars}}
-  {{#isModel}}{{vendorExtensions.x-delphi-field-name}} := {{dataType}}.Create;{{/isModel}}
+  {{#isModel}}{{vendorExtensions.x-delphi-field-name}} := {{{dataType}}}.Create;{{/isModel}}
   {{/vars}}
 end;
 

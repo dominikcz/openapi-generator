@@ -202,14 +202,12 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         }
         codegenModel.vendorExtensions.put("x-codegen-delphi-enum", codegenModel.isEnum || (codegenModel.allowableValues != null && codegenModel.allowableValues.size() > 0));
 
-        if (!languageSpecificPrimitives.contains(codegenModel.dataType) && !languageSpecificTypes.contains(codegenModel.dataType))
-                {
-                    if (useModelsFullNamespace)
-                        codegenModel.dataType = toModelFilename(codegenModel.classname) + ".T" + toModelName(codegenModel.dataType);
-                };
+        if (!languageSpecificPrimitives.contains(codegenModel.dataType) && !languageSpecificTypes.contains(codegenModel.dataType)) {
+            if (useModelsFullNamespace)
+                codegenModel.dataType = toModelFilename(codegenModel.classname) + ".T" + toModelName(codegenModel.dataType);
+        };
 
         return codegenModel;
-
 
     }
 
@@ -522,14 +520,14 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     protected String doGetSnippet(String fileName) {
         String s = null;
         fileName = (templateDir + "/DemoSnippets/"+ fileName).replace("/", File.separator);
-//        Path p = Path.of(fileName);
-//        if (Files.exists(p)) {
-//            try {
-//                s = Files.readString(p);
-//            } catch (IOException e) {
-//
-//            }
-//        }
+        Path p = Path.of(fileName);
+        if (Files.exists(p)) {
+            try {
+                s = Files.readString(p);
+            } catch (IOException e) {
+
+            }
+        }
         return s;
     }
 
