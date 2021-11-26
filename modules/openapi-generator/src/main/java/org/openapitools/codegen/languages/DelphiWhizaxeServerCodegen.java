@@ -586,5 +586,14 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         }
     }
 
+    @Override
+    public String toEnumValue(String value, String datatype) {
+        if ("number".equalsIgnoreCase(datatype) || "boolean".equalsIgnoreCase(datatype)) {
+            return value;
+        } else {
+            return  escapeText(value);
+        }
+    }
+
 
 }
