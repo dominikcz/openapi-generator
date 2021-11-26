@@ -15,7 +15,7 @@ type
 {{#models}}{{#model}}{{#isEnum}}
   T{{classname}}Names = class
   public const{{#allowableValues}}{{#enumVars}}
-    c{{name}} = '{{{name}}}';{{/enumVars}}{{/allowableValues}}
+    c{{name}} = '{{{value}}}';{{/enumVars}}{{/allowableValues}}
     {{className}}EnumNames = {{#allowableValues}}{{#enumVars}}
            {{^-first}}+ {{/-first}}c{{{name}}}{{^-last}} + ',' {{/-last}}{{/enumVars}}{{/allowableValues}};
   end;{{/isEnum}}{{/model}}{{/models}}  
