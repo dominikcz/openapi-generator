@@ -191,12 +191,12 @@ end;
 {$region 'Setters'}
 {{#vars}}
 procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
-begin{{#isModel}}
+begin
+  {{vendorExtensions.x-delphi-field-name}}IsSet := true;{{#isModel}}
   if AValue = {{vendorExtensions.x-delphi-field-name}} then
     exit;
   {{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}
   {{vendorExtensions.x-delphi-field-name}} := AValue;
-  {{vendorExtensions.x-delphi-field-name}}IsSet := true;
 end;
 
 {{/vars}}
