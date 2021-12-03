@@ -192,6 +192,7 @@ end;
 {{#vars}}
 procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
+  {{#isModel}}{{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}
   {{vendorExtensions.x-delphi-field-name}} := AValue;
   {{vendorExtensions.x-delphi-field-name}}IsSet := true;
 end;
