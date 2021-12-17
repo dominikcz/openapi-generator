@@ -5,6 +5,7 @@ unit {{programName}}Client;
 interface
 uses
   System.SysUtils,
+  System.Net.URLClient,
   whizaxe.openapi.config,
   whizaxe.Rest.exceptions,
   Generics.Collections,
@@ -33,6 +34,8 @@ type
     function MakeRestClient: TRestClient;
     function ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
     function TryExecuteRequest(ARequest: TRestRequest): boolean;
+    
+    procedure hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
   public
     constructor Create(AConfig: TOpenApiConfig; AParseResponseErrors: boolean = false);
     property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
@@ -58,6 +61,7 @@ type
 implementation
 
 uses
+  System.Net.HttpClient,
   whizaxe.serialization;
 
 { TApiClient }
@@ -105,9 +109,17 @@ end;
 function T{{programName}}Client.MakeRestClient: TRestClient;
 begin
   Result := TRESTClient.Create(FConfig.basePath);
+  Result.SecureProtocols  := FConfig.TLSVersions;
+  Result.OnValidateCertificate := hndValidateCertificate;  
+  
   {{#authMethods}}{{#isBasicBearer}}
   Result.Authenticator := FAuth;
   {{/isBasicBearer}}{{/authMethods}}
+end;
+
+procedure T{{programName}}Client.hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
+begin
+  Accepted := Accepted or FConfig.ignoreCertificateErrors;
 end;
 
 function T{{programName}}Client.ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;

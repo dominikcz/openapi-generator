@@ -5,6 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VirtualTrees, Vcl.StdCtrls, Vcl.ExtCtrls,
+  System.Net.HttpClient,  
   {{programName}}Client;
 
 type
@@ -45,7 +46,9 @@ var
   lConfig: TOpenApiConfig;
 begin
   lConfig := TOpenApiConfig.Create;
-  lconfig.basePath := '{{#servers}}{{#-first}}{{url}}{{/-first}}{{/servers}}';
+  lConfig.basePath := '{{#servers}}{{#-first}}{{url}}{{/-first}}{{/servers}}';
+  lConfig.ignoreCertificateErrors := true;
+  
   result := T{{programName}}Client.Create(lConfig);
 end;
 
