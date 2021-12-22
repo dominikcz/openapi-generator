@@ -126,8 +126,8 @@ function T{{programName}}Client.ParseResponseErrorToRestException(AResponse: TCu
 var
   RestErrorModel: TWxRestErrorModel;
 begin
+  RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(AResponse.Content);
   try
-    RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(AResponse.Content);
     case AResponse.StatusCode of
       400:
         Result := EWxRestValidationException.Create(RestErrorModel.message, RestErrorModel.errorCode);
@@ -185,8 +185,8 @@ var
 begin
   restClient := MakeRestClient;
   {{#returnType}}{{^returnSimpleType}}Result := nil;{{/returnSimpleType}}{{/returnType}}
+  restRequest := TRESTRequest.Create(restClient);
   try
-    restRequest := TRESTRequest.Create(restClient);
     restRequest.Resource := '{{path}}';
     restRequest.Method := GetRESTRequestMethod('{{httpMethod}}');
     {{#pathParams}}
@@ -207,7 +207,9 @@ begin
       {{/vendorExtensions.x-codegen-delphi-returns-model}}{{^vendorExtensions.x-codegen-delphi-returns-model}}
       result := restRequest.Response.Content;
       {{/vendorExtensions.x-codegen-delphi-returns-model}}
-    end;
+    end
+	else
+	  result := nil;
     {{/returnType}}
    
   finally
