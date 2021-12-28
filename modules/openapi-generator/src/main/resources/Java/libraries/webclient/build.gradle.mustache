@@ -6,8 +6,7 @@ version = '{{artifactVersion}}'
 
 buildscript {
     repositories {
-        maven { url "https://repo1.maven.org/maven2" }
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.+'
@@ -16,8 +15,7 @@ buildscript {
 }
 
 repositories {
-    maven { url "https://repo1.maven.org/maven2" }
-    jcenter()
+    mavenCentral()
 }
 
 if(hasProperty('target') && target == 'android') {
@@ -84,7 +82,7 @@ if(hasProperty('target') && target == 'android') {
 } else {
 
     apply plugin: 'java'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
 
     {{#java8}}
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -95,9 +93,12 @@ if(hasProperty('target') && target == 'android') {
     targetCompatibility = JavaVersion.VERSION_1_7
     {{/java8}}
 
-    install {
-        repositories.mavenInstaller {
-            pom.artifactId = '{{artifactId}}'
+    publishing {
+        publications {
+            maven(MavenPublication) {
+               artifactId = '{{artifactId}}'
+               from components.java
+            }
         }
     }
 
@@ -123,12 +124,12 @@ if(hasProperty('target') && target == 'android') {
 }
 
 ext {
-    swagger_annotations_version = "1.6.2"
+    swagger_annotations_version = "1.6.3"
     spring_web_version = "2.4.3"
-    jackson_version = "2.11.3"
-    jackson_databind_version = "2.11.3"
+    jackson_version = "2.11.4"
+    jackson_databind_version = "2.11.4"
     {{#openApiNullable}}
-    jackson_databind_nullable_version = "0.2.1"
+    jackson_databind_nullable_version = "0.2.2"
     {{/openApiNullable}}
     jakarta_annotation_version = "1.3.5"
     reactor_version = "3.4.3"
