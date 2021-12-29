@@ -85,11 +85,13 @@ begin
 {{/returnType}}
 {{#pathParams}}
   {{#isInteger}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
+  {{#isNumber}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isNumber}}
   {{#isBoolean}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
   {{#isString}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
 {{/pathParams}}
 {{#queryParams}}
   {{#isInteger}}{{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
+  {{#isNumber}}{{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isNumber}}
   {{#isBoolean}}{{paramName}} := ARequest.GetQueryParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
   {{#isString}}{{paramName}} := ARequest.GetQueryParam('{{paramName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
 {{/queryParams}}
@@ -98,11 +100,13 @@ begin
 {{/bodyParam}}
 
 {{#pathParams}}
-  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true,{{minimum}}{{/minimum}}{{^minimum}}false,0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
+  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
+  {{#isNumber}}TRestParamValidator.ValidateCurrencyParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}}, 0);{{/isNumber}}
   {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
 {{/pathParams}}
 {{#queryParams}}
-  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true,{{minimum}}{{/minimum}}{{^minimum}}false,0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
+  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
+  {{#isNumber}}TRestParamValidator.ValidateCurrencyParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}}, 0);{{/isNumber}}
   {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
 {{/queryParams}}
 
