@@ -196,7 +196,7 @@ begin
     restRequest.AddParameter('{{paramName}}', {{^isString}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkQUERY);
     {{/queryParams}}
     {{#bodyParams}}
-    restRequest.AddBody(TSerializer.ObjectToJSON({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
+    restRequest.AddBody(TSerializer.SerializeObject({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
     
     {{#returnType}}if TryExecuteRequest(restRequest) then
