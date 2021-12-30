@@ -26,9 +26,7 @@ type
   private
     FOnAuthenticate: TAuthenticateEvent;
     FConfig: TOpenApiConfig;
-    {{#authMethods}}{{#isBasicBearer}}
     FAuth: IOpenApiSecurity;
-    {{/isBasicBearer}}{{/authMethods}}
     FParseResponseErrors: boolean;
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
     function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
