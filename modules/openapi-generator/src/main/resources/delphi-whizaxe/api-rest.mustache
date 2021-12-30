@@ -78,11 +78,9 @@ var
   {{#returnType}}responseObj: {{{.}}};{{/returnType}}
 begin
   AskForApi;
-{{#returnType}}
-  {{^returnSimpleType}}
+{{#vendorExtensions.x-codegen-delphi-returns-model}}
   responseObj := nil;
-  {{/returnSimpleType}}
-{{/returnType}}
+{{/vendorExtensions.x-codegen-delphi-returns-model}}
 {{#pathParams}}
   {{#isInteger}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isInteger}}
   {{#isNumber}}{{paramName}} := ARequest.GetPathParam('{{paramName}}', {{defaultValue}}, {{required}});{{/isNumber}}
