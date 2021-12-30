@@ -2,8 +2,8 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'Demo App for {{programName}} Client'
-  ClientHeight = 620
-  ClientWidth = 880
+  ClientHeight = 647
+  ClientWidth = 1000
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,8 +15,8 @@ object MainForm: TMainForm
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 392
-    Width = 880
+    Top = 373
+    Width = 1000
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -25,15 +25,17 @@ object MainForm: TMainForm
   end
   object FlowPanel1: TFlowPanel
     Left = 0
-    Top = 0
-    Width = 709
-    Height = 336
+    Top = 41
+    Width = 1000
+    Height = 332
     Align = alClient
     BevelEdges = []
     Caption = 'FlowPanel1'
-    ShowCaption = False
     FlowStyle = fsTopBottomLeftRight
-    TabOrder = 0{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+    ShowCaption = False
+    TabOrder = 0
+    ExplicitTop = 0
+    ExplicitHeight = 346{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     object btn{{operationId}}: TButton
       AlignWithMargins = True
       Width = 180
@@ -44,15 +46,36 @@ object MainForm: TMainForm
   end
   object Memo1: TMemo
     Left = 0
-    Top = 461
-    Width = 880
+    Top = 376
+    Width = 1000
     Height = 271
     Align = alBottom
     Lines.Strings = (
       'Memo1')
     TabOrder = 1
-    ExplicitLeft = 576
-    ExplicitTop = 544
-    ExplicitWidth = 185
+    ExplicitTop = 349
+  end
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 1000
+    Height = 41
+    Align = alTop
+    Caption = 'Panel1'
+    ShowCaption = False
+    TabOrder = 2
+    ExplicitTop = -2
+    object edtToken: TLabeledEdit
+      Left = 88
+      Top = 11
+      Width = 425
+      Height = 21
+      EditLabel.Width = 52
+      EditLabel.Height = 13
+      EditLabel.Caption = 'auth token'
+      LabelPosition = lpLeft
+      TabOrder = 0
+      Text = '<put your token here>'
+    end
   end
 end

@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VirtualTrees, Vcl.StdCtrls, Vcl.ExtCtrls,
-  System.Net.HttpClient,  
+  System.Net.HttpClient,
+  REST.Client,
   {{programName}}Client;
 
 type
@@ -15,6 +16,8 @@ type
     {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     btn{{operationId}}: TButton;{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
     Memo1: TMemo;  
+    Panel1: TPanel;
+    edtToken: TLabeledEdit;
     
     {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     procedure btn{{operationId}}Click(Sender: TObject);
@@ -24,6 +27,7 @@ type
   private
     { Private declarations }
     function getClient(): T{{programName}}Client;
+    procedure hndAuthenticate(ARequest: TCustomRESTRequest; var ADone: Boolean);
   public
     { Public declarations }
   end;
@@ -35,6 +39,7 @@ implementation
 
 uses
    Generics.Collections,
+   REST.Authenticator.OAuth,
    whizaxe.openapi.config,
    whizaxe.serialization{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}};
@@ -50,6 +55,14 @@ begin
   lConfig.ignoreCertificateErrors := true;
   
   result := T{{programName}}Client.Create(lConfig);
+  result.OnAuthenticate := hndAuthenticate;
+end;
+
+procedure TMainForm.hndAuthenticate(ARequest: TCustomRESTRequest; var ADone: Boolean);
+begin
+  // simple example for dynamically aquired token
+  TOAuth2Authenticator(ARequest.Client.Authenticator).AccessToken := edtToken.Text;
+  ADone := false;
 end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}

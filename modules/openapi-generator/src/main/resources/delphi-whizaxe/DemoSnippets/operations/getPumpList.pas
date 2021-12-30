@@ -1,4 +1,4 @@
 begin
-  result := TFpList.Create;
+  result := TPumpList.Create;
   result.AddRange([1, 3, 6]);
 end;

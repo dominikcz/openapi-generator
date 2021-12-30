@@ -7,6 +7,7 @@ uses
   System.SysUtils,
   System.Net.URLClient,
   whizaxe.openapi.config,
+  whizaxe.openapi.security,
   whizaxe.Rest.exceptions,
   Generics.Collections,
   Rest.Types,
@@ -26,7 +27,7 @@ type
     FOnAuthenticate: TAuthenticateEvent;
     FConfig: TOpenApiConfig;
     {{#authMethods}}{{#isBasicBearer}}
-    FAuth: TOAuth2Authenticator;
+    FAuth: IOpenApiSecurity;
     {{/isBasicBearer}}{{/authMethods}}
     FParseResponseErrors: boolean;
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
@@ -38,6 +39,8 @@ type
     procedure hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
   public
     constructor Create(AConfig: TOpenApiConfig; AParseResponseErrors: boolean = false);
+    destructor Destroy; override;
+
     property OnAuthenticate: TAuthenticateEvent read FOnAuthenticate write SetOnAuthenticate;
 
     {{#apiInfo}}{{#apis}}{{#operations}}
@@ -75,13 +78,18 @@ begin
   FParseResponseErrors := AParseResponseErrors;
   {{#authMethods}}
   {{#isBasicBearer}}
-  FAuth := TOAuth2Authenticator.Create(nil);
-  FAuth.AccessToken := '<put your token here>';
-  FAuth.TokenType := TOAuth2TokenType.ttBEARER;
-  FAuth.OnAuthenticate := OnAuthenticate;
+  FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil)
   {{/isBasicBearer}}
   {{/authMethods}}
 
+end;
+
+destructor T{{programName}}Client.Destroy;
+begin
+  FConfig.Free;
+  FAuth := nil;
+
+  inherited;
 end;
 
 function T{{programName}}Client.GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
@@ -113,8 +121,10 @@ begin
   Result.OnValidateCertificate := hndValidateCertificate;  
   
   {{#authMethods}}{{#isBasicBearer}}
-  Result.Authenticator := FAuth;
+  Result.Authenticator := FAuth.CreateAuthenticator;
   {{/isBasicBearer}}{{/authMethods}}
+  if Assigned(Result.Authenticator) then
+    Result.Authenticator.OnAuthenticate := OnAuthenticate;
 end;
 
 procedure T{{programName}}Client.hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
@@ -165,7 +175,11 @@ begin
     else
     begin
       if ARequest.Response.ErrorMessage.IsEmpty then
-        errorMessage := ARequest.Response.Content
+      begin
+        errorMessage := ARequest.Response.Content;
+        if errorMessage.IsEmpty then
+          errorMessage := format('%d %s', [ARequest.Response.StatusCode, ARequest.Response.StatusText]);
+      end
       else
         errorMessage := ARequest.Response.ErrorMessage;
 
@@ -204,7 +218,8 @@ begin
       {{#vendorExtensions.x-codegen-delphi-returns-model}}
       result := {{{.}}}.Create;
       TSerializer.DeserializeObject(result, restRequest.Response.Content);
-      {{/vendorExtensions.x-codegen-delphi-returns-model}}{{^vendorExtensions.x-codegen-delphi-returns-model}}
+      {{/vendorExtensions.x-codegen-delphi-returns-model}}
+      {{^vendorExtensions.x-codegen-delphi-returns-model}}
       result := restRequest.Response.Content;
       {{/vendorExtensions.x-codegen-delphi-returns-model}}
     end
@@ -213,6 +228,7 @@ begin
     {{/returnType}}
    
   finally
+    restClient.Authenticator.Free;
     restClient.Free;
   end;
 end;

@@ -15,9 +15,17 @@ type
     F{{classname}}Rest: T{{classname}}Rest;{{/operations}}{{/apis}}{{/apiInfo}}
 
     procedure hndAssignHandlers(ACmdHandlers: TRestCommandHandlers);
+
+{{#apiInfo}}{{#apis}}{{#operations}}
+    function GetOn{{classname}}Needed: T{{classname}}NeededEvent;
+    procedure SetOn{{classname}}Needed(const Value: T{{classname}}NeededEvent);
+{{/operations}}{{/apis}}{{/apiInfo}}
   public
     constructor Create;
     destructor Destroy; override;
+
+{{#apiInfo}}{{#apis}}{{#operations}}
+    property On{{classname}}Needed: T{{classname}}NeededEvent read GetOn{{classname}}Needed write SetOn{{classname}}Needed;{{/operations}}{{/apis}}{{/apiInfo}}
   end;
 
 implementation
@@ -43,4 +51,16 @@ begin{{#apiInfo}}{{#apis}}{{#operations}}
 //  ACmdHandlers.AddCommand(THTTPMethods.hmGET, '', FBasketManagementApiRest.addItemToBasket);
 end;
 
+{{#apiInfo}}{{#apis}}{{#operations}}
+function T{{programName}}Server.GetOn{{classname}}Needed: T{{classname}}NeededEvent;
+begin
+  result := F{{classname}}Rest.On{{classname}}Needed;
+end;
+
+procedure T{{programName}}Server.SetOn{{classname}}Needed(const Value: T{{classname}}NeededEvent);
+begin
+  F{{classname}}Rest.On{{classname}}Needed := Value;
+end;
+
+{{/operations}}{{/apis}}{{/apiInfo}}
 end.
