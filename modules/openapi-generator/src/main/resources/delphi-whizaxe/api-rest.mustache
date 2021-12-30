@@ -129,11 +129,9 @@ begin
 {{/returnType}}
 {{#vendorExtensions.x-codegen-delphi-needs-free}}
   finally
-{{#returnType}}
-  {{^returnSimpleType}}
+{{#vendorExtensions.x-codegen-delphi-returns-model}}
     responseObj.Free;
-  {{/returnSimpleType}}
-{{/returnType}}
+{{/vendorExtensions.x-codegen-delphi-returns-model}}
 {{#bodyParam}}
     {{paramName}}.Free;
 {{/bodyParam}}
