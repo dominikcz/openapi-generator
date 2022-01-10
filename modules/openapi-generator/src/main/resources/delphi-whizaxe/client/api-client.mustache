@@ -202,10 +202,10 @@ begin
     restRequest.Resource := '{{path}}';
     restRequest.Method := GetRESTRequestMethod('{{httpMethod}}');
     {{#pathParams}}
-    restRequest.AddParameter('{{paramName}}', {{^isString}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkURLSEGMENT);
+    restRequest.AddParameter('{{paramName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkURLSEGMENT);
     {{/pathParams}}
     {{#queryParams}}
-    restRequest.AddParameter('{{paramName}}', {{^isString}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkQUERY);
+    restRequest.AddParameter('{{paramName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkQUERY);
     {{/queryParams}}
     {{#bodyParams}}
     restRequest.AddBody(TSerializer.SerializeObject({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
