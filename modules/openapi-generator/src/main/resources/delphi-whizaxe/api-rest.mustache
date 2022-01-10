@@ -118,8 +118,10 @@ begin
   {{paramName}} := ARequest.GetHeaderParam('{{paramName}}', '{{{defaultValue}}}', {{required}});
 {{/headerParams}}
 {{#returnType}}
-    responseObj := FApi.{{operationId}}({{#allParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
-    AResult.SetResult(hs2xx_OK, responseObj, 'OK');
+    responseObj := FApi.{{operationId}}({{#allParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});{{#isResponseBinary}}
+    AResult.ContentType('text/plain');
+    AResult.SetResult(hs2xx_OK, TStringStream(responseObj).DataString, 'OK');{{/isResponseBinary}}
+    {{^isResponseBinary}}AResult.SetResult(hs2xx_OK, responseObj, 'OK');{{/isResponseBinary}}
 {{/returnType}}
 {{^returnType}}
     FApi.{{operationId}}({{#allParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
