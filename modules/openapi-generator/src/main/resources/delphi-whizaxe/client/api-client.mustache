@@ -75,9 +75,8 @@ begin
   FConfig := AConfig;
   FParseResponseErrors := AParseResponseErrors;
   {{#authMethods}}
-  {{#isBasicBearer}}
-  FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil)
-  {{/isBasicBearer}}
+  {{#isBasicBearer}}FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil){{/isBasicBearer}}
+  {{^isBasicBearer}}FAuth := TOpenApiSecurityNone.Create(){{/isBasicBearer}}  
   {{/authMethods}}
 
 end;

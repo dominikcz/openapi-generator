@@ -30,7 +30,7 @@ type
     {{#allParams}}   
     /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
-    [RestApi('{{httpMethod}}', '{{{path}}}')]
+    [RestApi('{{httpMethod}}', '{{{path}}}'){{#authMethods}}, '*'{{/authMethods}}]
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}}; deprecated{{/isDeprecated}};
     
     {{/operation}}
