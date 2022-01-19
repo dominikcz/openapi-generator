@@ -211,19 +211,7 @@ begin
     restRequest.AddBody(TSerializer.SerializeObject({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
     
-    {{#returnType}}if TryExecuteRequest(restRequest) then
-    begin
-      {{#vendorExtensions.x-codegen-delphi-returns-model}}
-      result := {{{.}}}.Create;
-      TSerializer.DeserializeObject(result, restRequest.Response.Content);
-      {{/vendorExtensions.x-codegen-delphi-returns-model}}
-      {{^vendorExtensions.x-codegen-delphi-returns-model}}
-      result := restRequest.Response.Content;
-      {{/vendorExtensions.x-codegen-delphi-returns-model}}
-    end
-	else
-	  result := nil;
-    {{/returnType}}
+    TryExecuteRequest(restRequest);
    
   finally
     restClient.Authenticator.Free;
