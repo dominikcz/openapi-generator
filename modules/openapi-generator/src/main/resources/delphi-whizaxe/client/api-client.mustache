@@ -224,7 +224,7 @@ begin
 	else
 	  result := nil;
   {{/returnType}}
-  {{^returnType}}TryExecuteRequest;{{/returnType}}
+  {{^returnType}}TryExecuteRequest(restRequest);{{/returnType}}
    
   finally
     restClient.Authenticator.Free;
