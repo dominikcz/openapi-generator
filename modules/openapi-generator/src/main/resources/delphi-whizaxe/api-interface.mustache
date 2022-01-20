@@ -19,10 +19,10 @@ type
     /// <summary>{{{summary}}}</summary>
     /// <remarks>{{remarks}}</remarks>
     {{#allParams}}   
-    /// {{{paramName}}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
+    /// {{{baseName}}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}   
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
-    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     
     {{/operation}}
   end;

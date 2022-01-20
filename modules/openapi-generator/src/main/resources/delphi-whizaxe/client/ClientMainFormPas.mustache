@@ -71,12 +71,12 @@ procedure TMainForm.btn{{operationId}}Click(Sender: TObject);
 var 
   lClient: T{{programName}}Client;{{#returnType}}
   resp: {{{.}}};{{/returnType}}{{#allParams}}
-  {{{paramName}}}: {{{dataType}}};{{/allParams}}
+  {{{baseName}}}: {{{dataType}}};{{/allParams}}
 begin
   // TODO: initilize params
   
   {{#allParams}}
-  // {{{paramName}}} := ;
+  // {{{baseName}}} := ;
   {{/allParams}}
 
   lClient := getClient();
@@ -86,7 +86,7 @@ begin
     resp := nil;
     try
     {{/vendorExtensions.x-codegen-delphi-returns-model}}
-      resp := lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
+      resp := lClient.{{operationId}}({{#allParams}} {{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
       {{^vendorExtensions.x-codegen-delphi-returns-model}}
       Memo1.Lines.Add(resp);
       {{/vendorExtensions.x-codegen-delphi-returns-model}}{{#vendorExtensions.x-codegen-delphi-returns-model}}
@@ -97,14 +97,14 @@ begin
       {{/vendorExtensions.x-codegen-delphi-returns-model}}
   
     {{/returnType}}{{^returnType}}
-    lClient.{{operationId}}({{#allParams}} {{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}});
+    lClient.{{operationId}}({{#allParams}} {{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
     Memo1.Lines.Add('OK');
     {{/returnType}}
 
   finally
     lClient.Free;
     {{#allParams}}
-    {{#isModel}}{{{paramName}}}.Free;{{/isModel}}
+    {{#isModel}}{{{baseName}}}.Free;{{/isModel}}
   {{/allParams}}
     
   end;

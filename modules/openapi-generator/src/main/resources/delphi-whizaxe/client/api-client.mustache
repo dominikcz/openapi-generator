@@ -50,10 +50,10 @@ type
     /// <remarks>{{remarks}}</remarks>
 
     {{#pathParams}}
-    /// {{paramName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
+    /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/pathParams}}
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
-    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}
@@ -189,7 +189,7 @@ end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
+{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{baseName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
 var 
   restRequest: TRestRequest;
   restClient: TRestClient;
@@ -201,13 +201,13 @@ begin
     restRequest.Resource := '{{path}}';
     restRequest.Method := GetRESTRequestMethod('{{httpMethod}}');
     {{#pathParams}}
-    restRequest.AddParameter('{{paramName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkURLSEGMENT);
+    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{baseName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{baseName}}}){{/isNumber}}{{^isNumber}}{{{baseName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{baseName}}}{{/isString}}, pkURLSEGMENT);
     {{/pathParams}}
     {{#queryParams}}
-    restRequest.AddParameter('{{paramName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkQUERY);
+    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{baseName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{baseName}}}){{/isNumber}}{{^isNumber}}{{{baseName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{baseName}}}{{/isString}}, pkQUERY);
     {{/queryParams}}
     {{#bodyParams}}
-    restRequest.AddBody(TSerializer.SerializeObject({{paramName}}), TRESTContentType.ctAPPLICATION_JSON);
+    restRequest.AddBody(TSerializer.SerializeObject({{baseName}}), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
     
     {{#returnType}}if TryExecuteRequest(restRequest) then
