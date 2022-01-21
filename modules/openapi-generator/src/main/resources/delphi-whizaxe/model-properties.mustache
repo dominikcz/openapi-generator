@@ -192,7 +192,7 @@ end;
 {{#vars}}
 procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
-  {{vendorExtensions.x-delphi-field-name}}IsSet := true;{{#isModel}}
+  {{vendorExtensions.x-delphi-field-name}}IsSet := {{#isModel}}Assigned(AValue){{/isModel}}{{^isModel}}true{{/isModel}};{{#isModel}}
   if AValue = {{vendorExtensions.x-delphi-field-name}} then
     exit;
   {{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}
