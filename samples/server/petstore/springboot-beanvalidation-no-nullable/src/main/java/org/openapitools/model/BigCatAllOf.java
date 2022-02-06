@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,12 +13,16 @@ import javax.validation.constraints.*;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * BigCatAllOf
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
+
+@JsonTypeName("BigCat_allOf")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
 public class BigCatAllOf   {
+
   /**
    * Gets or Sets kind
    */
@@ -69,9 +74,8 @@ public class BigCatAllOf   {
    * Get kind
    * @return kind
   */
+  
   @ApiModelProperty(value = "")
-
-
   public KindEnum getKind() {
     return kind;
   }
@@ -79,7 +83,6 @@ public class BigCatAllOf   {
   public void setKind(KindEnum kind) {
     this.kind = kind;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -102,7 +105,6 @@ public class BigCatAllOf   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class BigCatAllOf {\n");
-    
     sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
     sb.append("}");
     return sb.toString();

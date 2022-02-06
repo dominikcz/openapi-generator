@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -12,12 +13,16 @@ import javax.validation.constraints.*;
 
 
 import java.util.*;
+import javax.annotation.Generated;
 
 /**
  * ModelApiResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
+
+@JsonTypeName("ApiResponse")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
 public class ModelApiResponse   {
+
   @JsonProperty("code")
   private Integer code;
 
@@ -36,9 +41,8 @@ public class ModelApiResponse   {
    * Get code
    * @return code
   */
+  
   @ApiModelProperty(value = "")
-
-
   public Integer getCode() {
     return code;
   }
@@ -56,9 +60,8 @@ public class ModelApiResponse   {
    * Get type
    * @return type
   */
+  
   @ApiModelProperty(value = "")
-
-
   public String getType() {
     return type;
   }
@@ -76,9 +79,8 @@ public class ModelApiResponse   {
    * Get message
    * @return message
   */
+  
   @ApiModelProperty(value = "")
-
-
   public String getMessage() {
     return message;
   }
@@ -86,7 +88,6 @@ public class ModelApiResponse   {
   public void setMessage(String message) {
     this.message = message;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -111,7 +112,6 @@ public class ModelApiResponse   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ModelApiResponse {\n");
-    
     sb.append("    code: ").append(toIndentedString(code)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");
