@@ -10,7 +10,7 @@ uses
   whizaxe.http.types,{{#apiInfo}}{{#apis}}{{#operations}}
   {{classname}}Interface,
   {{classname}},{{/operations}}{{/apis}}{{/apiInfo}}
-  
+
   {{programName}}Server;
 
 type
@@ -31,7 +31,7 @@ type
 {{#apiInfo}}{{#apis}}{{#operations}}
     function hnd{{classname}}Needed: I{{classname}};{{/operations}}{{/apis}}{{/apiInfo}}
 
-    procedure hndOnAuthorization(const AAuthType, AAuthData: string; var VUsername, VPassword: string; var VHandled: Boolean);  public
+    procedure hndOnAuthorization(ARequest: TRestRequest; var AResult: THTTPResult; var AllowToExecute : Boolean);
     procedure hndAfterRequest(dtStart, dtStop: TDateTime; ARequest: TRestRequest; AReqKind: TRequestKind;
       var AResult: THTTPResult);
     procedure hndAfterCommand(ARequest: TRestRequest; var AResult: THTTPResult);
@@ -47,7 +47,7 @@ implementation
 
 uses
   whizaxe.openapi.config;
-  
+
 {$R *.dfm}
 
 procedure TMainForm.btnStartClick(Sender: TObject);
@@ -64,19 +64,19 @@ begin
   lConfig := TOpenApiConfig.Create;
   lConfig.basePath := '{{#servers}}{{#-first}}{{url}}{{/-first}}{{/servers}}';
   lConfig.ignoreCertificateErrors := true;
-  
+
   FServer := T{{programName}}Server.Create;
   FServer.ApplyConfig(lConfig);
   fServer.OnAfterRequest := hndAfterRequest;
   fServer.OnAfterCommand := hndAfterCommand;
   lConfig.Free;
-  
+
   FServer.OnAuthorization := hndOnAuthorization;
 
 {{#apiInfo}}{{#apis}}{{#operations}}
   F{{classname}} := T{{classname}}.Create;
   FServer.On{{classname}}Needed := hnd{{classname}}Needed;
-{{/operations}}{{/apis}}{{/apiInfo}}  
+{{/operations}}{{/apis}}{{/apiInfo}}
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
@@ -97,18 +97,16 @@ begin
 
 end;
 
-procedure TMainForm.hndOnAuthorization(const AAuthType, AAuthData: string; var VUsername, VPassword: string;
-  var VHandled: Boolean);
+procedure TMainForm.hndOnAuthorization(ARequest: TRestRequest; var AResult: THTTPResult; var AllowToExecute : Boolean);
 begin
-  vhandled := true;
+  AllowToExecute := true;
 end;
-
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 function TMainForm.hnd{{classname}}Needed: I{{classname}};
 begin
   result := F{{classname}};
 end;
-{{/operations}}{{/apis}}{{/apiInfo}}  
+{{/operations}}{{/apis}}{{/apiInfo}}
 
 end.
