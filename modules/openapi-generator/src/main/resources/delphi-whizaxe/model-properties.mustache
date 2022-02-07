@@ -5,8 +5,8 @@ unit {{#models}}{{#model}}{{classFilename}}{{/model}}{{/models}};
 interface
 
 uses
-  Neon.Core.Nullables,{{#models}}{{#model}}{{#isEnum}}
-  Neon.Core.Attributes,{{/isEnum}}{{/model}}{{/models}}
+  Neon.Core.Nullables,
+  Neon.Core.Attributes,
   whizaxe.REST.Exceptions{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
@@ -28,7 +28,8 @@ type{{#models}}{{#model}}{{#isEnum}}
 
   T{{classname}} = class{{#isArray}}({{{dataType}}}){{/isArray}}
   private
-    {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}
+    {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}{{#vendorExtensions.x-delphi-nullable-type}}
+    [NeonInclude(IncludeIf.NotNull)]{{/vendorExtensions.x-delphi-nullable-type}}
     {{vendorExtensions.x-delphi-field-name}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}{{/vars}}
 
     {{#vars}}
