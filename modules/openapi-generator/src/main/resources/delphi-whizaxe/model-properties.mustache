@@ -5,8 +5,8 @@ unit {{#models}}{{#model}}{{classFilename}}{{/model}}{{/models}};
 interface
 
 uses
-  Neon.Core.Nullables,{{#models}}{{#model}}{{#isEnum}}
-  Neon.Core.Attributes,{{/isEnum}}{{/model}}{{/models}}
+  Neon.Core.Attributes,
+  Neon.Core.Nullables,
   whizaxe.REST.Exceptions{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
@@ -31,11 +31,10 @@ type{{#models}}{{#model}}{{#isEnum}}
     {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}
     {{vendorExtensions.x-delphi-field-name}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}{{/vars}}
 
-    {{#vars}}
-    function {{vendorExtensions.x-delphi-getter-name}}: {{{dataType}}};
-    procedure {{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
-    {{/vars}}
-
+    {{#vars}}{{#isModel}}
+    {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;{{/isModel}}{{/vars}}
+    {{#vars}}{{#isModel}}
+    procedure {{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});{{/isModel}}{{/vars}}
     {{#vars}}
     function {{baseName}}IsValid(out AErrorMessage: string): boolean;
     {{/vars}}
@@ -47,7 +46,9 @@ type{{#models}}{{#model}}{{#isEnum}}
     constructor Create;
     {{/items.isPrimitiveType}}{{/isArray}}
     {{#vars}}
-    property {{{name}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-getter-name}} write {{vendorExtensions.x-delphi-setter-name}};
+
+    [NeonInclude(IncludeIf.NotNull)]
+    property {{{name}}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}} read {{vendorExtensions.x-delphi-field-name}} write {{#isModel}}{{vendorExtensions.x-delphi-setter-name}}{{/isModel}}{{^isModel}}{{vendorExtensions.x-delphi-field-name}}{{/isModel}};
     {{/vars}}
 
     /// <summary>
@@ -156,18 +157,16 @@ end;
 
 {$region 'Getters and setters'}
 {{#vars}}
-function T{{classname}}.{{vendorExtensions.x-delphi-getter-name}}: {{{dataType}}};
-begin
-  result := {{vendorExtensions.x-delphi-field-name}}{{#vendorExtensions.x-delphi-nullable-type}}.GetValueOrDefault({{#vendorExtensions.x-delphi-has-valid-default}}{{{defaultValue}}}{{/vendorExtensions.x-delphi-has-valid-default}}){{/vendorExtensions.x-delphi-nullable-type}};
-end;
 
-procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
+{{#isModel}}procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
-  {{#isModel}}if AValue = {{vendorExtensions.x-delphi-field-name}} then
+  {{vendorExtensions.x-delphi-field-name}}IsSet := Assigned(AValue);
+  if AValue = {{vendorExtensions.x-delphi-field-name}} then
     exit;
-  {{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}
+  {{vendorExtensions.x-delphi-field-name}}.Free;
   {{vendorExtensions.x-delphi-field-name}} := AValue;
 end;
+{{/isModel}}
 
 {{/vars}}
 {$endregion}
