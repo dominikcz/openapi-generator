@@ -28,13 +28,15 @@ type{{#models}}{{#model}}{{#isEnum}}
 
   T{{classname}} = class{{#isArray}}({{{dataType}}}){{/isArray}}
   private
-    {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}
+    {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}{{#vendorExtensions.x-delphi-nullable-type}}
+    [NeonInclude(IncludeIf.NotNull)]{{/vendorExtensions.x-delphi-nullable-type}}
     {{vendorExtensions.x-delphi-field-name}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}{{/vars}}
 
     {{#vars}}{{#isModel}}
     {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;{{/isModel}}{{/vars}}
     {{#vars}}{{#isModel}}
     procedure {{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});{{/isModel}}{{/vars}}
+
     {{#vars}}
     function {{baseName}}IsValid(out AErrorMessage: string): boolean;
     {{/vars}}
@@ -46,7 +48,6 @@ type{{#models}}{{#model}}{{#isEnum}}
     constructor Create;
     {{/items.isPrimitiveType}}{{/isArray}}
     {{#vars}}
-
     [NeonInclude(IncludeIf.NotNull)]
     property {{{name}}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}} read {{vendorExtensions.x-delphi-field-name}} write {{#isModel}}{{vendorExtensions.x-delphi-setter-name}}{{/isModel}}{{^isModel}}{{vendorExtensions.x-delphi-field-name}}{{/isModel}};
     {{/vars}}
