@@ -44,6 +44,7 @@ import static org.openapitools.codegen.utils.StringUtils.underscore;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 abstract public class AbstractDelphiCodegen extends DefaultCodegen implements CodegenConfig {
+    protected Map<String, String> nullTypeMapping;
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractDelphiCodegen.class);
 
     protected static final String RESERVED_WORD_PREFIX_OPTION = "reservedWordPrefix";
@@ -98,88 +99,86 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
                         "WideString",
                         "Word",
                         "WordBool",
-                        "TDateTime")
-        );
+                        "TDateTime"));
 
         languageSpecificTypes = new HashSet<String>(Arrays.asList("TStream", "TExtInfo"));
-    
+
         /*
-         * Reserved words.  Override this with reserved words specific to your language
+         * Reserved words. Override this with reserved words specific to your language
          */
         setReservedWordsLowerCase(
                 Arrays.asList(
-                  "and",
-                  "array",
-                  "as",
-                  "asm",
-                  "begin",
-                  "case",
-                  "class",
-                  "const",
-                  "constructor",
-                  "destructor",
-                  "dispinterface",
-                  "div",
-                  "do",
-                  "downto",
-                  "else",
-                  "end",
-                  "except",
-                  "exports",
-                  "file",
-                  "finalization",
-                  "finally",
-                  "for",
-                  "function",
-                  "goto",
-                  "if",
-                  "implementation",
-                  "in",
-                  "inherited",
-                  "initialization",
-                  "inline",
-                  "interface",
-                  "is",
-                  "label",
-                  "library3",
-                  "mod",
-                  "nil",
-                  "not",
-                  "object",
-                  "of",
-                  "or",
-                  "packed",
-                  "procedure",
-                  "program",
-                  "property",
-                  "raise",
-                  "record",
-                  "repeat",
-                  "resourcestring",
-                  "set",
-                  "shl",
-                  "shr",
-                  "string",
-                  "then",
-                  "threadvar",
-                  "to",
-                  "try",
-                  "type",
-                  "unit",
-                  "until",
-                  "uses",
-                  "var",
-                  "while",
-                  "with",
-                  "xor")
-        );
+                        "and",
+                        "array",
+                        "as",
+                        "asm",
+                        "begin",
+                        "case",
+                        "class",
+                        "const",
+                        "constructor",
+                        "destructor",
+                        "dispinterface",
+                        "div",
+                        "do",
+                        "downto",
+                        "else",
+                        "end",
+                        "except",
+                        "exports",
+                        "file",
+                        "finalization",
+                        "finally",
+                        "for",
+                        "function",
+                        "goto",
+                        "if",
+                        "implementation",
+                        "in",
+                        "inherited",
+                        "initialization",
+                        "inline",
+                        "interface",
+                        "is",
+                        "label",
+                        "library3",
+                        "mod",
+                        "nil",
+                        "not",
+                        "object",
+                        "of",
+                        "or",
+                        "packed",
+                        "procedure",
+                        "program",
+                        "property",
+                        "raise",
+                        "record",
+                        "repeat",
+                        "resourcestring",
+                        "set",
+                        "shl",
+                        "shr",
+                        "string",
+                        "then",
+                        "threadvar",
+                        "to",
+                        "try",
+                        "type",
+                        "unit",
+                        "until",
+                        "uses",
+                        "var",
+                        "while",
+                        "with",
+                        "xor"));
 
         addOption(RESERVED_WORD_PREFIX_OPTION,
                 RESERVED_WORD_PREFIX_DESC,
                 this.reservedWordPrefix);
         addOption(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION,
-                  VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC,
-                  Boolean.toString(this.variableNameFirstCharacterUppercase));
+                VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC,
+                Boolean.toString(this.variableNameFirstCharacterUppercase));
     }
 
     @Override
@@ -213,15 +212,17 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
             type = "UnknownModel";
         }
 
-        if (typeMapping.keySet().contains(type) || typeMapping.values().contains(type)
-                || importMapping.values().contains(type) || defaultIncludes.contains(type)
-                || languageSpecificPrimitives.contains(type)) {
+        if (typeMapping.keySet().contains(type)
+                || typeMapping.values().contains(type)
+                || importMapping.values().contains(type)
+                || defaultIncludes.contains(type)
+                || languageSpecificPrimitives.contains(type)
+                || nullTypeMapping.values().contains(type)) {
             return type;
         } else {
             return sanitizeName(modelNamePrefix + Character.toUpperCase(type.charAt(0)) + type.substring(1));
         }
     }
-
 
     @Override
     public String toVarName(String name) {
@@ -260,7 +261,8 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     @Override
     public String toOperationId(String operationId) {
         if (isReservedWord(operationId)) {
-            LOGGER.warn("{} (reserved word) cannot be used as method name. Renamed to {}", operationId, escapeReservedWord(operationId));
+            LOGGER.warn("{} (reserved word) cannot be used as method name. Renamed to {}", operationId,
+                    escapeReservedWord(operationId));
             return escapeReservedWord(operationId);
         }
         return sanitizeName(super.toOperationId(operationId));
@@ -290,18 +292,23 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         }
         property.nameInCamelCase = nameInCamelCase;
         property.name = propName;
-        property.vendorExtensions.put("x-delphi-field-name", "F"+ camelName);
+        property.vendorExtensions.put("x-delphi-field-name", "F" + camelName);
         property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
         property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
         property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
-
-
-        if (property.isArray && property.items != null && property.items.isModel){
-            property.dataType = "TObjectList<" + getTypeDeclaration(property.items.baseType) +">";
+        if (nullTypeMapping.containsKey(property.baseType)) {
+            property.vendorExtensions.put("x-delphi-nullable-type", nullTypeMapping.get(property.baseType));
         }
 
-        if (!property.isPrimitiveType && !property.isModel && !(property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0))) {
-                property.isModel = true;
+        if (property.isArray && property.items != null && property.items.isModel) {
+            property.dataType = "TObjectList<" + getTypeDeclaration(property.items.baseType) + ">";
+        }
+
+        if (!property.isPrimitiveType
+                && !nullTypeMapping.values().contains(property.baseType)
+                && !property.isModel
+                && !(property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0))) {
+            property.isModel = true;
         }
 
         return property;
@@ -334,8 +341,8 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         additionalProperties.put(RESERVED_WORD_PREFIX_OPTION, reservedWordPrefix);
 
         if (additionalProperties.containsKey(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION))
-            variableNameFirstCharacterUppercase =
-                    convertPropertyToBooleanAndWriteBack(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION);
+            variableNameFirstCharacterUppercase = convertPropertyToBooleanAndWriteBack(
+                    VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION);
         additionalProperties.put(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION, variableNameFirstCharacterUppercase);
     }
 
@@ -370,15 +377,15 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
                 s.url = server.getUrl();
                 s.variables = new ArrayList<CodegenServerVariable>();
                 ServerVariables serverVars = server.getVariables();
-                if(serverVars != null){
-                serverVars.forEach((key,value) -> {
-                    CodegenServerVariable codegenServerVar= new CodegenServerVariable();
-                    ServerVariable ServerVar = value;
-                    codegenServerVar.name = key;
-                    codegenServerVar.description = ServerVar.getDescription();
-                    codegenServerVar.defaultValue = ServerVar.getDefault();
-                    codegenServerVar.enumValues = ServerVar.getEnum();
-                    s.variables.add(codegenServerVar);
+                if (serverVars != null) {
+                    serverVars.forEach((key, value) -> {
+                        CodegenServerVariable codegenServerVar = new CodegenServerVariable();
+                        ServerVariable ServerVar = value;
+                        codegenServerVar.name = key;
+                        codegenServerVar.description = ServerVar.getDescription();
+                        codegenServerVar.defaultValue = ServerVar.getDefault();
+                        codegenServerVar.enumValues = ServerVar.getEnum();
+                        s.variables.add(codegenServerVar);
                     });
                 }
                 CodegenServerList.add(s);
@@ -401,13 +408,14 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
             Map<String, Object> mo = (Map<String, Object>) _mo;
             CodegenModel cm = (CodegenModel) mo.get("model");
             // cannot handle inheritance from maps and arrays in C++
-            if((cm.isArray || cm.isMap ) && (cm.parentModel == null)) {
+            if ((cm.isArray || cm.isMap) && (cm.parentModel == null)) {
                 cm.parent = null;
             }
-            if (cm.isArray){
+            if (cm.isArray) {
                 CodegenProperty items = cm.getItems();
                 if (items != null) {
-                    cm.dataType = (items.isModel ? "TObjectList" : "TList") + "<" + getTypeDeclaration(items.baseType) + ">";
+                    cm.dataType = (items.isModel ? "TObjectList" : "TList") + "<" + getTypeDeclaration(items.baseType)
+                            + ">";
                 }
             }
         }

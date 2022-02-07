@@ -13,11 +13,11 @@ uses
 
 type
 {{#operations}}
-  
+
   T{{classname}}NeededEvent = function(): I{{classname}} of object;
-  
+
   // {$RTTI EXPLICIT METHODS([vcPublic])}
-  T{{classname}}Rest = class 
+  T{{classname}}Rest = class
   private
     FApi: I{{classname}};
     FOn{{classname}}Needed: T{{classname}}NeededEvent;
@@ -26,17 +26,17 @@ type
     {{#operation}}
     /// Operation {{{operationId}}}
     /// <summary>{{{summary}}}</summary>{{#remarks}}
-    /// <remarks>{{.}}</remarks>{{/remarks}} 
-    {{#allParams}}   
+    /// <remarks>{{.}}</remarks>{{/remarks}}
+    {{#allParams}}
     /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-    {{/allParams}}   
+    {{/allParams}}
     [RestApi('{{httpMethod}}', '{{{path}}}'){{#authMethods}}, '*'{{/authMethods}}]
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}}; deprecated{{/isDeprecated}};
-    
+
     {{/operation}}
-    
+
     constructor Create();
-    
+
     property On{{classname}}Needed: T{{classname}}NeededEvent read FOn{{classname}}Needed write FOn{{classname}}Needed;
   end;
 
@@ -48,7 +48,7 @@ uses
   whizaxe.REST.Exceptions,
   {{classname}}{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
-  
+
 { T{{classname}} }
 
 constructor T{{classname}}Rest.Create();
@@ -69,18 +69,18 @@ end;
 
 {{#operation}}
 procedure T{{classname}}Rest.{{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult);
-{{#vendorExtensions.x-codegen-delphi-needs-var}}
+{{#vendorExtensions.x-delphi-needs-var}}
 var
-{{/vendorExtensions.x-codegen-delphi-needs-var}}
+{{/vendorExtensions.x-delphi-needs-var}}
 {{#allParams}}
   {{{baseName}}}: {{{dataType}}};
 {{/allParams}}
   {{#returnType}}responseObj: {{{.}}};{{/returnType}}
 begin
   AskForApi;
-{{#vendorExtensions.x-codegen-delphi-returns-model}}
+{{#vendorExtensions.x-delphi-returns-model}}
   responseObj := nil;
-{{/vendorExtensions.x-codegen-delphi-returns-model}}
+{{/vendorExtensions.x-delphi-returns-model}}
 {{#pathParams}}
   {{#isInteger}}{{baseName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isInteger}}
   {{#isNumber}}{{baseName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isNumber}}
@@ -108,9 +108,9 @@ begin
   {{#isString}}TRestParamValidator.ValidateStringParam({{baseName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
 {{/queryParams}}
 
-{{#vendorExtensions.x-codegen-delphi-needs-free}}
+{{#vendorExtensions.x-delphi-needs-free}}
   try
-{{/vendorExtensions.x-codegen-delphi-needs-free}}
+{{/vendorExtensions.x-delphi-needs-free}}
 {{#bodyParam}}
     {{^isArray}}{{baseName}}.Validate;{{/isArray}}
 {{/bodyParam}}
@@ -127,20 +127,20 @@ begin
     FApi.{{operationId}}({{#allParams}}{{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
     AResult.SetResult(hs2xx_OK);
 {{/returnType}}
-{{#vendorExtensions.x-codegen-delphi-needs-free}}
+{{#vendorExtensions.x-delphi-needs-free}}
   finally
-{{#vendorExtensions.x-codegen-delphi-returns-model}}
+{{#vendorExtensions.x-delphi-returns-model}}
     responseObj.Free;
-{{/vendorExtensions.x-codegen-delphi-returns-model}}
+{{/vendorExtensions.x-delphi-returns-model}}
 {{#bodyParam}}
     {{baseName}}.Free;
 {{/bodyParam}}
   end;
-{{/vendorExtensions.x-codegen-delphi-needs-free}}
+{{/vendorExtensions.x-delphi-needs-free}}
 end;
 
 {{/operation}}
-  
+
 {{/operations}}
 
 end.

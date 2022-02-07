@@ -15,10 +15,10 @@ type
     Splitter1: TSplitter;
     {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     btn{{operationId}}: TButton;{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
-    Memo1: TMemo;  
+    Memo1: TMemo;
     Panel1: TPanel;
     edtToken: TLabeledEdit;
-    
+
     {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     procedure btn{{operationId}}Click(Sender: TObject);
     {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
@@ -53,7 +53,7 @@ begin
   lConfig := TOpenApiConfig.Create;
   lConfig.basePath := '{{#servers}}{{#-first}}{{url}}{{/-first}}{{/servers}}';
   lConfig.ignoreCertificateErrors := true;
-  
+
   result := T{{programName}}Client.Create(lConfig);
   result.OnAuthenticate := hndAuthenticate;
 end;
@@ -67,14 +67,14 @@ end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
 procedure TMainForm.btn{{operationId}}Click(Sender: TObject);
-{{^vendorExtensions.x-codegen-delphi-demo-code-client}}
-var 
+{{^vendorExtensions.x-delphi-demo-code-client}}
+var
   lClient: T{{programName}}Client;{{#returnType}}
   resp: {{{.}}};{{/returnType}}{{#allParams}}
   {{{baseName}}}: {{{dataType}}};{{/allParams}}
 begin
   // TODO: initilize params
-  
+
   {{#allParams}}
   // {{{baseName}}} := ;
   {{/allParams}}
@@ -82,20 +82,20 @@ begin
   lClient := getClient();
   try
     {{#returnType}}
-    {{#vendorExtensions.x-codegen-delphi-returns-model}}
+    {{#vendorExtensions.x-delphi-returns-model}}
     resp := nil;
     try
-    {{/vendorExtensions.x-codegen-delphi-returns-model}}
+    {{/vendorExtensions.x-delphi-returns-model}}
       resp := lClient.{{operationId}}({{#allParams}} {{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
-      {{^vendorExtensions.x-codegen-delphi-returns-model}}
+      {{^vendorExtensions.x-delphi-returns-model}}
       Memo1.Lines.Add(resp);
-      {{/vendorExtensions.x-codegen-delphi-returns-model}}{{#vendorExtensions.x-codegen-delphi-returns-model}}
+      {{/vendorExtensions.x-delphi-returns-model}}{{#vendorExtensions.x-delphi-returns-model}}
       Memo1.Lines.Add(TSerializer.SerializeObject(resp));
     finally
       resp.Free;
     end;
-      {{/vendorExtensions.x-codegen-delphi-returns-model}}
-  
+      {{/vendorExtensions.x-delphi-returns-model}}
+
     {{/returnType}}{{^returnType}}
     lClient.{{operationId}}({{#allParams}} {{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
     Memo1.Lines.Add('OK');
@@ -106,11 +106,11 @@ begin
     {{#allParams}}
     {{#isModel}}{{{baseName}}}.Free;{{/isModel}}
   {{/allParams}}
-    
+
   end;
 end;
-{{/vendorExtensions.x-codegen-delphi-demo-code-client}}
-{{{vendorExtensions.x-codegen-delphi-demo-code-client}}}
+{{/vendorExtensions.x-delphi-demo-code-client}}
+{{{vendorExtensions.x-delphi-demo-code-client}}}
 {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 
 end.

@@ -5,45 +5,34 @@ unit {{#models}}{{#model}}{{classFilename}}{{/model}}{{/models}};
 interface
 
 uses
-  {{#models}}{{#model}}{{#isEnum}}Neon.Core.Attributes,{{/isEnum}}{{/model}}{{/models}}
+  Neon.Core.Nullables,{{#models}}{{#model}}{{#isEnum}}
+  Neon.Core.Attributes,{{/isEnum}}{{/model}}{{/models}}
   whizaxe.REST.Exceptions{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
-  
 
-type
-
-{{#models}}{{#model}}{{#isEnum}}
+type{{#models}}{{#model}}{{#isEnum}}
   T{{classname}}Names = class
   public const{{#allowableValues}}{{#enumVars}}
     c{{name}} = '{{{value}}}';{{/enumVars}}{{/allowableValues}}
     {{className}}EnumNames = {{#allowableValues}}{{#enumVars}}
            {{^-first}}+ {{/-first}}c{{{name}}}{{^-last}} + ',' {{/-last}}{{/enumVars}}{{/allowableValues}};
-  end;{{/isEnum}}{{/model}}{{/models}}  
+  end;{{/isEnum}}{{/model}}{{/models}}{{#models}}{{#model}}{{#isEnum}}
 
-
-{{#models}}
-{{#model}}
-
-  {{#isEnum}}
   [NeonEnumNames(T{{classname}}Names.{{className}}Enumnames)]
   T{{classname}} = (
     {{#allowableValues}}{{#enumVars}}ev{{{name}}}{{^-last}}, {{/-last}}
     {{/enumVars}}{{/allowableValues}}
-  );
-  {{/isEnum}}
-  
-  {{^isEnum}}
+  );{{/isEnum}}{{^isEnum}}
+
 //  {$RTTI EXPLICIT PROPERTIES([vcPublic])}
 
   T{{classname}} = class{{#isArray}}({{{dataType}}}){{/isArray}}
   private
-    {{#vendorExtensions.x-codegen-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-codegen-delphi-enum}}
-    {{#vars}}
-    {{vendorExtensions.x-delphi-field-name}}: {{{dataType}}} {{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}
-    {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;
-    {{/vars}}
+    {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}
+    {{vendorExtensions.x-delphi-field-name}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}{{/vars}}
 
     {{#vars}}
+    function {{vendorExtensions.x-delphi-getter-name}}: {{{dataType}}};
     procedure {{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
     {{/vars}}
 
@@ -54,18 +43,11 @@ type
     {{^isArray}}
     constructor Create;
     destructor Destroy; override;
-    {{/isArray}}
-    {{#isArray}}{{^items.isPrimitiveType}}
+    {{/isArray}}{{#isArray}}{{^items.isPrimitiveType}}
     constructor Create;
     {{/items.isPrimitiveType}}{{/isArray}}
-    
     {{#vars}}
-    
-    property {{{name}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-field-name}} write {{vendorExtensions.x-delphi-setter-name}};
-    {{/vars}}
-    
-    {{#vars}}
-    function {{baseName}}IsSet: boolean;
+    property {{{name}}}: {{{dataType}}} read {{vendorExtensions.x-delphi-getter-name}} write {{vendorExtensions.x-delphi-setter-name}};
     {{/vars}}
 
     /// <summary>
@@ -89,12 +71,7 @@ type
     procedure UpdateFromJson(AJson: string);
 
   end;
-{{/isEnum}} 
-{{/model}}
-{{/models}}
-
-{{#models}}
-{{#model}}
+{{/isEnum}}{{/model}}{{/models}}{{#models}}{{#model}}
 
 implementation
 {{^isEnum}}
@@ -107,13 +84,8 @@ uses
   whizaxe.serialization,
   whizaxe.OpenApi.validators,
   Neon.Core.Types;
-{{/isEnum}} 
-{{/model}}
-{{/models}}
-  
-{{#models}}
-{{#model}}
-{{^isEnum}}
+{{/isEnum}}{{/model}}{{/models}}{{#models}}{{#model}}{{^isEnum}}
+
 { T{{classname}} }
 
 {{#isArray}}{{^items.isPrimitiveType}}
@@ -121,26 +93,21 @@ constructor T{{classname}}.Create;
 begin
   inherited Create(true);
 end;
-{{/items.isPrimitiveType}}{{/isArray}}
-
-{{^isArray}}
+{{/items.isPrimitiveType}}{{/isArray}}{{^isArray}}
 constructor T{{classname}}.Create;
 begin
   inherited Create;
-  {{#vars}}
-  {{#isModel}}{{vendorExtensions.x-delphi-field-name}} := {{{dataType}}}.Create;{{/isModel}}
-  {{/vars}}
+  {{#vars}}{{#isModel}}
+  {{vendorExtensions.x-delphi-field-name}} := {{{dataType}}}.Create;{{/isModel}}{{/vars}}
 end;
 
 destructor T{{classname}}.Destroy;
 begin
-  {{#vars}}
-  {{#isModel}}{{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}
-  {{/vars}}
+  {{#vars}}{{#isModel}}
+  {{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}{{/vars}}
   inherited;
 end;
 {{/isArray}}
-
 
 function T{{classname}}.AsJson: string;
 begin
@@ -187,13 +154,16 @@ begin
   end;
 end;
 
-
-{$region 'Setters'}
+{$region 'Getters and setters'}
 {{#vars}}
+function T{{classname}}.{{vendorExtensions.x-delphi-getter-name}}: {{{dataType}}};
+begin
+  result := {{vendorExtensions.x-delphi-field-name}}{{#vendorExtensions.x-delphi-nullable-type}}.GetValueOrDefault({{#vendorExtensions.x-delphi-has-valid-default}}{{{defaultValue}}}{{/vendorExtensions.x-delphi-has-valid-default}}){{/vendorExtensions.x-delphi-nullable-type}};
+end;
+
 procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
-  {{vendorExtensions.x-delphi-field-name}}IsSet := {{#isModel}}Assigned(AValue){{/isModel}}{{^isModel}}true{{/isModel}};{{#isModel}}
-  if AValue = {{vendorExtensions.x-delphi-field-name}} then
+  {{#isModel}}if AValue = {{vendorExtensions.x-delphi-field-name}} then
     exit;
   {{vendorExtensions.x-delphi-field-name}}.Free;{{/isModel}}
   {{vendorExtensions.x-delphi-field-name}} := AValue;
@@ -207,34 +177,25 @@ end;
 {{#vars}}
 function T{{classname}}.{{baseName}}IsValid(out AErrorMessage: string): boolean;
 {{#hasValidation}}var
-  validator: IValidator<{{{dataType}}}>;
+  validator: IValidator<{{{baseType}}}>;
 {{/hasValidation}}
 begin
-  result := true;
-  {{#required}}
-  if not {{vendorExtensions.x-delphi-field-name}}IsSet then
-    exit(false);
-  {{/required}}
-  {{#hasValidation}}
-  if {{vendorExtensions.x-delphi-field-name}}IsSet then
-  begin
-  {{#isString}} 
-    validator := TStringLengthValidator.Create({{#required}}TStringRequiredValidator.Create(nil){{/required}}{{^required}}nil{{/required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}}); 
+  {{#hasValidation}}validator := TDecoratedValidator<{{{baseType}}}>.Create(nil);{{#required}}
+  validator.setRequired(true);{{/required}}{{^required}}{{#defaultValue}}
+  validator.setDefault({{{.}}});{{/defaultValue}}{{/required}}
+  {{#isString}}
+  validator := TStringLengthValidator.Create(validator, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});
   {{/isString}}
   {{#isInteger}}
-    validator := TIntegerValidator.Create(nil, {{#minimum}}true, {{minimum}},{{/minimum}}{{^minimum}}false, 0,{{/minimum}}{{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});
+  validator := TNumberValidator<integer>.Create(validator, {{#minimum}}true, {{minimum}},{{/minimum}}{{^minimum}}false, 0,{{/minimum}}{{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{#multipleOf}}
+  validator := TMultipleOfValidator<integer>.Create(validator, {{multipleOf}});{{/multipleOf}}
   {{/isInteger}}
   {{#isNumber}}
-    validator := TCurrencyValidator.Create({{#multipleOf}}TPrecisionValidator.Create(nil,{{multipleOf}}){{/multipleOf}}{{^multipleOf}}nil{{/multipleOf}},{{#minimum}} true, {{minimum}},{{/minimum}}{{^minimum}} false, 0,{{/minimum}}{{#maximum}} true, {{maximum}}{{/maximum}}{{^maximum}} false, 0{{/maximum}});
+  validator := TNumberValidator<currency>.Create(validator,{{#minimum}} true, {{minimum}},{{/minimum}}{{^minimum}} false, 0,{{/minimum}}{{#maximum}} true, {{maximum}}{{/maximum}}{{^maximum}} false, 0{{/maximum}});{{#multipleOf}}
+  validator := TMultipleOfValidator<currency>.Create(validator, {{multipleOf}});{{/multipleOf}}
   {{/isNumber}}
-    result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);
-  end;
-  {{/hasValidation}}
-end;
-
-function T{{classname}}.{{baseName}}IsSet: boolean;
-begin
-  result := {{vendorExtensions.x-delphi-field-name}}IsSet;
+  result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);{{/hasValidation}}{{^hasValidation}}
+  result := true;{{/hasValidation}}
 end;
 
 {{/vars}}

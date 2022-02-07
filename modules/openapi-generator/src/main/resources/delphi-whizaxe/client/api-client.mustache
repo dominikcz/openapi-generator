@@ -212,13 +212,13 @@ begin
     
     {{#returnType}}if TryExecuteRequest(restRequest) then
     begin
-      {{#vendorExtensions.x-codegen-delphi-returns-model}}
+      {{#vendorExtensions.x-delphi-returns-model}}
       result := {{{.}}}.Create;
       TSerializer.DeserializeObject(result, restRequest.Response.Content);
-      {{/vendorExtensions.x-codegen-delphi-returns-model}}
-      {{^vendorExtensions.x-codegen-delphi-returns-model}}
+      {{/vendorExtensions.x-delphi-returns-model}}
+      {{^vendorExtensions.x-delphi-returns-model}}
       result := restRequest.Response.Content;
-      {{/vendorExtensions.x-codegen-delphi-returns-model}}
+      {{/vendorExtensions.x-delphi-returns-model}}
     end
 	else
 	  result := nil;

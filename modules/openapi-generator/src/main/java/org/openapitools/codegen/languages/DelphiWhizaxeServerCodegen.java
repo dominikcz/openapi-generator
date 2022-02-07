@@ -40,7 +40,6 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE = "useModelsFullNamespace";
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE_DESC = "use full namespace for models dataType";
 
-
     static final Logger LOGGER = LoggerFactory.getLogger(DelphiWhizaxeServerCodegen.class);
     protected final String PREFIX = "";
 
@@ -80,7 +79,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC,
                 Boolean.toString(this.variableNameFirstCharacterUppercase));
         addOption(OPTION_MODEL_FILENAME_PREFIX, OPTION_MODEL_FILENAME_PREFIX_DESC, this.modelFilenamePrefix);
-        addOption (OPTION_USE_MODELS_FULL_NAMESPACE, OPTION_USE_MODELS_FULL_NAMESPACE_DESC, String.valueOf(this.useModelsFullNamespace));
+        addOption(OPTION_USE_MODELS_FULL_NAMESPACE, OPTION_USE_MODELS_FULL_NAMESPACE_DESC,
+                String.valueOf(this.useModelsFullNamespace));
         typeMapping = new HashMap<String, String>();
         typeMapping.put("date", "TDateTime");
         typeMapping.put("DateTime", "TDateTime");
@@ -97,6 +97,15 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         typeMapping.put("ByteArray", "TBytes");
         typeMapping.put("BigDecimal", "Currency");
 
+        nullTypeMapping = new HashMap<>();
+        nullTypeMapping.put("string", "NullString");
+        nullTypeMapping.put("boolean", "NullBoolean");
+        nullTypeMapping.put("Integer", "NullInteger");
+        nullTypeMapping.put("Int64", "NullInt64");
+        nullTypeMapping.put("Double", "NullDouble");
+        nullTypeMapping.put("TDateTime", "NullDateTime");
+        nullTypeMapping.put("Currency", "NullCurrency");
+
         super.importMapping = new HashMap<String, String>();
         importMapping.put("TList", "Generics.Collections");
         importMapping.put("TArray", "Generics.Collections");
@@ -104,8 +113,16 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         importMapping.put("TDictionary", "Generics.Collections");
         importMapping.put("TObjectDictionary", "Generics.Collections");
         importMapping.put("TStream", "System.Classes");
-	}
-    
+
+        importMapping.put("NullString", "Neon.Core.Nullables");
+        importMapping.put("NullBoolean", "Neon.Core.Nullables");
+        importMapping.put("NullInteger", "Neon.Core.Nullables");
+        importMapping.put("NullInt64", "Neon.Core.Nullables");
+        importMapping.put("NullDouble", "Neon.Core.Nullables");
+        importMapping.put("NullDateTime", "Neon.Core.Nullables");
+        importMapping.put("NullCurrency", "Neon.Core.Nullables");
+    }
+
     @Override
     public void processOpts() {
         super.processOpts();
@@ -119,8 +136,10 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             reservedWordPrefix = (String) additionalProperties.get(RESERVED_WORD_PREFIX_OPTION);
         }
 
-//        additionalProperties.put("modelNamespaceDeclarations", modelPackage.split("\\."));
-//        additionalProperties.put("modelNamespace", modelPackage.replaceAll("\\.", "::"));
+        // additionalProperties.put("modelNamespaceDeclarations",
+        // modelPackage.split("\\."));
+        // additionalProperties.put("modelNamespace", modelPackage.replaceAll("\\.",
+        // "::"));
         additionalProperties.put("apiNamespaceDeclarations", apiPackage.split("\\."));
         additionalProperties.put("apiNamespace", apiPackage.replaceAll("\\.", "::"));
         additionalProperties.put(RESERVED_WORD_PREFIX_OPTION, reservedWordPrefix);
@@ -131,18 +150,22 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
-//        supportingFiles.clear();
+        // supportingFiles.clear();
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("project_dpr_app.mustache", "", this.programName + "App.dpr"));
         supportingFiles.add(new SupportingFile("project_dpr_srv.mustache", "", this.programName + "Srv.dpr"));
-        supportingFiles.add(new SupportingFile("FormMainPas.mustache", "", "FormMain.pas")/*.doNotOverwrite()*/);
-        supportingFiles.add(new SupportingFile("FormMainDfm.mustache", "", "FormMain.dfm")/*.doNotOverwrite()*/);
+        supportingFiles.add(new SupportingFile("FormMainPas.mustache", "", "FormMain.pas")/* .doNotOverwrite() */);
+        supportingFiles.add(new SupportingFile("FormMainDfm.mustache", "", "FormMain.dfm")/* .doNotOverwrite() */);
 
-        supportingFiles.add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
-        supportingFiles.add(new SupportingFile("client\\api-client.mustache", "", this.programName +"Client.pas"));
-        supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas").doNotOverwrite());
-        supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm").doNotOverwrite());
-        supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
+        supportingFiles
+                .add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
+        supportingFiles.add(new SupportingFile("client\\api-client.mustache", "", this.programName + "Client.pas"));
+        supportingFiles.add(
+                new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas").doNotOverwrite());
+        supportingFiles.add(
+                new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm").doNotOverwrite());
+        supportingFiles
+                .add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
         supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
 
     }
@@ -152,26 +175,27 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             modelType = (String) additionalProperties.get(OPTION_MODEL_TYPE);
 
         LOGGER.info("Using [" + modelType + "] model template");
-        modelTemplateFiles.put("model-"+ modelType+ "-pas.mustache", ".pas");
-        modelTemplateFiles.put("model-"+ modelType+ "-default.mustache", ".default");
+        modelTemplateFiles.put("model-" + modelType + "-pas.mustache", ".pas");
+        modelTemplateFiles.put("model-" + modelType + "-default.mustache", ".default");
     }
 
     @Override
     public String toModelImport(String name) {
         if (languageSpecificPrimitives.contains(name)) {
-          return null;
+            return null;
         }
         if (importMapping.containsKey(name)) {
             return importMapping.get(name);
         } else {
             if (typeMapping.keySet().contains(name) || typeMapping.values().contains(name)
                     || importMapping.values().contains(name) || defaultIncludes.contains(name)
-                    || languageSpecificPrimitives.contains(name) || usedModels.contains(name)) {
-                if (name == "TExtInfo"){
+                    || languageSpecificPrimitives.contains(name) || usedModels.contains(name)
+                    || nullTypeMapping.values().contains(name)) {
+                if (name == "TExtInfo") {
                     return "Model.ExtInfo";
-                }else
+                } else
                     return name;
-            }else {
+            } else {
                 return modelFilenamePrefix + name;
             }
         }
@@ -185,26 +209,33 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         codegenModel.imports = new HashSet<>();
         for (String imp : oldImports) {
             String newImp = toModelImport(imp);
-            if (!( newImp.isEmpty() )) {
+            if (!(newImp.isEmpty())) {
                 codegenModel.imports.add(newImp);
                 usedModels.add(newImp);
             }
         }
 
-        if(!codegenModel.isEnum
-                && codegenModel.anyOf.size()>1
+        if (!codegenModel.isEnum
+                && codegenModel.anyOf.size() > 1
                 && codegenModel.anyOf.contains("string")
                 && !codegenModel.anyOf.contains("AnyType")
-                && codegenModel.interfaces.size()==1
-        ){
+                && codegenModel.interfaces.size() == 1) {
             codegenModel.vendorExtensions.put("x-is-string-enum-container", true);
         }
-        codegenModel.vendorExtensions.put("x-codegen-delphi-enum", codegenModel.isEnum || (codegenModel.allowableValues != null && codegenModel.allowableValues.size() > 0));
+        codegenModel.vendorExtensions.put("x-delphi-enum", codegenModel.isEnum
+                || (codegenModel.allowableValues != null && codegenModel.allowableValues.size() > 0));
+        if (nullTypeMapping.containsKey(codegenModel.dataType)) {
+            codegenModel.vendorExtensions.put("x-delphi-nullable-type", nullTypeMapping.get(codegenModel.dataType));
+        }
 
-        if (!languageSpecificPrimitives.contains(codegenModel.dataType) && !languageSpecificTypes.contains(codegenModel.dataType)) {
+        if (!languageSpecificPrimitives.contains(codegenModel.dataType)
+                && !languageSpecificTypes.contains(codegenModel.dataType)
+                && !nullTypeMapping.values().contains(codegenModel.dataType)) {
             if (useModelsFullNamespace)
-                codegenModel.dataType = toModelFilename(codegenModel.classname) + ".T" + toModelName(codegenModel.dataType);
-        };
+                codegenModel.dataType = toModelFilename(codegenModel.classname) + ".T"
+                        + toModelName(codegenModel.dataType);
+        }
+        ;
 
         return codegenModel;
 
@@ -226,23 +257,25 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     if ("HttpContent".equals(cm.dataType)) {
                         op.vendorExtensions.put("x-codegen-response-ishttpcontent", true);
                     }
-                    if(cm.isArray && cm.items != null && cm.items.isModel){
+                    if (cm.isArray && cm.items != null && cm.items.isModel) {
                         op.returnType = "TObjectList<" + getTypeDeclaration(op.returnBaseType) + ">";
-                    }else
+                    } else
                         op.returnType = getTypeDeclaration(op.returnBaseType);
                 }
             }
         }
 
-//        String pathForPistache = path.replaceAll("\\{(.*?)}", ":$1");
-//        op.vendorExtensions.put("x-codegen-pistache-path", pathForPistache);
-        if (op.returnContainer != null){
+        // String pathForPistache = path.replaceAll("\\{(.*?)}", ":$1");
+        // op.vendorExtensions.put("x-codegen-pistache-path", pathForPistache);
+        if (op.returnContainer != null) {
             op.imports.add("Generics.Collections");
         }
 
-        op.vendorExtensions.put("x-codegen-delphi-needs-var", op.returnType != null || op.hasParams);
-        op.vendorExtensions.put("x-codegen-delphi-needs-free", (op.returnType != null && !op.returnTypeIsPrimitive) || op.bodyParams != null );
-        op.vendorExtensions.put("x-codegen-delphi-returns-model", op.returnType != null && (!op.returnTypeIsPrimitive || op.isArray || op.isMap));
+        op.vendorExtensions.put("x-delphi-needs-var", op.returnType != null || op.hasParams);
+        op.vendorExtensions.put("x-delphi-needs-free",
+                (op.returnType != null && !op.returnTypeIsPrimitive) || op.bodyParams != null);
+        op.vendorExtensions.put("x-delphi-returns-model",
+                op.returnType != null && (!op.returnTypeIsPrimitive || op.isArray || op.isMap));
 
         return op;
     }
@@ -254,8 +287,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         String classname = (String) operations.get("classname");
         operations.put("classnameSnakeUpperCase", underscore(classname).toUpperCase(Locale.ROOT));
         operations.put("classnameSnakeLowerCase", underscore(classname).toLowerCase(Locale.ROOT));
-        operations.put("x-codegen-delphi-api-guid", "{" + java.util.UUID.randomUUID().toString().toUpperCase(Locale.ROOT) + "}");
-        operations.put("x-codegen-delphi-demo-code-api-uses", this.getApiUsesDemoSnippet(classname));
+        operations.put("x-delphi-api-guid",
+                "{" + java.util.UUID.randomUUID().toString().toUpperCase(Locale.ROOT) + "}");
+        operations.put("x-delphi-demo-code-api-uses", this.getApiUsesDemoSnippet(classname));
 
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
         for (CodegenOperation op : operationList) {
@@ -267,11 +301,11 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 }
 
                 boolean isStringOrDate = op.bodyParam.isString || op.bodyParam.isDate;
-                op.bodyParam.vendorExtensions.put("x-codegen-delphi-whizaxe-is-string-or-date", isStringOrDate);
+                op.bodyParam.vendorExtensions.put("x-delphi-whizaxe-is-string-or-date", isStringOrDate);
 
-                if (op.bodyParam.isArray && op.bodyParam.items != null && op.bodyParam.items.isModel){
-                        op.bodyParam.dataType = "TObjectList<" + getTypeDeclaration(op.bodyParam.baseType) + ">";
-                    }
+                if (op.bodyParam.isArray && op.bodyParam.items != null && op.bodyParam.items.isModel) {
+                    op.bodyParam.dataType = "TObjectList<" + getTypeDeclaration(op.bodyParam.baseType) + ">";
+                }
             }
 
             if (op.consumes != null) {
@@ -282,65 +316,71 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 }
             }
 
-            op.httpMethod = op.httpMethod.substring(0, 1).toUpperCase(Locale.ROOT) + op.httpMethod.substring(1).toLowerCase(Locale.ROOT);
+            op.httpMethod = op.httpMethod.substring(0, 1).toUpperCase(Locale.ROOT)
+                    + op.httpMethod.substring(1).toLowerCase(Locale.ROOT);
 
             for (CodegenParameter param : op.allParams) {
-                if (param.isFormParam) isParsingSupported = false;
-                if (param.isFile) isParsingSupported = false;
-                if (param.isCookieParam) isParsingSupported = false;
+                if (param.isFormParam)
+                    isParsingSupported = false;
+                if (param.isFile)
+                    isParsingSupported = false;
+                if (param.isCookieParam)
+                    isParsingSupported = false;
 
+                // DC: nadmiarowe usesy Generics.Collections dla api z parametrami
+                // if (param.baseType != null){
+                // String newImp = toModelImport(param.baseType);
+                // if (!( newImp.isEmpty() )) {
+                // op.imports.add(newImp);
+                // usedModels.add(newImp);
+                // }
+                // }
 
-
-                //DC: nadmiarowe usesy Generics.Collections dla api z parametrami
-//                if (param.baseType != null){
-//                    String newImp = toModelImport(param.baseType);
-//                    if (!( newImp.isEmpty() )) {
-//                        op.imports.add(newImp);
-//                        usedModels.add(newImp);
-//                    }
-//                }
-
-                //TODO: This changes the info about the real type but it is needed to parse the header params
-//                if (param.isHeaderParam) {
-//                    param.dataType = "Pistache::Optional<Pistache::Http::Header::Raw>";
-//                    param.baseType = "Pistache::Optional<Pistache::Http::Header::Raw>";
-//                } else if (param.isQueryParam) {
-//                    if (param.isPrimitiveType) {
-//                        param.dataType = "Pistache::Optional<" + param.dataType + ">";
-//                    } else {
-//                        param.dataType = "Pistache::Optional<" + param.dataType + ">";
-//                        param.baseType = "Pistache::Optional<" + param.baseType + ">";
-//                    }
-//                }
+                // TODO: This changes the info about the real type but it is needed to parse the
+                // header params
+                // if (param.isHeaderParam) {
+                // param.dataType = "Pistache::Optional<Pistache::Http::Header::Raw>";
+                // param.baseType = "Pistache::Optional<Pistache::Http::Header::Raw>";
+                // } else if (param.isQueryParam) {
+                // if (param.isPrimitiveType) {
+                // param.dataType = "Pistache::Optional<" + param.dataType + ">";
+                // } else {
+                // param.dataType = "Pistache::Optional<" + param.dataType + ">";
+                // param.baseType = "Pistache::Optional<" + param.baseType + ">";
+                // }
+                // }
             }
 
-
             for (CodegenParameter param : op.bodyParams) {
-                if (param.isFormParam) isParsingSupported = false;
-                if (param.isFile) isParsingSupported = false;
-                if (param.isCookieParam) isParsingSupported = false;
-
+                if (param.isFormParam)
+                    isParsingSupported = false;
+                if (param.isFile)
+                    isParsingSupported = false;
+                if (param.isCookieParam)
+                    isParsingSupported = false;
 
             }
 
             for (CodegenParameter param : op.pathParams) {
-                if (param.isFormParam) isParsingSupported = false;
-                if (param.isFile) isParsingSupported = false;
-                if (param.isCookieParam) isParsingSupported = false;
+                if (param.isFormParam)
+                    isParsingSupported = false;
+                if (param.isFile)
+                    isParsingSupported = false;
+                if (param.isCookieParam)
+                    isParsingSupported = false;
 
             }
 
-
-//            if (op.returnBaseType != null) {
-//                if (op.returnContainer == "array") {
-//                    op.imports.add("TObjectList");
-//                }
-//                String newImp = toModelImport(op.returnBaseType);
-//                if (!(newImp.isEmpty())) {
-//                    op.imports.add(newImp);
-//                    usedModels.add(newImp);
-//                }
-//            }
+            // if (op.returnBaseType != null) {
+            // if (op.returnContainer == "array") {
+            // op.imports.add("TObjectList");
+            // }
+            // String newImp = toModelImport(op.returnBaseType);
+            // if (!(newImp.isEmpty())) {
+            // op.imports.add(newImp);
+            // usedModels.add(newImp);
+            // }
+            // }
 
             if (op.vendorExtensions == null) {
                 op.vendorExtensions = new HashMap<>();
@@ -348,15 +388,16 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             op.vendorExtensions.put("x-codegen-consumes-json", consumeJson);
             op.vendorExtensions.put("x-codegen-is-parsing-supported", isParsingSupported);
 
-            // Check if any one of the operations needs a model, then at API file level, at least one model has to be included.
+            // Check if any one of the operations needs a model, then at API file level, at
+            // least one model has to be included.
             for (String hdr : op.imports) {
                 if (importMapping.containsKey(hdr)) {
                     continue;
                 }
                 operations.put("hasModelImport", true);
             }
-            op.vendorExtensions.put("x-codegen-delphi-demo-code-api", this.getOperationDemoSnippet(op.operationId));
-            op.vendorExtensions.put("x-codegen-delphi-demo-code-client", this.getClientOperationDemoSnippet(op.operationId));
+            op.vendorExtensions.put("x-delphi-demo-code-api", this.getOperationDemoSnippet(op.operationId));
+            op.vendorExtensions.put("x-delphi-demo-code-client", this.getClientOperationDemoSnippet(op.operationId));
         }
 
         return objs;
@@ -392,7 +433,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
      * for different property types
      *
      * @return a string value used as the `dataType` field for model templates,
-     * `returnType` for api templates
+     *         `returnType` for api templates
      */
     @Override
     public String getTypeDeclaration(Schema p) {
@@ -416,21 +457,45 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 || languageSpecificPrimitives.contains(openAPIType)) {
             return toModelName(openAPIType);
         }
-          
-        if (!languageSpecificPrimitives.contains(p.getType())){
-            return 'T'+toModelName(openAPIType);
-        }        
+
+        String type = p.getType();
+        if (!languageSpecificPrimitives.contains(type)
+                && !nullTypeMapping.containsKey(openAPIType)
+                && !nullTypeMapping.values().contains(openAPIType)) {
+            return "T" + toModelName(openAPIType);
+        }
 
         return openAPIType;
     }
 
     @Override
     public String toDefaultValue(Schema p) {
-        if (ModelUtils.isStringSchema(p)) {
+        Map<String, Object> map;
+        if (p.getExtensions() == null) {
+            p.setExtensions(new HashMap<>());
+        }
+        map = p.getExtensions();
+        map.put("x-delphi-has-valid-default", true);
+
+        if (ModelUtils.isDateSchema(p)) {
             if (p.getDefault() != null) {
-                return "\"" + p.getDefault().toString() + "\"";
+                return p.getDefault().toString();
             } else {
-                return "\"\"";
+                map.put("x-delphi-has-valid-default", false);
+                return "''";
+            }
+        } else if (ModelUtils.isDateTimeSchema(p)) {
+            if (p.getDefault() != null) {
+                return p.getDefault().toString();
+            } else {
+                map.put("x-delphi-has-valid-default", false);
+                return "''";
+            }
+        } else if (ModelUtils.isStringSchema(p)) {
+            if (p.getDefault() != null) {
+                return p.getDefault().toString();
+            } else {
+                return "''";
             }
         } else if (ModelUtils.isBooleanSchema(p)) {
             if (p.getDefault() != null) {
@@ -438,24 +503,12 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             } else {
                 return "false";
             }
-        } else if (ModelUtils.isDateSchema(p)) {
-            if (p.getDefault() != null) {
-                return "\"" + p.getDefault().toString() + "\"";
-            } else {
-                return "\"\"";
-            }
-        } else if (ModelUtils.isDateTimeSchema(p)) {
-            if (p.getDefault() != null) {
-                return "\"" + p.getDefault().toString() + "\"";
-            } else {
-                return "\"\"";
-            }
         } else if (ModelUtils.isNumberSchema(p)) {
             if (ModelUtils.isFloatSchema(p)) { // float
                 if (p.getDefault() != null) {
                     return p.getDefault().toString() + "f";
                 } else {
-                    return "0.0f";
+                    return "0.0";
                 }
             } else { // double
                 if (p.getDefault() != null) {
@@ -467,9 +520,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         } else if (ModelUtils.isIntegerSchema(p)) {
             if (ModelUtils.isLongSchema(p)) { // long
                 if (p.getDefault() != null) {
-                    return p.getDefault().toString() + "L";
+                    return p.getDefault().toString();
                 } else {
-                    return "0L";
+                    return "0";
                 }
             } else { // integer
                 if (p.getDefault() != null) {
@@ -480,9 +533,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             }
         } else if (ModelUtils.isByteArraySchema(p)) {
             if (p.getDefault() != null) {
-                return "\"" + p.getDefault().toString() + "\"";
+                return p.getDefault().toString();
             } else {
-                return "\"\"";
+                return "";
             }
         } else if (ModelUtils.isMapSchema(p)) {
             String inner = getSchemaType(getAdditionalProperties(p));
@@ -518,7 +571,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
     protected String doGetSnippet(String fileName) {
         String s = null;
-        fileName = (templateDir + "/DemoSnippets/"+ fileName).replace("/", File.separator);
+        fileName = (templateDir + "/DemoSnippets/" + fileName).replace("/", File.separator);
         Path p = Path.of(fileName);
         if (Files.exists(p)) {
             try {
@@ -531,15 +584,15 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     }
 
     public String getOperationDemoSnippet(String operationId) {
-        return doGetSnippet("operations/"+operationId+".pas");
+        return doGetSnippet("operations/" + operationId + ".pas");
     }
 
     public String getApiUsesDemoSnippet(String classname) {
-        return doGetSnippet("operations/uses/"+classname+".pas");
+        return doGetSnippet("operations/uses/" + classname + ".pas");
     }
 
     public String getClientOperationDemoSnippet(String operationId) {
-        return doGetSnippet("client/"+operationId+".pas");
+        return doGetSnippet("client/" + operationId + ".pas");
     }
 
     /**
@@ -553,11 +606,15 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     public String getSchemaType(Schema p) {
         String openAPIType = super.getSchemaType(p);
         String type = null;
-        LOGGER.info("### getSchemaType: type="+openAPIType+", model ="+toModelName(type)+", schema: "+ p);
+        LOGGER.info("### getSchemaType: type=" + openAPIType + ", model =" + toModelName(type) + ", schema: " + p);
         if (typeMapping.containsKey(openAPIType)) {
             type = typeMapping.get(openAPIType);
-            if (languageSpecificPrimitives.contains(type))
-                return toModelName(type);
+            // if (nullTypeMapping.containsKey(type)) {
+            // return nullTypeMapping.get(type);
+            // } else
+            if (languageSpecificPrimitives.contains(type)) {
+                return type;
+            }
         } else
             type = openAPIType;
         return toModelName(type);
@@ -565,8 +622,11 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
     @Override
     public String getTypeDeclaration(String str) {
-        if (useModelsFullNamespace && ! languageSpecificPrimitives.contains(str) && !languageSpecificTypes.contains(str))
-            return toModelFilename(str) + ".T" +  toModelName(str);
+        if (useModelsFullNamespace
+                && !languageSpecificPrimitives.contains(str)
+                && !languageSpecificTypes.contains(str)
+                && !nullTypeMapping.values().contains(str))
+            return toModelFilename(str) + ".T" + toModelName(str);
         else
             return toModelName(str);
     }
@@ -590,9 +650,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         if ("number".equalsIgnoreCase(datatype) || "boolean".equalsIgnoreCase(datatype)) {
             return value;
         } else {
-            return  escapeText(value);
+            return escapeText(value);
         }
     }
-
 
 }
