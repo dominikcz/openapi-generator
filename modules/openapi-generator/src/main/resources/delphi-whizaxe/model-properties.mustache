@@ -5,6 +5,7 @@ unit {{#models}}{{#model}}{{classFilename}}{{/model}}{{/models}};
 interface
 
 uses
+  Neon.Core.Types,
   Neon.Core.Attributes,
   Neon.Core.Nullables,
   whizaxe.REST.Exceptions{{#imports}}{{#-first}},{{/-first}}
@@ -26,10 +27,10 @@ type{{#models}}{{#model}}{{#isEnum}}
 
 //  {$RTTI EXPLICIT PROPERTIES([vcPublic])}
 
+  {$RTTI EXPLICIT METHODS([vcPrivate])}
   T{{classname}} = class{{#isArray}}({{{dataType}}}){{/isArray}}
   private
-    {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}{{#vendorExtensions.x-delphi-nullable-type}}
-    [NeonInclude(IncludeIf.NotNull)]{{/vendorExtensions.x-delphi-nullable-type}}
+    {{#vendorExtensions.x-delphi-enum}}FValue: TEnum{{classname}};{{/vendorExtensions.x-delphi-enum}}{{#vars}}
     {{vendorExtensions.x-delphi-field-name}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}{{/vars}}
 
     {{#vars}}{{#isModel}}
@@ -40,6 +41,7 @@ type{{#models}}{{#model}}{{#isEnum}}
     {{#vars}}
     function {{baseName}}IsValid(out AErrorMessage: string): boolean;
     {{/vars}}
+    function ShouldInclude(const AContext: TNeonIgnoreIfContext): Boolean;
   public
     {{^isArray}}
     constructor Create;
@@ -48,8 +50,9 @@ type{{#models}}{{#model}}{{#isEnum}}
     constructor Create;
     {{/items.isPrimitiveType}}{{/isArray}}
     {{#vars}}
-    [NeonInclude(IncludeIf.NotNull)]
-    property {{{name}}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}} read {{vendorExtensions.x-delphi-field-name}} write {{#isModel}}{{vendorExtensions.x-delphi-setter-name}}{{/isModel}}{{^isModel}}{{vendorExtensions.x-delphi-field-name}}{{/isModel}};
+    {{#vendorExtensions.x-delphi-nullable-type}}[NeonInclude(IncludeIf.NotNull)]
+    property {{{name}}}: Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}[NeonInclude(IncludeIf.CustomFunction)]
+    property {{{name}}}: {{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}} read {{vendorExtensions.x-delphi-field-name}} write {{#isModel}}{{vendorExtensions.x-delphi-setter-name}}{{/isModel}}{{^isModel}}{{vendorExtensions.x-delphi-field-name}}{{/isModel}};
     {{/vars}}
 
     /// <summary>
@@ -84,8 +87,8 @@ uses
   whizaxe.reflections,
 {{/isEnum}}{{/model}}{{/models}}
   whizaxe.serialization,
-  whizaxe.OpenApi.validators,
-  Neon.Core.Types;
+  whizaxe.reflections,
+  whizaxe.OpenApi.validators;
 {{/isEnum}}{{/model}}{{/models}}{{#models}}{{#model}}{{^isEnum}}
 
 { T{{classname}} }
@@ -154,6 +157,13 @@ begin
   finally
     sb.Free;
   end;
+end;
+
+function T{{classname}}.ShouldInclude(const AContext: TNeonIgnoreIfContext): Boolean;
+begin
+  Result := true;
+  if AContext.Operation = TNeonOperation.Serialize then
+    TReflection.TryGetFieldValue<Boolean>(self, 'F'+AContext.MemberName+'IsSet', result);
 end;
 
 {$region 'Getters and setters'}

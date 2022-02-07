@@ -1,3 +1,4 @@
+procedure TMainForm.btnaddItemToBasketClick(Sender: TObject);
 var
   lClient: TvPOSAPIClient;
   item: TBasketItemRequest;
@@ -5,6 +6,7 @@ var
 begin
   lClient := getClient();
   item := TBasketItemRequest.Create;
+  item.idRefuelling := 123;
   try
     lClient.addItemToBasket('1234', item);
   except
