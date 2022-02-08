@@ -195,20 +195,21 @@ function T{{classname}}.{{baseName}}IsValid(out AErrorMessage: string): boolean;
   validator: IValidator<{{{baseType}}}>;
 {{/hasValidation}}
 begin
-  {{#hasValidation}}validator := TDecoratedValidator<{{{baseType}}}>.Create(nil);{{#required}}
-  validator.setRequired(true);{{/required}}{{^required}}{{#defaultValue}}
-  validator.setDefault({{{.}}});{{/defaultValue}}{{/required}}
+  {{#hasValidation}}
   {{#isString}}
-  validator := TStringLengthValidator.Create(validator, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});
+  validator := TStringLengthValidator.Create(nil, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});
   {{/isString}}
   {{#isInteger}}
-  validator := TNumberValidator<integer>.Create(validator, {{#minimum}}true, {{minimum}},{{/minimum}}{{^minimum}}false, 0,{{/minimum}}{{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{#multipleOf}}
+  validator := TNumberValidator<integer>.Create(nil, {{#minimum}}true, {{minimum}},{{/minimum}}{{^minimum}}false, 0,{{/minimum}}{{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{#multipleOf}}
   validator := TMultipleOfValidator<integer>.Create(validator, {{multipleOf}});{{/multipleOf}}
   {{/isInteger}}
   {{#isNumber}}
-  validator := TNumberValidator<currency>.Create(validator,{{#minimum}} true, {{minimum}},{{/minimum}}{{^minimum}} false, 0,{{/minimum}}{{#maximum}} true, {{maximum}}{{/maximum}}{{^maximum}} false, 0{{/maximum}});{{#multipleOf}}
+  validator := TNumberValidator<currency>.Create(nil,{{#minimum}} true, {{minimum}},{{/minimum}}{{^minimum}} false, 0,{{/minimum}}{{#maximum}} true, {{maximum}}{{/maximum}}{{^maximum}} false, 0{{/maximum}});{{#multipleOf}}
   validator := TMultipleOfValidator<currency>.Create(validator, {{multipleOf}});{{/multipleOf}}
   {{/isNumber}}
+  {{#required}}
+  validator.setRequired(true);{{/required}}{{^required}}{{#defaultValue}}
+  validator.setDefault({{{.}}});{{/defaultValue}}{{/required}}
   result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);{{/hasValidation}}{{^hasValidation}}
   result := true;{{/hasValidation}}
 end;
