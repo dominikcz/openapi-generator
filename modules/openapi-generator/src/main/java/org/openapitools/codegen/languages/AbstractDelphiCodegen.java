@@ -281,6 +281,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     @Override
     public CodegenProperty fromProperty(String name, Schema p) {
         String camelName = camelize(name);
+        Boolean isEnum = false;
         CodegenProperty property = super.fromProperty(name, p);
         String nameInCamelCase = property.nameInCamelCase;
         if (isReservedWord(nameInCamelCase) || nameInCamelCase.matches("^\\d.*")) {
@@ -296,8 +297,13 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
         property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
         property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
+        isEnum = property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0);
+        property.vendorExtensions.put("x-delphi-enum", isEnum);
+
         if (nullTypeMapping.containsKey(property.baseType)) {
             property.vendorExtensions.put("x-delphi-nullable-type", nullTypeMapping.get(property.baseType));
+        } else if (isEnum) {
+            property.vendorExtensions.put("x-delphi-nullable-type", property.dataType);
         }
 
         if (property.isArray && property.items != null && property.items.isModel) {
