@@ -208,8 +208,8 @@ begin
   validator := TMultipleOfValidator<currency>.Create(validator, {{multipleOf}});{{/multipleOf}}
   {{/isNumber}}
   {{#required}}
-  validator.setRequired(true);{{/required}}{{^required}}{{#defaultValue}}
-  validator.setDefault({{{.}}});{{/defaultValue}}{{/required}}
+  validator.setRequired(true);{{/required}}{{^required}}{{#x-delphi-has-valid-default}}
+  validator.setDefault({{{defaultValue}}});{{/x-delphi-has-valid-default}}{{/required}}
   result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);{{/hasValidation}}{{^hasValidation}}
   result := true;{{/hasValidation}}
 end;
