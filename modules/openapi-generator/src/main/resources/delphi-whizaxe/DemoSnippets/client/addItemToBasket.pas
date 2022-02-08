@@ -1,4 +1,3 @@
-procedure TMainForm.btnaddItemToBasketClick(Sender: TObject);
 var
   lClient: TvPOSAPIClient;
   item: TBasketItemRequest;

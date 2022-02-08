@@ -75,6 +75,8 @@ type{{#models}}{{#model}}{{#isEnum}}
     /// </summary>
     procedure UpdateFromJson(AJson: string);
 
+    {{#vars}}{{#isModel}}
+    function {{{name}}}IsSet: boolean;{{/isModel}}{{/vars}}
   end;
 {{/isEnum}}{{/model}}{{/models}}{{#models}}{{#model}}
 
@@ -169,7 +171,12 @@ end;
 {$region 'Getters and setters'}
 {{#vars}}
 
-{{#isModel}}procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
+{{#isModel}}function T{{classname}}.{{{name}}}IsSet: boolean;
+begin
+  result := {{vendorExtensions.x-delphi-field-name}}IsSet;
+end;
+
+procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
   {{vendorExtensions.x-delphi-field-name}}IsSet := Assigned(AValue);
   if AValue = {{vendorExtensions.x-delphi-field-name}} then
@@ -177,9 +184,7 @@ begin
   {{vendorExtensions.x-delphi-field-name}}.Free;
   {{vendorExtensions.x-delphi-field-name}} := AValue;
 end;
-{{/isModel}}
-
-{{/vars}}
+{{/isModel}}{{/vars}}
 {$endregion}
 
 {$region 'Validations'}
