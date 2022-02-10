@@ -34,8 +34,6 @@ type{{#models}}{{#model}}{{#isEnum}}
     {{vendorExtensions.x-delphi-field-name}}: {{#vendorExtensions.x-delphi-nullable-type}}Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}{{{dataType}}}{{/vendorExtensions.x-delphi-nullable-type}}{{#deprecated}} deprecated{{/deprecated}}; {{#description}}// {{description}}{{/description}}{{/vars}}
 
     {{#vars}}{{#isModel}}
-    {{vendorExtensions.x-delphi-field-name}}IsSet: boolean;{{/isModel}}{{/vars}}
-    {{#vars}}{{#isModel}}
     procedure {{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});{{/isModel}}{{/vars}}
 
     {{#vars}}
@@ -104,8 +102,6 @@ end;
 constructor T{{classname}}.Create;
 begin
   inherited Create;
-  {{#vars}}{{#isModel}}
-  {{vendorExtensions.x-delphi-field-name}} := {{{dataType}}}.Create;{{/isModel}}{{/vars}}
 end;
 
 destructor T{{classname}}.Destroy;
@@ -164,8 +160,9 @@ end;
 function T{{classname}}.ShouldInclude(const AContext: TNeonIgnoreIfContext): Boolean;
 begin
   Result := true;
-  if AContext.Operation = TNeonOperation.Serialize then
-    TReflection.TryGetFieldValue<Boolean>(self, 'F'+AContext.MemberName+'IsSet', result);
+
+  if AContext.Operation = TNeonOperation.Deserialize then
+    TReflection.TryCreateFieldValue(self, 'F'+AContext.MemberName);
 end;
 
 {$region 'Getters and setters'}
@@ -173,12 +170,11 @@ end;
 
 {{#isModel}}function T{{classname}}.{{{name}}}IsSet: boolean;
 begin
-  result := {{vendorExtensions.x-delphi-field-name}}IsSet;
+  result :=  Assigned({{vendorExtensions.x-delphi-field-name}});
 end;
 
 procedure T{{classname}}.{{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});
 begin
-  {{vendorExtensions.x-delphi-field-name}}IsSet := Assigned(AValue);
   if AValue = {{vendorExtensions.x-delphi-field-name}} then
     exit;
   {{vendorExtensions.x-delphi-field-name}}.Free;
