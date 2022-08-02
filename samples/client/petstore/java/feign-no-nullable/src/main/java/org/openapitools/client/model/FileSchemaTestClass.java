@@ -44,7 +44,7 @@ public class FileSchemaTestClass {
   public static final String JSON_PROPERTY_FILES = "files";
   private List<File> files = null;
 
-  public FileSchemaTestClass() { 
+  public FileSchemaTestClass() {
   }
 
   public FileSchemaTestClass file(File file) {
@@ -82,7 +82,7 @@ public class FileSchemaTestClass {
 
   public FileSchemaTestClass addFilesItem(File filesItem) {
     if (this.files == null) {
-      this.files = new ArrayList<File>();
+      this.files = new ArrayList<>();
     }
     this.files.add(filesItem);
     return this;

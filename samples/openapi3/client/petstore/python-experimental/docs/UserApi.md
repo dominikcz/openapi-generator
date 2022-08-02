@@ -4,14 +4,14 @@ All URIs are relative to *http://petstore.swagger.io:80/v2*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**create_user**](UserApi.md#create_user) | **POST** /user | Create user
-[**create_users_with_array_input**](UserApi.md#create_users_with_array_input) | **POST** /user/createWithArray | Creates list of users with given input array
-[**create_users_with_list_input**](UserApi.md#create_users_with_list_input) | **POST** /user/createWithList | Creates list of users with given input array
-[**delete_user**](UserApi.md#delete_user) | **DELETE** /user/{username} | Delete user
-[**get_user_by_name**](UserApi.md#get_user_by_name) | **GET** /user/{username} | Get user by user name
-[**login_user**](UserApi.md#login_user) | **GET** /user/login | Logs user into the system
-[**logout_user**](UserApi.md#logout_user) | **GET** /user/logout | Logs out current logged in user session
-[**update_user**](UserApi.md#update_user) | **PUT** /user/{username} | Updated user
+[**create_user**](UserApi.md#create_user) | **post** /user | Create user
+[**create_users_with_array_input**](UserApi.md#create_users_with_array_input) | **post** /user/createWithArray | Creates list of users with given input array
+[**create_users_with_list_input**](UserApi.md#create_users_with_list_input) | **post** /user/createWithList | Creates list of users with given input array
+[**delete_user**](UserApi.md#delete_user) | **delete** /user/{username} | Delete user
+[**get_user_by_name**](UserApi.md#get_user_by_name) | **get** /user/{username} | Get user by user name
+[**login_user**](UserApi.md#login_user) | **get** /user/login | Logs user into the system
+[**logout_user**](UserApi.md#logout_user) | **get** /user/logout | Logs out current logged in user session
+[**update_user**](UserApi.md#update_user) | **put** /user/{username} | Updated user
 
 # **create_user**
 > create_user(user)
@@ -24,7 +24,7 @@ This can only be done by the logged in user.
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from petstore_api.model.user import User
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -51,6 +51,7 @@ with petstore_api.ApiClient(configuration) as api_client:
         object_with_no_declared_props=dict(),
         object_with_no_declared_props_nullable=dict(),
         any_type_prop=None,
+        any_type_except_null_prop=None,
         any_type_prop_nullable=None,
     )
     try:
@@ -84,7 +85,7 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-default | ApiResponseForDefault | successful operation 
+default | ApiResponseForDefault | successful operation
 
 #### ApiResponseForDefault
 Name | Type | Description  | Notes
@@ -111,7 +112,7 @@ Creates list of users with given input array
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from petstore_api.model.user import User
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -139,6 +140,7 @@ with petstore_api.ApiClient(configuration) as api_client:
             object_with_no_declared_props=dict(),
             object_with_no_declared_props_nullable=dict(),
             any_type_prop=None,
+            any_type_except_null_prop=None,
             any_type_prop_nullable=None,
         )
     ]
@@ -173,7 +175,7 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-default | ApiResponseForDefault | successful operation 
+default | ApiResponseForDefault | successful operation
 
 #### ApiResponseForDefault
 Name | Type | Description  | Notes
@@ -200,7 +202,7 @@ Creates list of users with given input array
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from petstore_api.model.user import User
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -228,6 +230,7 @@ with petstore_api.ApiClient(configuration) as api_client:
             object_with_no_declared_props=dict(),
             object_with_no_declared_props_nullable=dict(),
             any_type_prop=None,
+            any_type_except_null_prop=None,
             any_type_prop_nullable=None,
         )
     ]
@@ -262,7 +265,7 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-default | ApiResponseForDefault | successful operation 
+default | ApiResponseForDefault | successful operation
 
 #### ApiResponseForDefault
 Name | Type | Description  | Notes
@@ -291,7 +294,7 @@ This can only be done by the logged in user.
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
 # See configuration.py for a list of all supported configuration parameters.
@@ -343,8 +346,8 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-400 | ApiResponseFor400 | Invalid username supplied 
-404 | ApiResponseFor404 | User not found 
+400 | ApiResponseFor400 | Invalid username supplied
+404 | ApiResponseFor404 | User not found
 
 #### ApiResponseFor400
 Name | Type | Description  | Notes
@@ -378,7 +381,7 @@ Get user by user name
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from petstore_api.model.user import User
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -433,9 +436,9 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
-400 | ApiResponseFor400 | Invalid username supplied 
-404 | ApiResponseFor404 | User not found 
+200 | ApiResponseFor200 | successful operation
+400 | ApiResponseFor400 | Invalid username supplied
+404 | ApiResponseFor404 | User not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -488,7 +491,7 @@ Logs user into the system
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
 # See configuration.py for a list of all supported configuration parameters.
@@ -551,8 +554,8 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
-400 | ApiResponseFor400 | Invalid username/password supplied 
+200 | ApiResponseFor200 | successful operation
+400 | ApiResponseFor400 | Invalid username/password supplied
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -621,7 +624,7 @@ Logs out current logged in user session
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
 # See configuration.py for a list of all supported configuration parameters.
@@ -649,7 +652,7 @@ This endpoint does not need any parameter.
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-default | ApiResponseForDefault | successful operation 
+default | ApiResponseForDefault | successful operation
 
 #### ApiResponseForDefault
 Name | Type | Description  | Notes
@@ -678,7 +681,7 @@ This can only be done by the logged in user.
 
 ```python
 import petstore_api
-from petstore_api.api import user_api
+from petstore_api.apis.tags import user_api
 from petstore_api.model.user import User
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -708,6 +711,7 @@ with petstore_api.ApiClient(configuration) as api_client:
         object_with_no_declared_props=dict(),
         object_with_no_declared_props_nullable=dict(),
         any_type_prop=None,
+        any_type_except_null_prop=None,
         any_type_prop_nullable=None,
     )
     try:
@@ -756,8 +760,8 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-400 | ApiResponseFor400 | Invalid user supplied 
-404 | ApiResponseFor404 | User not found 
+400 | ApiResponseFor400 | Invalid user supplied
+404 | ApiResponseFor404 | User not found
 
 #### ApiResponseFor400
 Name | Type | Description  | Notes

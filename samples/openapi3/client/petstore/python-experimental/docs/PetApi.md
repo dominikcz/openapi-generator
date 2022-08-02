@@ -4,15 +4,15 @@ All URIs are relative to *http://petstore.swagger.io:80/v2*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**add_pet**](PetApi.md#add_pet) | **POST** /pet | Add a new pet to the store
-[**delete_pet**](PetApi.md#delete_pet) | **DELETE** /pet/{petId} | Deletes a pet
-[**find_pets_by_status**](PetApi.md#find_pets_by_status) | **GET** /pet/findByStatus | Finds Pets by status
-[**find_pets_by_tags**](PetApi.md#find_pets_by_tags) | **GET** /pet/findByTags | Finds Pets by tags
-[**get_pet_by_id**](PetApi.md#get_pet_by_id) | **GET** /pet/{petId} | Find pet by ID
-[**update_pet**](PetApi.md#update_pet) | **PUT** /pet | Update an existing pet
-[**update_pet_with_form**](PetApi.md#update_pet_with_form) | **POST** /pet/{petId} | Updates a pet in the store with form data
-[**upload_file_with_required_file**](PetApi.md#upload_file_with_required_file) | **POST** /fake/{petId}/uploadImageWithRequiredFile | uploads an image (required)
-[**upload_image**](PetApi.md#upload_image) | **POST** /pet/{petId}/uploadImage | uploads an image
+[**add_pet**](PetApi.md#add_pet) | **post** /pet | Add a new pet to the store
+[**delete_pet**](PetApi.md#delete_pet) | **delete** /pet/{petId} | Deletes a pet
+[**find_pets_by_status**](PetApi.md#find_pets_by_status) | **get** /pet/findByStatus | Finds Pets by status
+[**find_pets_by_tags**](PetApi.md#find_pets_by_tags) | **get** /pet/findByTags | Finds Pets by tags
+[**get_pet_by_id**](PetApi.md#get_pet_by_id) | **get** /pet/{petId} | Find pet by ID
+[**update_pet**](PetApi.md#update_pet) | **put** /pet | Update an existing pet
+[**update_pet_with_form**](PetApi.md#update_pet_with_form) | **post** /pet/{petId} | Updates a pet in the store with form data
+[**upload_file_with_required_file**](PetApi.md#upload_file_with_required_file) | **post** /fake/{petId}/uploadImageWithRequiredFile | uploads an image (required)
+[**upload_image**](PetApi.md#upload_image) | **post** /pet/{petId}/uploadImage | uploads an image
 
 # **add_pet**
 > add_pet(pet)
@@ -26,7 +26,7 @@ Add a new pet to the store
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from petstore_api.model.pet import Pet
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -167,8 +167,8 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | Ok 
-405 | ApiResponseFor405 | Invalid input 
+200 | ApiResponseFor200 | Ok
+405 | ApiResponseFor405 | Invalid input
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -203,7 +203,7 @@ Deletes a pet
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
 # See configuration.py for a list of all supported configuration parameters.
@@ -298,7 +298,7 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-400 | ApiResponseFor400 | Invalid pet value 
+400 | ApiResponseFor400 | Invalid pet value
 
 #### ApiResponseFor400
 Name | Type | Description  | Notes
@@ -328,7 +328,7 @@ Multiple status values can be provided with comma separated strings
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from petstore_api.model.pet import Pet
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -456,8 +456,8 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
-400 | ApiResponseFor400 | Invalid status value 
+200 | ApiResponseFor200 | successful operation
+400 | ApiResponseFor400 | Invalid status value
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -506,7 +506,7 @@ Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from petstore_api.model.pet import Pet
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -634,8 +634,8 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
-400 | ApiResponseFor400 | Invalid tag value 
+200 | ApiResponseFor200 | successful operation
+400 | ApiResponseFor400 | Invalid tag value
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -684,7 +684,7 @@ Returns a single pet
 * Api Key Authentication (api_key):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from petstore_api.model.pet import Pet
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -749,9 +749,9 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
-400 | ApiResponseFor400 | Invalid ID supplied 
-404 | ApiResponseFor404 | Pet not found 
+200 | ApiResponseFor200 | successful operation
+400 | ApiResponseFor400 | Invalid ID supplied
+404 | ApiResponseFor404 | Pet not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -805,7 +805,7 @@ Update an existing pet
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from petstore_api.model.pet import Pet
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -946,9 +946,9 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-400 | ApiResponseFor400 | Invalid ID supplied 
-404 | ApiResponseFor404 | Pet not found 
-405 | ApiResponseFor405 | Validation exception 
+400 | ApiResponseFor400 | Invalid ID supplied
+404 | ApiResponseFor404 | Pet not found
+405 | ApiResponseFor405 | Validation exception
 
 #### ApiResponseFor400
 Name | Type | Description  | Notes
@@ -990,7 +990,7 @@ Updates a pet in the store with form data
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
 # See configuration.py for a list of all supported configuration parameters.
@@ -1082,7 +1082,7 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-405 | ApiResponseFor405 | Invalid input 
+405 | ApiResponseFor405 | Invalid input
 
 #### ApiResponseFor405
 Name | Type | Description  | Notes
@@ -1110,7 +1110,7 @@ uploads an image (required)
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from petstore_api.model.api_response import ApiResponse
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -1206,7 +1206,7 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
+200 | ApiResponseFor200 | successful operation
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -1240,7 +1240,7 @@ uploads an image
 * OAuth Authentication (petstore_auth):
 ```python
 import petstore_api
-from petstore_api.api import pet_api
+from petstore_api.apis.tags import pet_api
 from petstore_api.model.api_response import ApiResponse
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -1315,7 +1315,7 @@ skip_deserialization | bool | default is False | when True, headers and body wil
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **additionalMetadata** | **str** | Additional data to pass to server | [optional] 
-**file** | **file_type** | file to upload | 
+**file** | **file_type** | file to upload | [optional] 
 **any string name** | **bool, date, datetime, dict, float, int, list, str, none_type** | any string name can be used but the value must be the correct type | [optional]
 
 ### path_params
@@ -1336,7 +1336,7 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
+200 | ApiResponseFor200 | successful operation
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes

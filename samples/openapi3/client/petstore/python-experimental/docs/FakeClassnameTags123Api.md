@@ -4,7 +4,7 @@ All URIs are relative to *http://petstore.swagger.io:80/v2*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**classname**](FakeClassnameTags123Api.md#classname) | **PATCH** /fake_classname_test | To test class name in snake case
+[**classname**](FakeClassnameTags123Api.md#classname) | **patch** /fake_classname_test | To test class name in snake case
 
 # **classname**
 > Client classname(client)
@@ -18,7 +18,7 @@ To test class name in snake case
 * Api Key Authentication (api_key_query):
 ```python
 import petstore_api
-from petstore_api.api import fake_classname_tags_123_api
+from petstore_api.apis.tags import fake_classname_tags123_api
 from petstore_api.model.client import Client
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -40,7 +40,7 @@ configuration.api_key['api_key_query'] = 'YOUR_API_KEY'
 # Enter a context with an instance of the API client
 with petstore_api.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = fake_classname_tags_123_api.FakeClassnameTags123Api(api_client)
+    api_instance = fake_classname_tags123_api.FakeClassnameTags123Api(api_client)
 
     # example passing only required values which don't have defaults set
     body = Client(
@@ -79,7 +79,7 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
+200 | ApiResponseFor200 | successful operation
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes

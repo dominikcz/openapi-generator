@@ -4,10 +4,10 @@ All URIs are relative to *http://petstore.swagger.io:80/v2*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**delete_order**](StoreApi.md#delete_order) | **DELETE** /store/order/{order_id} | Delete purchase order by ID
-[**get_inventory**](StoreApi.md#get_inventory) | **GET** /store/inventory | Returns pet inventories by status
-[**get_order_by_id**](StoreApi.md#get_order_by_id) | **GET** /store/order/{order_id} | Find purchase order by ID
-[**place_order**](StoreApi.md#place_order) | **POST** /store/order | Place an order for a pet
+[**delete_order**](StoreApi.md#delete_order) | **delete** /store/order/{order_id} | Delete purchase order by ID
+[**get_inventory**](StoreApi.md#get_inventory) | **get** /store/inventory | Returns pet inventories by status
+[**get_order_by_id**](StoreApi.md#get_order_by_id) | **get** /store/order/{order_id} | Find purchase order by ID
+[**place_order**](StoreApi.md#place_order) | **post** /store/order | Place an order for a pet
 
 # **delete_order**
 > delete_order(order_id)
@@ -20,7 +20,7 @@ For valid response try integer IDs with value < 1000. Anything above 1000 or non
 
 ```python
 import petstore_api
-from petstore_api.api import store_api
+from petstore_api.apis.tags import store_api
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
 # See configuration.py for a list of all supported configuration parameters.
@@ -72,8 +72,8 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-400 | ApiResponseFor400 | Invalid ID supplied 
-404 | ApiResponseFor404 | Order not found 
+400 | ApiResponseFor400 | Invalid ID supplied
+404 | ApiResponseFor404 | Order not found
 
 #### ApiResponseFor400
 Name | Type | Description  | Notes
@@ -110,7 +110,7 @@ Returns a map of status codes to quantities
 * Api Key Authentication (api_key):
 ```python
 import petstore_api
-from petstore_api.api import store_api
+from petstore_api.apis.tags import store_api
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
 # See configuration.py for a list of all supported configuration parameters.
@@ -149,7 +149,7 @@ This endpoint does not need any parameter.
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
+200 | ApiResponseFor200 | successful operation
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -185,7 +185,7 @@ For valid response try integer IDs with value <= 5 or > 10. Other values will ge
 
 ```python
 import petstore_api
-from petstore_api.api import store_api
+from petstore_api.apis.tags import store_api
 from petstore_api.model.order import Order
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -240,9 +240,9 @@ Type | Description | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
-400 | ApiResponseFor400 | Invalid ID supplied 
-404 | ApiResponseFor404 | Order not found 
+200 | ApiResponseFor200 | successful operation
+400 | ApiResponseFor400 | Invalid ID supplied
+404 | ApiResponseFor404 | Order not found
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes
@@ -295,7 +295,7 @@ Place an order for a pet
 
 ```python
 import petstore_api
-from petstore_api.api import store_api
+from petstore_api.apis.tags import store_api
 from petstore_api.model.order import Order
 from pprint import pprint
 # Defining the host is optional and defaults to http://petstore.swagger.io:80/v2
@@ -314,7 +314,7 @@ with petstore_api.ApiClient(configuration) as api_client:
         id=1,
         pet_id=1,
         quantity=1,
-        ship_date=isoparse('2020-02-02T20:20:20.000222Z'),
+        ship_date="2020-02-02T20:20:20.000222Z",
         status="placed",
         complete=False,
     )
@@ -351,8 +351,8 @@ Type | Description  | Notes
 Code | Class | Description
 ------------- | ------------- | -------------
 n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
-200 | ApiResponseFor200 | successful operation 
-400 | ApiResponseFor400 | Invalid Order 
+200 | ApiResponseFor200 | successful operation
+400 | ApiResponseFor400 | Invalid Order
 
 #### ApiResponseFor200
 Name | Type | Description  | Notes

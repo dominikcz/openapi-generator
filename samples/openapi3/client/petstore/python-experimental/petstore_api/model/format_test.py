@@ -12,6 +12,7 @@
 import re  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401
+import functools  # noqa: F401
 
 from frozendict import frozendict  # noqa: F401
 
@@ -31,6 +32,7 @@ from petstore_api.schemas import (  # noqa: F401
     Float32Schema,
     Float64Schema,
     NumberSchema,
+    UUIDSchema,
     DateSchema,
     DateTimeSchema,
     DecimalSchema,
@@ -38,7 +40,7 @@ from petstore_api.schemas import (  # noqa: F401
     BinarySchema,
     NoneSchema,
     none_type,
-    InstantiationMetadata,
+    Configuration,
     Unset,
     unset,
     ComposedBase,
@@ -52,11 +54,14 @@ from petstore_api.schemas import (  # noqa: F401
     Float32Base,
     Float64Base,
     NumberBase,
+    UUIDBase,
     DateBase,
     DateTimeBase,
     BoolBase,
     BinaryBase,
     Schema,
+    NoneClass,
+    BoolClass,
     _SchemaValidator,
     _SchemaTypeChecker,
     _SchemaEnumMaker
@@ -83,7 +88,7 @@ class FormatTest(
         _SchemaValidator(
             inclusive_maximum=100,
             inclusive_minimum=10,
-            multiple_of=[2],
+            multiple_of=2,
         ),
         IntSchema
     ):
@@ -106,7 +111,7 @@ class FormatTest(
         _SchemaValidator(
             inclusive_maximum=543.2,
             inclusive_minimum=32.1,
-            multiple_of=[32.5],
+            multiple_of=32.5,
         ),
         NumberSchema
     ):
@@ -121,7 +126,7 @@ class FormatTest(
         Float32Schema
     ):
         pass
-    locals()['float'] = _float
+    locals()["float"] = _float
     del locals()['_float']
     float32 = Float32Schema
     
@@ -162,8 +167,8 @@ class FormatTest(
     binary = BinarySchema
     date = DateSchema
     dateTime = DateTimeSchema
-    uuid = StrSchema
-    uuidNoExample = StrSchema
+    uuid = UUIDSchema
+    uuidNoExample = UUIDSchema
     
     
     class password(
@@ -225,7 +230,7 @@ class FormatTest(
         pattern_with_digits: typing.Union[pattern_with_digits, Unset] = unset,
         pattern_with_digits_and_delimiter: typing.Union[pattern_with_digits_and_delimiter, Unset] = unset,
         noneProp: typing.Union[noneProp, Unset] = unset,
-        _instantiation_metadata: typing.Optional[InstantiationMetadata] = None,
+        _configuration: typing.Optional[Configuration] = None,
         **kwargs: typing.Type[Schema],
     ) -> 'FormatTest':
         return super().__new__(
@@ -251,6 +256,6 @@ class FormatTest(
             pattern_with_digits=pattern_with_digits,
             pattern_with_digits_and_delimiter=pattern_with_digits_and_delimiter,
             noneProp=noneProp,
-            _instantiation_metadata=_instantiation_metadata,
+            _configuration=_configuration,
             **kwargs,
         )
