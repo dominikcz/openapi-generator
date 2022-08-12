@@ -271,8 +271,13 @@ StoreApi <- R6::R6Class(
     #' @export
     delete_order_with_http_info = function(order_id, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`order_id`)) {
         rlang::abort(message = "Missing required parameter `order_id`.",
@@ -281,7 +286,7 @@ StoreApi <- R6::R6Class(
                                                      reason = "Missing required parameter `order_id`."))
       }
 
-      local_var_body <- NULL
+
       local_var_url_path <- "/store/order/{orderId}"
       if (!missing(`order_id`)) {
         local_var_url_path <- gsub(paste0("\\{", "orderId", "\\}"), URLencode(as.character(`order_id`), reserved = TRUE), local_var_url_path)
@@ -289,18 +294,22 @@ StoreApi <- R6::R6Class(
 
 
       # The Accept request HTTP header
-      local_var_accepts = list()
+      local_var_accepts <- list()
 
       # The Content-Type representation header
-      local_var_content_types = list()
+      local_var_content_types <- list()
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "DELETE",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -364,10 +373,14 @@ StoreApi <- R6::R6Class(
     #' @export
     get_inventory_with_http_info = function(data_file = NULL, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
-
+      form_params <- list()
+      file_params <- list()
       local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
+
       local_var_url_path <- "/store/inventory"
       # API key authentication
       if ("api_key" %in% names(self$api_client$api_keys) && nchar(self$api_client$api_keys["api_key"]) > 0) {
@@ -375,18 +388,22 @@ StoreApi <- R6::R6Class(
       }
 
       # The Accept request HTTP header
-      local_var_accepts = list("application/json")
+      local_var_accepts <- list("application/json")
 
       # The Content-Type representation header
-      local_var_content_types = list()
+      local_var_content_types <- list()
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "GET",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -465,8 +482,13 @@ StoreApi <- R6::R6Class(
     #' @export
     get_order_by_id_with_http_info = function(order_id, data_file = NULL, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`order_id`)) {
         rlang::abort(message = "Missing required parameter `order_id`.",
@@ -475,7 +497,19 @@ StoreApi <- R6::R6Class(
                                                      reason = "Missing required parameter `order_id`."))
       }
 
-      local_var_body <- NULL
+      if (`order_id` > 5) {
+        rlang::abort(message = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, must be smaller than or equal to 5.",
+                     .subclass = "ApiException",
+                     ApiException = ApiException$new(status = 0,
+                                                     reason = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, must be smaller than or equal to 5."))
+      }
+      if (`order_id` < 1) {
+        rlang::abort(message = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, must be bigger than or equal to 1.",
+                     .subclass = "ApiException",
+                     ApiException = ApiException$new(status = 0,
+                                                     reason = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, must be bigger than or equal to 1."))
+      }
+
       local_var_url_path <- "/store/order/{orderId}"
       if (!missing(`order_id`)) {
         local_var_url_path <- gsub(paste0("\\{", "orderId", "\\}"), URLencode(as.character(`order_id`), reserved = TRUE), local_var_url_path)
@@ -483,18 +517,22 @@ StoreApi <- R6::R6Class(
 
 
       # The Accept request HTTP header
-      local_var_accepts = list("application/xml", "application/json")
+      local_var_accepts <- list("application/xml", "application/json")
 
       # The Content-Type representation header
-      local_var_content_types = list()
+      local_var_content_types <- list()
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "GET",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -573,8 +611,13 @@ StoreApi <- R6::R6Class(
     #' @export
     place_order_with_http_info = function(order, data_file = NULL, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`order`)) {
         rlang::abort(message = "Missing required parameter `order`.",
@@ -582,6 +625,7 @@ StoreApi <- R6::R6Class(
                      ApiException = ApiException$new(status = 0,
                                                      reason = "Missing required parameter `order`."))
       }
+
 
       if (!missing(`order`)) {
         local_var_body <- `order`$toJSONString()
@@ -592,18 +636,22 @@ StoreApi <- R6::R6Class(
       local_var_url_path <- "/store/order"
 
       # The Accept request HTTP header
-      local_var_accepts = list("application/xml", "application/json")
+      local_var_accepts <- list("application/xml", "application/json")
 
       # The Content-Type representation header
-      local_var_content_types = list("application/json")
+      local_var_content_types <- list("application/json")
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "POST",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {

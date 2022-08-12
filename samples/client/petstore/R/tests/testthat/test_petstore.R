@@ -22,6 +22,9 @@ test_that("Test toJSONString", {
 })
 
 test_that("Test FindPetByStatus", {
+  pet_api$api_client$oauth_client_id <- "client_id_test"
+  pet_api$api_client$oauth_secret <- "secret_test"
+  
   result <- pet_api$FindPetsByStatus("available")
   expect_equal(result[[1]]$status, "available")
 })
@@ -105,6 +108,20 @@ test_that("GetPetByIdStreaming", {
                pet_api$GetPetByIdStreaming(pet_id, stream_callback = function(x) { print(x) }),
                ApiException = function(ex) ex
             )
+})
+
+test_that("Test header parameters", {
+  # test exception 
+  result <- tryCatch(pet_api$TestHeader(45345), 
+          ApiException = function(ex) ex
+  )
+
+  expect_true(!is.null(result))
+  expect_true(!is.null(result$ApiException))
+  expect_equal(result$ApiException$status, 404)
+  # test error object `ApiResponse`
+  #expect_equal(result$ApiException$error_object$toString(), "{\"code\":404,\"type\":\"unknown\",\"message\":\"null for uri: http://pet\n  x[1]: store.swagger.io/v2/pet_header_test\"}")
+  expect_equal(result$ApiException$error_object$code, 404)
 })
 
 test_that("Test GetPetById exception", {
@@ -322,7 +339,3 @@ test_that("Tests anyOf", {
 #  #expect_equal(response$tags, list(Tag$new(123, "tag_test"), Tag$new(456, "unknown")))
 #})
 
-#test_that("updatePetWithForm", {
-#  response <- pet_api$updatePetWithForm(pet_id, "test", "sold")
-#  expect_equal(response, "Pet updated")
-#})

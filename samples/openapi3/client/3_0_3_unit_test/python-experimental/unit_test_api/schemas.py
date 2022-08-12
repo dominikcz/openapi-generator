@@ -1068,7 +1068,7 @@ class DictBase(Discriminable):
         """
         path_to_schemas = {}
         for property_name, value in arg.items():
-            if property_name in cls._required_property_names or property_name in cls._property_names:
+            if property_name in cls._property_names:
                 schema = getattr(cls, property_name)
             elif cls._additional_properties:
                 schema = cls._additional_properties
@@ -1364,7 +1364,6 @@ class Schema:
     ):
         # We have a Dynamic class and we are making an instance of it
         if issubclass(cls, frozendict):
-            print(cls.__bases__)
             properties = cls._get_properties(arg, path_to_item, path_to_schemas)
             return super(Schema, cls).__new__(cls, properties)
         elif issubclass(cls, tuple):

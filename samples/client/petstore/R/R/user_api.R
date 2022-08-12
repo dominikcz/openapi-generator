@@ -457,8 +457,13 @@ UserApi <- R6::R6Class(
     #' @export
     CreateUserWithHttpInfo = function(user, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`user`)) {
         rlang::abort(message = "Missing required parameter `user`.",
@@ -466,6 +471,7 @@ UserApi <- R6::R6Class(
                      ApiException = ApiException$new(status = 0,
                                                      reason = "Missing required parameter `user`."))
       }
+
 
       if (!missing(`user`)) {
         local_var_body <- `user`$toJSONString()
@@ -480,18 +486,22 @@ UserApi <- R6::R6Class(
       }
 
       # The Accept request HTTP header
-      local_var_accepts = list()
+      local_var_accepts <- list()
 
       # The Content-Type representation header
-      local_var_content_types = list("application/json")
+      local_var_content_types <- list("application/json")
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "POST",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -555,8 +565,13 @@ UserApi <- R6::R6Class(
     #' @export
     CreateUsersWithArrayInputWithHttpInfo = function(user, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`user`)) {
         rlang::abort(message = "Missing required parameter `user`.",
@@ -565,8 +580,9 @@ UserApi <- R6::R6Class(
                                                      reason = "Missing required parameter `user`."))
       }
 
+
       if (!missing(`user`)) {
-        body.items <- paste(unlist(lapply(user, function(param) {
+        body.items <- paste(unlist(lapply(`user`, function(param) {
                                                              param$toJSONString()
                                                          })), collapse = ",")
         local_var_body <- paste0("[", body.items, "]")
@@ -581,18 +597,22 @@ UserApi <- R6::R6Class(
       }
 
       # The Accept request HTTP header
-      local_var_accepts = list()
+      local_var_accepts <- list()
 
       # The Content-Type representation header
-      local_var_content_types = list("application/json")
+      local_var_content_types <- list("application/json")
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "POST",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -656,8 +676,13 @@ UserApi <- R6::R6Class(
     #' @export
     CreateUsersWithListInputWithHttpInfo = function(user, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`user`)) {
         rlang::abort(message = "Missing required parameter `user`.",
@@ -666,8 +691,9 @@ UserApi <- R6::R6Class(
                                                      reason = "Missing required parameter `user`."))
       }
 
+
       if (!missing(`user`)) {
-        body.items <- paste(unlist(lapply(user, function(param) {
+        body.items <- paste(unlist(lapply(`user`, function(param) {
                                                              param$toJSONString()
                                                          })), collapse = ",")
         local_var_body <- paste0("[", body.items, "]")
@@ -682,18 +708,22 @@ UserApi <- R6::R6Class(
       }
 
       # The Accept request HTTP header
-      local_var_accepts = list()
+      local_var_accepts <- list()
 
       # The Content-Type representation header
-      local_var_content_types = list("application/json")
+      local_var_content_types <- list("application/json")
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "POST",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -757,8 +787,13 @@ UserApi <- R6::R6Class(
     #' @export
     DeleteUserWithHttpInfo = function(username, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`username`)) {
         rlang::abort(message = "Missing required parameter `username`.",
@@ -767,7 +802,7 @@ UserApi <- R6::R6Class(
                                                      reason = "Missing required parameter `username`."))
       }
 
-      local_var_body <- NULL
+
       local_var_url_path <- "/user/{username}"
       if (!missing(`username`)) {
         local_var_url_path <- gsub(paste0("\\{", "username", "\\}"), URLencode(as.character(`username`), reserved = TRUE), local_var_url_path)
@@ -779,18 +814,22 @@ UserApi <- R6::R6Class(
       }
 
       # The Accept request HTTP header
-      local_var_accepts = list()
+      local_var_accepts <- list()
 
       # The Content-Type representation header
-      local_var_content_types = list()
+      local_var_content_types <- list()
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "DELETE",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -856,8 +895,13 @@ UserApi <- R6::R6Class(
     #' @export
     GetUserByNameWithHttpInfo = function(username, data_file = NULL, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`username`)) {
         rlang::abort(message = "Missing required parameter `username`.",
@@ -866,7 +910,7 @@ UserApi <- R6::R6Class(
                                                      reason = "Missing required parameter `username`."))
       }
 
-      local_var_body <- NULL
+
       local_var_url_path <- "/user/{username}"
       if (!missing(`username`)) {
         local_var_url_path <- gsub(paste0("\\{", "username", "\\}"), URLencode(as.character(`username`), reserved = TRUE), local_var_url_path)
@@ -874,18 +918,22 @@ UserApi <- R6::R6Class(
 
 
       # The Accept request HTTP header
-      local_var_accepts = list("application/xml", "application/json")
+      local_var_accepts <- list("application/xml", "application/json")
 
       # The Content-Type representation header
-      local_var_content_types = list()
+      local_var_content_types <- list()
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "GET",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -966,8 +1014,13 @@ UserApi <- R6::R6Class(
     #' @export
     LoginUserWithHttpInfo = function(username, password, data_file = NULL, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`username`)) {
         rlang::abort(message = "Missing required parameter `username`.",
@@ -983,26 +1036,37 @@ UserApi <- R6::R6Class(
                                                      reason = "Missing required parameter `password`."))
       }
 
-      query_params["username"] <- username
+      if (!str_detect(`username`, "^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*[a-zA-Z0-9]+$")) {
+        rlang::abort(message = "Invalid value for `username` when calling UserApi$LoginUser, must conform to the pattern ^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*[a-zA-Z0-9]+$.",
+                     .subclass = "ApiException",
+                     ApiException = ApiException$new(status = 0,
+                                                     reason = "Invalid value for `username` when calling UserApi$LoginUser, must conform to the pattern ^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*[a-zA-Z0-9]+$."))
+      }
 
-      query_params["password"] <- password
 
-      local_var_body <- NULL
+      query_params["username"] <- `username`
+
+      query_params["password"] <- `password`
+
       local_var_url_path <- "/user/login"
 
       # The Accept request HTTP header
-      local_var_accepts = list("application/xml", "application/json")
+      local_var_accepts <- list("application/xml", "application/json")
 
       # The Content-Type representation header
-      local_var_content_types = list()
+      local_var_content_types <- list()
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "GET",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -1077,10 +1141,14 @@ UserApi <- R6::R6Class(
     #' @export
     LogoutUserWithHttpInfo = function(...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
-
+      form_params <- list()
+      file_params <- list()
       local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
+
       local_var_url_path <- "/user/logout"
       # API key authentication
       if ("api_key" %in% names(self$api_client$api_keys) && nchar(self$api_client$api_keys["api_key"]) > 0) {
@@ -1088,18 +1156,22 @@ UserApi <- R6::R6Class(
       }
 
       # The Accept request HTTP header
-      local_var_accepts = list()
+      local_var_accepts <- list()
 
       # The Content-Type representation header
-      local_var_content_types = list()
+      local_var_content_types <- list()
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "GET",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
@@ -1165,8 +1237,13 @@ UserApi <- R6::R6Class(
     #' @export
     UpdateUserWithHttpInfo = function(username, user, ...) {
       args <- list(...)
-      query_params <- c()
+      query_params <- list()
       header_params <- c()
+      form_params <- list()
+      file_params <- list()
+      local_var_body <- NULL
+      oauth_scopes <- NULL
+      is_oauth <- FALSE
 
       if (missing(`username`)) {
         rlang::abort(message = "Missing required parameter `username`.",
@@ -1181,6 +1258,8 @@ UserApi <- R6::R6Class(
                      ApiException = ApiException$new(status = 0,
                                                      reason = "Missing required parameter `user`."))
       }
+
+
 
       if (!missing(`user`)) {
         local_var_body <- `user`$toJSONString()
@@ -1199,18 +1278,22 @@ UserApi <- R6::R6Class(
       }
 
       # The Accept request HTTP header
-      local_var_accepts = list()
+      local_var_accepts <- list()
 
       # The Content-Type representation header
-      local_var_content_types = list("application/json")
+      local_var_content_types <- list("application/json")
 
       local_var_resp <- self$api_client$CallApi(url = paste0(self$api_client$base_path, local_var_url_path),
                                  method = "PUT",
                                  query_params = query_params,
                                  header_params = header_params,
+                                 form_params = form_params,
+                                 file_params = file_params,
                                  accepts = local_var_accepts,
                                  content_types = local_var_content_types,
                                  body = local_var_body,
+                                 is_oauth = is_oauth,
+                                 oauth_scopes = oauth_scopes,
                                  ...)
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
