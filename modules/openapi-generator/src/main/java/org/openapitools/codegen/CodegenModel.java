@@ -75,6 +75,7 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
     public List<CodegenProperty> readOnlyVars = new ArrayList<>(); // a list of read-only properties
     public List<CodegenProperty> readWriteVars = new ArrayList<>(); // a list of properties for read, write
     public List<CodegenProperty> parentVars = new ArrayList<>();
+    public List<CodegenProperty> parentRequiredVars = new ArrayList<>();
     public List<CodegenProperty> nonNullableVars = new ArrayList<>(); // a list of non-nullable properties
     public Map<String, Object> allowableValues;
 
@@ -111,6 +112,12 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
     private CodegenComposedSchemas composedSchemas;
     private boolean hasMultipleTypes = false;
     public HashMap<String, SchemaTestCase> testCases = new HashMap<>();
+    private boolean schemaIsFromAdditionalProperties;
+    private boolean isBooleanSchemaTrue;
+    private boolean isBooleanSchemaFalse;
+    private String format;
+    private LinkedHashMap<String, List<String>> dependentRequired;
+    private CodegenProperty contains;
 
     /**
      * The type of the value for the additionalProperties keyword in the OAS document.
@@ -147,6 +154,7 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
     private Integer maxProperties;
     private Integer minProperties;
     private boolean uniqueItems;
+    private Boolean uniqueItemsBoolean;
     private Integer maxItems;
     private Integer minItems;
     private Integer maxLength;
@@ -176,6 +184,56 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
     }
 
     @Override
+    public CodegenProperty getContains() {
+        return contains;
+    }
+
+    @Override
+    public void setContains(CodegenProperty contains) {
+        this.contains = contains;
+    }
+
+    @Override
+    public LinkedHashMap<String, List<String>> getDependentRequired() {
+        return dependentRequired;
+    }
+
+    @Override
+    public void setDependentRequired(LinkedHashMap<String, List<String>> dependentRequired) {
+        this.dependentRequired = dependentRequired;
+    }
+
+    @Override
+    public boolean getIsBooleanSchemaTrue() {
+        return isBooleanSchemaTrue;
+    }
+
+    @Override
+    public void setIsBooleanSchemaTrue(boolean isBooleanSchemaTrue) {
+        this.isBooleanSchemaTrue = isBooleanSchemaTrue;
+    }
+
+    @Override
+    public boolean getIsBooleanSchemaFalse() {
+        return isBooleanSchemaFalse;
+    }
+
+    @Override
+    public void setIsBooleanSchemaFalse(boolean isBooleanSchemaFalse) {
+        this.isBooleanSchemaFalse = isBooleanSchemaFalse;
+    }
+
+    @Override
+    public String getFormat() {
+        return format;
+    }
+
+    @Override
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    @Override
     public String getRef() {
         return ref;
     }
@@ -183,6 +241,16 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
     @Override
     public void setRef(String ref) {
         this.ref = ref;
+    }
+
+    @Override
+    public boolean getSchemaIsFromAdditionalProperties() {
+        return schemaIsFromAdditionalProperties;
+    }
+
+    @Override
+    public void setSchemaIsFromAdditionalProperties(boolean schemaIsFromAdditionalProperties) {
+        this.schemaIsFromAdditionalProperties = schemaIsFromAdditionalProperties;
     }
 
     public Set<String> getAllMandatory() {
@@ -559,6 +627,16 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
     }
 
     @Override
+    public Boolean getUniqueItemsBoolean() {
+        return uniqueItemsBoolean;
+    }
+
+    @Override
+    public void setUniqueItemsBoolean(Boolean uniqueItemsBoolean) {
+        this.uniqueItemsBoolean = uniqueItemsBoolean;
+    }
+
+    @Override
     public Integer getMinProperties() {
         return minProperties;
     }
@@ -837,8 +915,6 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
         return hasDiscriminatorWithNonEmptyMapping;
     }
 
-    ;
-
     @Override
     public void setHasDiscriminatorWithNonEmptyMapping(boolean hasDiscriminatorWithNonEmptyMapping) {
         this.hasDiscriminatorWithNonEmptyMapping = hasDiscriminatorWithNonEmptyMapping;
@@ -935,11 +1011,18 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
                 hasMultipleTypes == that.getHasMultipleTypes() &&
                 hasDiscriminatorWithNonEmptyMapping == that.getHasDiscriminatorWithNonEmptyMapping() &&
                 isUuid == that.getIsUuid() &&
+                isBooleanSchemaTrue == that.getIsBooleanSchemaTrue() &&
+                isBooleanSchemaFalse == that.getIsBooleanSchemaFalse() &&
+                getSchemaIsFromAdditionalProperties() == that.getSchemaIsFromAdditionalProperties() &&
                 getIsAnyType() == that.getIsAnyType() &&
                 getAdditionalPropertiesIsAnyType() == that.getAdditionalPropertiesIsAnyType() &&
                 getUniqueItems() == that.getUniqueItems() &&
                 getExclusiveMinimum() == that.getExclusiveMinimum() &&
                 getExclusiveMaximum() == that.getExclusiveMaximum() &&
+                Objects.equals(contains, that.getContains()) &&
+                Objects.equals(dependentRequired, that.getDependentRequired()) &&
+                Objects.equals(format, that.getFormat()) &&
+                Objects.equals(uniqueItemsBoolean, that.getUniqueItemsBoolean()) &&
                 Objects.equals(ref, that.getRef()) &&
                 Objects.equals(requiredVarsMap, that.getRequiredVarsMap()) &&
                 Objects.equals(composedSchemas, that.composedSchemas) &&
@@ -1014,7 +1097,9 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
                 getMinItems(), getMaxLength(), getMinLength(), getExclusiveMinimum(), getExclusiveMaximum(), getMinimum(),
                 getMaximum(), getPattern(), getMultipleOf(), getItems(), getAdditionalProperties(), getIsModel(),
                 getAdditionalPropertiesIsAnyType(), hasDiscriminatorWithNonEmptyMapping,
-                isAnyType, getComposedSchemas(), hasMultipleTypes, isDecimal, isUuid, requiredVarsMap, ref);
+                isAnyType, getComposedSchemas(), hasMultipleTypes, isDecimal, isUuid, requiredVarsMap, ref,
+                uniqueItemsBoolean, schemaIsFromAdditionalProperties, isBooleanSchemaTrue, isBooleanSchemaFalse,
+                format, dependentRequired, contains);
     }
 
     @Override
@@ -1089,6 +1174,7 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
         sb.append(", maxProperties=").append(maxProperties);
         sb.append(", minProperties=").append(minProperties);
         sb.append(", uniqueItems=").append(uniqueItems);
+        sb.append(", uniqueItemsBoolean=").append(uniqueItemsBoolean);
         sb.append(", maxItems=").append(maxItems);
         sb.append(", minItems=").append(minItems);
         sb.append(", maxLength=").append(maxLength);
@@ -1113,14 +1199,35 @@ public class CodegenModel implements IJsonSchemaValidationProperties {
         sb.append(", isUUID=").append(isUuid);
         sb.append(", requiredVarsMap=").append(requiredVarsMap);
         sb.append(", ref=").append(ref);
+        sb.append(", schemaIsFromAdditionalProperties=").append(schemaIsFromAdditionalProperties);
+        sb.append(", isBooleanSchemaTrue=").append(isBooleanSchemaTrue);
+        sb.append(", isBooleanSchemaFalse=").append(isBooleanSchemaFalse);
+        sb.append(", format=").append(format);
+        sb.append(", dependentRequired=").append(dependentRequired);
+        sb.append(", contains=").append(contains);
         sb.append('}');
         return sb.toString();
     }
 
-    public void addDiscriminatorMappedModelsImports() {
+    /*
+     * To clean up mapped models if needed and add mapped models to imports
+     *
+     * @param cleanUpMappedModels Clean up mapped models if set to true
+     */
+    public void addDiscriminatorMappedModelsImports(boolean cleanUpMappedModels) {
         if (discriminator == null || discriminator.getMappedModels() == null) {
             return;
         }
+
+        if (cleanUpMappedModels && !this.hasChildren && // no child
+                (this.oneOf == null || this.oneOf.isEmpty()) && // not oneOf
+                (this.anyOf == null || this.anyOf.isEmpty())) { // not anyOf
+            //clear the mapping
+            discriminator.setMappedModels(null);
+            return;
+        }
+
+        // import child schemas defined in mapped models
         for (CodegenDiscriminator.MappedModel mm : discriminator.getMappedModels()) {
             if (!"".equals(mm.getModelName())) {
                 imports.add(mm.getModelName());

@@ -114,6 +114,7 @@ test_that("update_pet_with_form", {
   ## update pet with form
   pet_api$api_client$oauth_client_id <- "client_id_aaa"
   pet_api$api_client$oauth_secret <- "secrete_bbb"
+  pet_api$api_client$oauth_scopes <- "write:pets read:pets"
   update_result <- pet_api$update_pet_with_form(update_pet_id, name = "pet2", status = "sold")
 
   # get pet
@@ -241,6 +242,50 @@ test_that("Tests special item names", {
 
 })
 
+test_that ("Tests validations", {
+  invalid_pet <- Pet$new()
+
+  expect_false(invalid_pet$isValid())
+
+  invalid_fields <- invalid_pet$getInvalidFields()
+  expect_equal(invalid_fields[["name"]], "Non-nullable required field `name` cannot be null.")
+  expect_equal(invalid_fields[["photoUrls"]], "Non-nullable required field `photoUrls` cannot be null.")
+
+  # fix invalid fields
+  invalid_pet$name <- "valid pet"
+  invalid_pet$photoUrls <- list("photo_test", "second test")
+
+  expect_true(invalid_pet$isValid())
+  expect_equal(invalid_pet$getInvalidFields(), list())
+
+})
+
+test_that("Tests oneOf primitive types", {
+  test <- OneOfPrimitiveTypeTest$new()
+  test$fromJSONString("\"123abc\"")
+  expect_equal(test$actual_instance,  '123abc')
+  expect_equal(test$actual_type,  'character')
+
+  test$fromJSONString("456")
+  expect_equal(test$actual_instance,  456)
+  expect_equal(test$actual_type,  'integer')
+
+  expect_error(test$fromJSONString("[45,12]"), "No match found when deserializing the input into OneOfPrimitiveTypeTest with oneOf schemas character, integer. Details: >> Data type doesn't match. Expected: integer. Actual: list. >> Data type doesn't match. Expected: character. Actual: list.") # should throw an error
+})
+
+test_that("Tests anyOf primitive types", {
+  test <- AnyOfPrimitiveTypeTest$new()
+  test$fromJSONString("\"123abc\"")
+  expect_equal(test$actual_instance,  '123abc')
+  expect_equal(test$actual_type,  'character')
+
+  test$fromJSONString("456")
+  expect_equal(test$actual_instance,  456)
+  expect_equal(test$actual_type,  'integer')
+
+  expect_error(test$fromJSONString("[45,12]"), "No match found when deserializing the input into AnyOfPrimitiveTypeTest with oneOf schemas character, integer. Details: >> Data type doesn't match. Expected: integer. Actual: list. >> Data type doesn't match. Expected: character. Actual: list.") # should throw an error
+})
+
 test_that("Tests oneOf", {
   basque_pig_json <-
   '{"className": "BasquePig", "color": "red"}'
@@ -280,13 +325,13 @@ test_that("Tests oneOf", {
   expect_equal(basque_pig$toJSONString(), original_basque_pig$toJSONString())
 
   # test exception when no matche found
-  expect_error(pig$fromJSON('{}'), 'No match found when deserializing the payload into Pig with oneOf schemas BasquePig, DanishPig. Details:  The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\., The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
-  expect_error(pig$validateJSON('{}'), 'No match found when deserializing the payload into Pig with oneOf schemas BasquePig, DanishPig. Details:  The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\., The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
+  expect_error(pig$fromJSON('{}'), 'No match found when deserializing the input into Pig with oneOf schemas BasquePig, DanishPig. Details: >> The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\. >> The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
+  expect_error(pig$validateJSON('{}'), 'No match found when deserializing the input into Pig with oneOf schemas BasquePig, DanishPig. Details: >> The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\. >> The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
 
   # class name test
   expect_equal(get(class(basque_pig$actual_instance)[[1]], pos = -1)$classname, "BasquePig")
 
-  # test contructors
+  # test constructors
   pig2 <- Pig$new(instance = basque_pig$actual_instance)
   expect_equal(pig2$actual_type, "BasquePig")
   expect_equal(pig2$actual_instance$color, "red")
@@ -349,7 +394,7 @@ test_that("Tests anyOf", {
   expect_equal(basque_pig$toJSONString(), original_basque_pig$toJSONString())
 
   # test exception when no matche found
-  expect_error(pig$fromJSON('{}'), 'No match found when deserializing the payload into AnyOfPig with anyOf schemas BasquePig, DanishPig. Details:  The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\., The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
-  expect_error(pig$validateJSON('{}'), 'No match found when deserializing the payload into AnyOfPig with anyOf schemas BasquePig, DanishPig. Details:  The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\., The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
+  expect_error(pig$fromJSON('{}'), 'No match found when deserializing the input into AnyOfPig with anyOf schemas BasquePig, DanishPig. Details: >> The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\. >> The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
+  expect_error(pig$validateJSON('{}'), 'No match found when deserializing the input into AnyOfPig with anyOf schemas BasquePig, DanishPig. Details: >> The JSON input ` \\{\\} ` is invalid for BasquePig: the required field `className` is missing\\. >> The JSON input ` \\{\\} ` is invalid for DanishPig: the required field `className` is missing\\.')
 
 })
