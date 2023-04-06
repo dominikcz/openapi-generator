@@ -155,6 +155,7 @@ begin
     if not {{baseName}}IsValid(errorMsg) then
       sb.AppendLine(format(MSG, ['{{name}}', errorMsg]));
     {{/vars}}
+
     {{#isArray}}{{#arrayModelType}}
     for item in Self do
     begin
@@ -214,7 +215,8 @@ begin
   validator.setRequired(true);{{/required}}{{^required}}{{#x-delphi-has-valid-default}}
   validator.setDefault({{{defaultValue}}});{{/x-delphi-has-valid-default}}{{/required}}
   result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);{{/hasValidation}}{{^hasValidation}}
-  result := true;{{/hasValidation}}
+  {{#isModel}}result := {{vendorExtensions.x-delphi-field-name}}.Validate(AErrorMessage);{{/isModel}}{{^isModel}}result := true;{{/isModel}}
+  {{/hasValidation}}
 end;
 
 {{/vars}}
