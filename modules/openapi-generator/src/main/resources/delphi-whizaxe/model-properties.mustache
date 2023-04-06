@@ -1,4 +1,5 @@
 {{>header_autogen}}
+// template: model-properties
 
 unit {{#models}}{{#model}}{{classFilename}}{{/model}}{{/models}};
 
@@ -39,7 +40,7 @@ type{{#models}}{{#model}}{{#isEnum}}
     {{#vars}}
     function {{baseName}}IsValid(out AErrorMessage: string): boolean;
     {{/vars}}
-    
+
   public
     {{^isArray}}
     constructor Create;

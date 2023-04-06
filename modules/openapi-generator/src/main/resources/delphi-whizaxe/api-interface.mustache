@@ -1,4 +1,5 @@
 {{>header_autogen}}
+// template: api-interface
 
 unit {{classname}}Interface;
 
@@ -18,12 +19,12 @@ type
     /// Operation {{{operationId}}}
     /// <summary>{{{summary}}}</summary>
     /// <remarks>{{remarks}}</remarks>
-    {{#allParams}}   
+    {{#allParams}}
     /// {{{baseName}}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-    {{/allParams}}   
+    {{/allParams}}
     {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
-    
+
     {{/operation}}
   end;
 {{/operations}}

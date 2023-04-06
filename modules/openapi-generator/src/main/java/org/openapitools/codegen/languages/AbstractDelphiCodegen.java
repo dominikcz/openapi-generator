@@ -27,20 +27,16 @@ import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariables;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import org.openapitools.codegen.*;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openapitools.codegen.model.ModelsMap;
+
 import org.openapitools.codegen.templating.mustache.IndentedLambda;
-import org.openapitools.codegen.utils.ModelUtils;
 import org.openapitools.codegen.utils.URLPathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
-import static org.openapitools.codegen.utils.StringUtils.underscore;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 abstract public class AbstractDelphiCodegen extends DefaultCodegen implements CodegenConfig {
@@ -181,6 +177,45 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
                 Boolean.toString(this.variableNameFirstCharacterUppercase));
     }
 
+    protected void MyProcessProperty(CodegenProperty property) {
+        String camelName = camelize(property.name);
+        Boolean isEnum = false;
+        String nameInCamelCase = property.nameInCamelCase;
+        if (isReservedWord(nameInCamelCase) || nameInCamelCase.matches("^\\d.*")) {
+            nameInCamelCase = escapeReservedWord(nameInCamelCase);
+        }
+        String propName = property.name;
+        if (isReservedWord(propName) || propName.matches("^\\d.*")) {
+            propName = escapeReservedWord(propName);
+        }
+        property.nameInCamelCase = nameInCamelCase;
+        property.name = propName;
+        property.vendorExtensions.put("x-delphi-field-name", "F" + camelName);
+        property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
+        property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
+        property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
+        isEnum = property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0);
+        property.vendorExtensions.put("x-delphi-enum", isEnum);
+
+        if (nullTypeMapping.containsKey(property.baseType)) {
+            property.vendorExtensions.put("x-delphi-nullable-type", nullTypeMapping.get(property.baseType));
+        } else if (isEnum) {
+            property.vendorExtensions.put("x-delphi-nullable-type", property.dataType);
+        }
+
+        if (property.isArray && property.items != null && property.items.isModel) {
+            property.dataType = "TObjectList<" + getTypeDeclaration(property.items.baseType) + ">";
+        }
+
+        if (!property.isPrimitiveType
+                && !nullTypeMapping.values().contains(property.baseType)
+                && !property.isModel
+                && !(property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0))) {
+            property.isModel = true;
+        }
+
+    }
+
     @Override
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
@@ -280,43 +315,8 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     @SuppressWarnings("rawtypes")
     @Override
     public CodegenProperty fromProperty(String name, Schema p) {
-        String camelName = camelize(name);
-        Boolean isEnum = false;
         CodegenProperty property = super.fromProperty(name, p);
-        String nameInCamelCase = property.nameInCamelCase;
-        if (isReservedWord(nameInCamelCase) || nameInCamelCase.matches("^\\d.*")) {
-            nameInCamelCase = escapeReservedWord(nameInCamelCase);
-        }
-        String propName = property.name;
-        if (isReservedWord(propName) || propName.matches("^\\d.*")) {
-            propName = escapeReservedWord(propName);
-        }
-        property.nameInCamelCase = nameInCamelCase;
-        property.name = propName;
-        property.vendorExtensions.put("x-delphi-field-name", "F" + camelName);
-        property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
-        property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
-        property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
-        isEnum = property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0);
-        property.vendorExtensions.put("x-delphi-enum", isEnum);
-
-        if (nullTypeMapping.containsKey(property.baseType)) {
-            property.vendorExtensions.put("x-delphi-nullable-type", nullTypeMapping.get(property.baseType));
-        } else if (isEnum) {
-            property.vendorExtensions.put("x-delphi-nullable-type", property.dataType);
-        }
-
-        if (property.isArray && property.items != null && property.items.isModel) {
-            property.dataType = "TObjectList<" + getTypeDeclaration(property.items.baseType) + ">";
-        }
-
-        if (!property.isPrimitiveType
-                && !nullTypeMapping.values().contains(property.baseType)
-                && !property.isModel
-                && !(property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0))) {
-            property.isModel = true;
-        }
-
+        MyProcessProperty(property);
         return property;
     }
 
@@ -408,7 +408,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map<String, Object> postProcessModels(Map<String, Object> objs) {
+    public ModelsMap postProcessModels(ModelsMap objs) {
         List<Object> models = (List<Object>) objs.get("models");
         for (Object _mo : models) {
             Map<String, Object> mo = (Map<String, Object>) _mo;
@@ -426,6 +426,14 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
             }
         }
         return postProcessModelsEnum(objs);
+    }
+
+    @Override
+    @SuppressWarnings("unused")
+    public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
+        super.postProcessModelProperty(model, property);
+
+        MyProcessProperty(property);
     }
 
 }

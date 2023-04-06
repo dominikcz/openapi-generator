@@ -2,7 +2,6 @@ package org.openapitools.codegen.languages;
 
 import com.google.common.util.concurrent.Callables;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -10,12 +9,10 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.servers.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
-import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.OperationsMap;
+
 import org.openapitools.codegen.utils.ModelUtils;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.MapProperty;
-import io.swagger.models.properties.Property;
-import io.swagger.models.parameters.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +67,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         apiTemplateFiles.put("api-rest.mustache", ".pas");
         apiTemplateFiles.put("api-pas.mustache", ".pas");
         apiTemplateFiles.put("api-default.mustache", ".default");
+        apiDocTemplateFiles.put("api_doc.mustache", ".md");
+        apiTestTemplateFiles.put("api_test.mustache", ".md");
         embeddedTemplateDir = templateDir = "delphi-whizaxe";
         apiPackage = "Apis";
         modelPackage = "Models";
@@ -282,7 +281,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
+    public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
         String classname = (String) operations.get("classname");
         operations.put("classnameSnakeUpperCase", underscore(classname).toUpperCase(Locale.ROOT));

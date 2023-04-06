@@ -1,4 +1,5 @@
 {{>header_autogen}}
+// template: model-fields
 
 unit Model.{{classname}};
 
@@ -78,9 +79,9 @@ type
 // protected:
 //     {{#isEnum}}{{classname}}::e{{classname}} m_value = {{classname}}::e{{classname}}::INVALID_VALUE_OPENAPI_GENERATED;{{/isEnum}}{{#vendorExtensions.x-is-string-enum-container}}{{#anyOf}}{{#-first}}{{{this}}} m_value;{{/-first}}{{/anyOf}}{{/vendorExtensions.x-is-string-enum-container}}
 // };
-  
+
 // *****************   TEST AREA END *******************
-  
+
 {{/model}}
 {{/models}}
 
@@ -88,7 +89,7 @@ implementation
 
 uses
   whizaxe.serialization;
-  
+
 {{#models}}
 {{#model}}
 { T{{classname}} }
@@ -152,7 +153,7 @@ begin
   {{#minLength}}result := result and ({{name}}.Length >= {{minLength}}){{/minLength}};
   {{#maxLength}}result := result and ({{name}}.Length <= {{maxLength}}){{/maxLength}};
   {{/isString}}
-  
+
   {{#isNumeric}}
   {{#minimum}}result := result and ({{name}} >= {{minimum}}){{/minimum}};
   {{#maximum}}result := result and ({{name}} <= {{maximum}}){{/maximum}};
