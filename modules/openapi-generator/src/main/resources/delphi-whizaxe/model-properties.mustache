@@ -217,6 +217,7 @@ begin
   result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);{{/hasValidation}}{{^hasValidation}}
   {{#isModel}}result := {{vendorExtensions.x-delphi-field-name}}.Validate(AErrorMessage);{{/isModel}}{{^isModel}}result := true;{{/isModel}}
   {{/hasValidation}}
+
 end;
 
 {{/vars}}
