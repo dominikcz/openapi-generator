@@ -1,0 +1,57 @@
+// template: ServiceMainPas
+unit ServiceMain;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.SvcMgr,
+  uCustomMcService,
+  BaseThread,
+  u{{programName}}Thread,
+  {{programName}}Server;
+
+type
+  TServiceMain{{programName}} = class(TCustomMcService)
+  private
+  protected
+    function CreateSrvThread: TBaseThread; override;
+    procedure AfterInitialize(ASrvThread: TBaseThread); override;
+  public
+    function GetServiceController: TServiceController; override;
+  end;
+
+var
+  ServiceMain{{programName}}: TServiceMain{{programName}};
+
+implementation
+
+uses
+  whizaxe.LogFile;
+
+{$R *.dfm}
+
+procedure ServiceController(CtrlCode: DWord); stdcall;
+begin
+  ServiceMain{{programName}}.Controller(CtrlCode);
+end;
+
+{ TServiceMain{{programName}} }
+
+procedure TServiceMain{{programName}}.AfterInitialize(ASrvThread: TBaseThread);
+begin
+  AddToLog(lsLogInfo, 'AfterInitialize');
+  T{{programName}}Thread(ASrvThread).Start;
+  AddToLog(lsLogInfo, 'AfterInitialize server started');
+end;
+
+function TServiceMain{{programName}}.CreateSrvThread: TBaseThread;
+begin
+  result := T{{programName}}Thread.Create;
+end;
+
+function TServiceMain{{programName}}.GetServiceController: TServiceController;
+begin
+  Result := ServiceController;
+end;
+
+end.

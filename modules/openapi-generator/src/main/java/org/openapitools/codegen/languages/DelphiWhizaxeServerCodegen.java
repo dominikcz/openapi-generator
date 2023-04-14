@@ -37,7 +37,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE = "useModelsFullNamespace";
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE_DESC = "use full namespace for models dataType";
 
-    static final Logger LOGGER = LoggerFactory.getLogger(DelphiWhizaxeServerCodegen.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(DelphiWhizaxeServerCodegen.class);
     protected final String PREFIX = "";
 
     protected Set<String> usedModels = new HashSet<>();
@@ -156,15 +156,15 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         supportingFiles.add(new SupportingFile("FormMainPas.mustache", "", "FormMain.pas")/* .doNotOverwrite() */);
         supportingFiles.add(new SupportingFile("FormMainDfm.mustache", "", "FormMain.dfm")/* .doNotOverwrite() */);
 
-        supportingFiles
-                .add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
+        supportingFiles.add(new SupportingFile("ServiceMainPas.mustache", "", "ServiceMain.pas")/* .doNotOverwrite() */);
+        supportingFiles.add(new SupportingFile("ServiceMainDfm.mustache", "", "ServiceMain.dfm")/* .doNotOverwrite() */);
+        supportingFiles.add(new SupportingFile("ServiceThread.mustache", "", "u" + this.programName + "Thread")/* .doNotOverwrite() */);
+        supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
+
+        supportingFiles.add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
         supportingFiles.add(new SupportingFile("client\\api-client.mustache", "", this.programName + "Client.pas"));
-        supportingFiles.add(
-                new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas").doNotOverwrite());
-        supportingFiles.add(
-                new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm").doNotOverwrite());
-        supportingFiles
-                .add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas").doNotOverwrite());
+        supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm").doNotOverwrite());
         supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
 
     }

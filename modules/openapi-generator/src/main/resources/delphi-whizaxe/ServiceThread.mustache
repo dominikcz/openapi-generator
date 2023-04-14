@@ -1,0 +1,324 @@
+unit uVPosThread;
+
+interface
+
+uses
+  System.SysUtils,
+  System.Classes,
+  Generics.Collections,
+  SyncObjs,
+  whizaxe.CmdHandler,
+  BaseThread,
+  uRestCommandHandler,
+  whizaxe.HTTP.types,
+  whizaxe.Rest.Request,
+  superobject,
+  messageReceiver,
+  vPOSAPIServer,
+  whizaxe.Rest.Server,
+  VposLauncher,
+  CommandsAuth,
+  Model.VPosAuthToken,
+  VPosAuthProviderIntf,
+  VPosAuthProvider,
+  whizaxe.REST.Exceptions,
+
+type
+  TVPosThread = class(TBaseThread)
+  private
+    FPort: integer;
+    FServer: TRESTServer;
+    FVposLauncher: TVposLauncher;
+    FCommandsAuth: TCommandsAuth;
+    FVposApi: TVposApi;
+    FTokens: IVPosAuthProvider;
+    FEventsProcessor: TVPosEventsProcessor;
+    FWebSocketServer: TVPosWebsocketServer;
+    procedure CreateRestServer;
+    procedure CreateWebSocketServer;
+    procedure CreateEventProcessor;
+
+    procedure hndOnAuthorization(ARequest: TRestRequest; var AResult: THTTPResult; var AllowToExecute : Boolean);
+    procedure hndOnAuthorizationCC(ARequest: TRestRequest; var AResult: THTTPResult; var AllowToExecute : Boolean);
+    procedure SelectApi;
+    procedure CreateRestServerVPOS4;
+    procedure CreateRestServerCC;
+
+    procedure InitSyncPos;
+    procedure CreateRestServerBase<T: constructor, TRESTServer>;
+
+    procedure hndJWTSecretNeeded(const AToken: string; var ASecret: string; var userData: ISuperObject);
+
+    procedure hndMapVPosException(const Source: Exception; var HttpCode: Word; Error: TWxRestErrorModel);
+    procedure hndMapVPosNotFoundException(const Source: Exception; var HttpCode: Word; Error: TWxRestErrorModel);
+
+  protected
+    procedure Execute; override;
+    procedure Initialize; override;
+    procedure ConnectionFailed; override;
+  public
+    constructor Create; reintroduce; overload;
+    destructor Destroy; override;
+
+    procedure Start;
+    procedure Stop;
+  end;
+
+implementation
+
+uses
+  whizaxe.ipc,
+  whizaxe.LogFile,
+  UtsToken,
+  whizaxe.queryBuilder,
+  posDBConnection,
+  dbConnIni,
+  whizaxe.serialization,
+  Whizaxe.CfgFile,
+  AuthClientInst,
+  whizaxe.common,
+  SyncPos,
+  whizaxe.REST.authenticators,
+  VPos.Exceptions,
+  posSqlLoader,
+  Auth.Consts
+  ;
+
+procedure TVPosThread.ConnectionFailed;
+var
+  sqlLoader: TSQLLoader;
+begin
+  sqlLoader := TSQLLoader.Create(sfsVPos);
+  try
+    if sqlLoader.CheckSqlServer then
+      sqlLoader.CreateOrUpdateDB;
+  finally
+    sqlLoader.Free;
+  end;
+end;
+
+constructor TVPosThread.Create;
+begin
+  inherited Create;
+  //  sleep(10*1000); //do debugowania us�ugi
+  CfgFile.LoadFromIniFile(ExtractFileDir(ParamStr(0)) + '\McVPos.ini');
+
+  initGlobalAuthClient(TDbAppTypes.datVPos);
+
+  FPort := 0;
+  FVposApi := TVposApi.apiVPOS4;
+end;
+
+destructor TVPosThread.Destroy;
+begin
+  Stop;
+  FCommandsAuth.Free;
+  FVposLauncher.Free;
+  FTokens := nil;
+  DestroySyncPosInst;
+  inherited;
+end;
+
+procedure TVPosThread.Execute;
+begin
+  while not terminated do
+  begin
+    sleep(10);
+  end;
+end;
+
+procedure TVPosThread.hndMapVPosException(const Source: Exception; var HttpCode: Word; Error: TWxRestErrorModel);
+begin
+  Error.debugInfo := EVPosException(Source).debugMessage;
+  //Error.checkInterval := 12;
+  //Error.eta := IncMinute(now, 15);
+  Error.message := Source.Message;
+  Error.errorCode := EVPosException(Source).errorCode;
+  if Error.errorCode = '' then
+    Error.errorCode := TWxErrorCodes.cGE_UNKNOWN_ERROR;
+  Error.rawResponse := false;
+  HttpCode := 422;
+end;
+
+procedure TVPosThread.hndOnAuthorization(ARequest: TRestRequest; var AResult: THTTPResult; var AllowToExecute : Boolean);
+var
+  auth: TJWTAuthenticator;
+  payload: ISuperObject;
+  token: TVPosAuthToken;
+begin
+  AllowToExecute := false;
+  token := nil;
+  if VVposCore.FConfigurationProvider.AppConfig.VPosParams.UseJWT then
+  begin
+    auth := TJWTAuthenticator.Create;
+    auth.OnSecretNeeded := hndJWTSecretNeeded;
+    try
+      if auth.validate(ARequest.AuthParams, payload) then
+      begin
+        AllowToExecute := true;
+        ARequest.Authorization := payload;
+      end
+
+    finally
+      auth.Free;
+    end;
+  end
+  else
+  begin
+    if FTokens.tryGetToken(ARequest.AuthParams, token) then
+    begin
+      AllowToExecute := token.isValid;
+      ARequest.Authorization := SO(TSerializer.ObjectToJson(token));
+    end;
+  end;
+end;
+
+procedure TVPosThread.Initialize;
+begin
+  AddToLog(lsLogInfo, 'TVPosThread.Initialize START');
+  FInitialized := false;
+
+  if FVposLauncher = nil then
+    FVposLauncher := TVposLauncher.Create;
+
+  if FVposLauncher.DisasterRecovery then
+  begin
+    try
+      //FVposLauncher := TVposLauncher.Create;
+      FVposLauncher.Run;
+      CreateRestServer;
+      CreateWebSocketServer;
+      CreateEventProcessor;
+
+      FInitialized := true;
+      AddToLog(lsLogInfo, 'Initialized');
+    except
+      on e: exception do
+      begin
+        AddToLog(lsLogError, 'Initialization failed', e.Message);
+      end;
+
+    end;
+
+  end;
+
+//  AddToLog(lsLogInfo, 'TVPosThread.Initialize END');
+end;
+
+procedure TVPosThread.CreateRestServer;
+begin
+  CreateRestServerVPOS4;
+end;
+
+procedure TVPosThread.CreateRestServerBase<T>;
+var
+  LPath: string;
+begin
+  try
+    FPort := VVposCore.FConfigurationProvider.AppConfig.VPosParams.Port;
+  except
+    on e: Exception do
+    begin
+      AddToLog(lsLogError, 'VPos configuration not loaded - cannot start server');
+      raise;
+    end;
+  end;
+
+  AddToLog(lsLogInfo, Format('Rest server settings: Class=%s, Port=%d, SSL=%s',
+    [T.classname, FPort, BoolToStr(VVposCore.FConfigurationProvider.AppConfig.VPosParams.UseSsl, true)]));
+
+
+  if FPort <= 0 then
+    raise Exception.Create('Invalid port number');
+
+  FServer := T.Create;
+  FServer.Port := FPort;
+
+  if VVposCore.FConfigurationProvider.AppConfig.VPosParams.UseSsl then
+  begin
+    LPath := ExtractFilePath(ParamStr(0));
+    FServer.SetOnSSL(LPath + 'mflota.key', LPath + 'mflota.crt', '');
+  end;
+
+  FServer.DocumentRoot := 'd:\mccomp\www';
+  FServer.ServeFiles := true;
+end;
+
+procedure TVPosThread.CreateRestServerVPOS4;
+var
+  Server: TvPOSAPIServer;
+begin
+  CreateRestServerBase<TvPOSAPIServer>;
+
+  Server := FServer as TvPOSAPIServer;
+
+  Server.OnAuthorization := hndOnAuthorization;
+  FCommandsAuth := TCommandsAuth.Create;
+  FCommandsAuth.SetCommandsLog(CfgFile.getString('NewPos.CommandsLog', ''));
+
+  FServer.OnBeforeCommand := FCommandsAuth.BeforeCommand;
+  FServer.OnAfterCommand := FCommandsAuth.AfterCommand;
+
+  Server.OnBasketManagementApiNeeded := VVposCore.GetBasketManagementApi;
+  Server.OnDictionariesApiNeeded := VVposCore.GetDictionariesApi;
+  Server.OnDocumentsPrintoutsApiNeeded := VVposCore.GetDocumentsPrintoutsApi;
+  Server.OnEventsApiNeeded := VVposCore.GetEventsApi;
+  Server.OnPumpsRefuellingsApiNeeded := VVposCore.GetPumpsRefuellingsApi;
+  Server.OnSaleApiNeeded := VVposCore.GetSaleApi;
+  Server.OnValidatorsApiNeeded := VVposCore.GetValidatorsApi;
+
+  FTokens := TVPosAuthProvider.Create;
+
+  Server.CustomErrorsMap.register(EVPosException, hndMapVPosException);
+  Server.CustomErrorsMap.register(EVPosNotFoundException, hndMapVPosNotFoundException);
+
+end;
+
+procedure TVPosThread.Start;
+begin
+  AddToLog(lsLogInfo, 'Starting server');
+  try
+    if FServer = nil then
+      raise Exception.Create('Server not created');
+    FServer.Start;
+    AddToLog(lsLogInfo, 'server started');
+    FEventsProcessor.Start;
+    if Assigned(FWebSocketServer) then
+    begin
+      FWebSocketServer.Start;
+      AddToLog(lsLogInfo, 'websocket server started');
+    end;
+
+  except
+    on e: Exception do
+    begin
+      AddToLog(lsLogError, 'Server not started', e.Message);
+//      raise;
+    end;
+  end;
+end;
+
+procedure TVPosThread.Stop;
+begin
+  try
+    if FInitialized then
+    begin
+      if FServer <> nil then
+      begin
+        FServer.Stop;
+        //FServer.IdHttpServer.IOHandler := nil;
+      end;
+
+      if FVposLauncher <> nil then
+        FVposLauncher.Stop;
+    end;
+  except
+    on e: Exception do
+    begin
+      AddToLog(lsLogError, 'TVPosThread.Stop', e.Message);
+    end;
+  end;
+end;
+
+
+end.

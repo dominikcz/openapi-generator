@@ -1,19 +1,19 @@
 {{>header_for_modifications}}
 
-program ProjectSrv;
+program {{programName}}Srv;
 
 uses
   Vcl.Forms,
-  AppForm in 'AppForm.pas' {AppMainForm},
+  ServiceMain in 'ServiceMain.pas' {ServiceMain{{programName}}: TService},
 {{#apiInfo}}{{#apis}}
   {{#operations}}{{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}
 {{/apis}}{{/apiInfo}};
 
-{$R *.res}    
+{$R *.res}
 
 begin
-  Application.Initialize;
-  Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TAppForm, AppMAinForm);
+  if not Application.DelayInitialize or Application.Installing then
+    Application.Initialize;
+  Application.CreateForm(TServiceMain{{programName}}, ServiceMain{{programName}});
   Application.Run;
 end.
