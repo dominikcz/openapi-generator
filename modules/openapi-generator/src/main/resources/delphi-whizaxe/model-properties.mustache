@@ -138,20 +138,28 @@ end;
 
 function T{{classname}}.Validate(out AErrorMsg: string): boolean;
 var
-  sb: TStringBuilder;
-  errorMsg: string;{{#isArray}}{{#arrayModelType}}
+  errorMsg: string;{{^oneOf}}
+  sb: TStringBuilder;{{#isArray}}{{#arrayModelType}}
   item: T{{arrayModelType}};
   itemIdx: integer;{{/arrayModelType}}{{/isArray}}
 const
   MSG = 'Field %s is not set or has invalid value. %s';{{#isArray}}{{#arrayModelType}}
-  MSG_ITEM = 'Invalid item in array at index %d. %s';{{/arrayModelType}}{{/isArray}}
+  MSG_ITEM = 'Invalid item in array at index %d. %s';{{/arrayModelType}}{{/isArray}}{{/oneOf}}{{#oneOf}}
+  obj_{{.}}: T{{.}};{{/oneOf}}
 begin
   errorMsg := '';
-  result := false;
+  {{#oneOf}}{{#-first}}// OneOf:{{/-first}}
+  obj_{{.}} := nil;{{/oneOf}}{{^oneOf}}
   sb := TStringBuilder.Create;{{#isArray}}{{#arrayModelType}}
-  itemIdx := 0;{{/arrayModelType}}{{/isArray}}
+  itemIdx := 0;{{/arrayModelType}}{{/isArray}}{{/oneOf}}
+
   try
-    {{#vars}}
+    {{#oneOf}}
+    obj_{{.}} := TSerializer.CloneNeon<T{{.}}>(self);
+    {{/oneOf}}{{#oneOf}}
+    if obj_{{.}}.Validate(errorMsg) then
+      exit;
+    {{/oneOf}}{{^oneOf}}{{#vars}}
     if not {{baseName}}IsValid(errorMsg) then
       sb.AppendLine(format(MSG, ['{{name}}', errorMsg]));
     {{/vars}}
@@ -164,11 +172,21 @@ begin
       if errorMsg <> '' then
         sb.AppendLine(format(MSG_ITEM, [itemIdx, errorMsg]));
        Inc(itemIdx);
-    end;{{/arrayModelType}}{{/isArray}}
+    end;{{/arrayModelType}}{{/isArray}}{{/oneOf}}
+  finally
+    {{#oneOf}}
+    {{#-first}}
+    result := ErrorMsg = '';
+    AErrorMsg := ErrorMsg;
+    // OneOf:
+    {{/-first}}
+    obj_{{.}}.Free;
+    {{/oneOf}}
+    {{^oneOf}}
     AErrorMsg := sb.ToString();
     result := AErrorMsg = '';
-  finally
     sb.Free;
+    {{/oneOf}}
   end;
 end;
 
