@@ -86,7 +86,7 @@ begin
     resp := nil;
     try
     {{/vendorExtensions.x-delphi-returns-model}}
-      resp := lClient.{{operationId}}({{#allParams}} {{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
+      resp := lClient.{{operationId}}({{#allParams}} {{{baseName}}}, {{/allParams}}nil);
       {{^vendorExtensions.x-delphi-returns-model}}
       Memo1.Lines.Add(resp);
       {{/vendorExtensions.x-delphi-returns-model}}{{#vendorExtensions.x-delphi-returns-model}}
@@ -97,7 +97,7 @@ begin
       {{/vendorExtensions.x-delphi-returns-model}}
 
     {{/returnType}}{{^returnType}}
-    lClient.{{operationId}}({{#allParams}} {{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
+    lClient.{{operationId}}({{#allParams}} {{{baseName}}}, {{/allParams}}nil);
     Memo1.Lines.Add('OK');
     {{/returnType}}
 

@@ -7,6 +7,7 @@ interface
 
 uses
   System.SysUtils,
+  superobject,
   {{classname}}Interface{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
@@ -21,8 +22,8 @@ type
     {{#allParams}}
     /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}{{^returnType}}
-    procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}{{^returnType}}
+    procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject){{#isDeprecated}} @deprecated{{/isDeprecated}};{{/returnType}}
     {{/operation}}
   end;
 
@@ -36,7 +37,7 @@ uses
 
 {{#operation}}
 
-{{#returnType}}function T{{classname}}.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};
+{{#returnType}}function T{{classname}}.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}};
 {{^vendorExtensions.x-delphi-demo-code-api}}
 begin
   raise EWxRestNotImplementedException.Create('');
@@ -44,7 +45,7 @@ end;
 {{/vendorExtensions.x-delphi-demo-code-api}}
 {{{vendorExtensions.x-delphi-demo-code-api}}}
 {{/returnType}}
-{{^returnType}}procedure T{{classname}}.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});
+{{^returnType}}procedure T{{classname}}.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject);
 {{^vendorExtensions.x-delphi-demo-code-api}}
 begin
   raise EWxRestNotImplementedException.Create('');

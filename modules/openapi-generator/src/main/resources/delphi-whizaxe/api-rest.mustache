@@ -119,13 +119,13 @@ begin
   {{baseName}} := ARequest.GetHeaderParam('{{baseName}}', '{{{defaultValue}}}', {{required}});
 {{/headerParams}}
 {{#returnType}}
-    responseObj := FApi.{{operationId}}({{#allParams}}{{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});{{#isResponseBinary}}
+    responseObj := FApi.{{operationId}}({{#allParams}}{{{baseName}}}, {{/allParams}}ARequest.Authorization);{{#isResponseBinary}}
     AResult.ContentType('text/plain');
     AResult.SetResult(hs2xx_OK, TStringStream(responseObj).DataString, 'OK');{{/isResponseBinary}}
     {{^isResponseBinary}}AResult.SetResult(hs2xx_OK, responseObj, 'OK');{{/isResponseBinary}}
 {{/returnType}}
 {{^returnType}}
-    FApi.{{operationId}}({{#allParams}}{{{baseName}}}{{^-last}}, {{/-last}}{{/allParams}});
+    FApi.{{operationId}}({{#allParams}}{{{baseName}}}, {{/allParams}}ARequest.Authorization);
     AResult.SetResult(hs2xx_OK);
 {{/returnType}}
 {{#vendorExtensions.x-delphi-needs-free}}

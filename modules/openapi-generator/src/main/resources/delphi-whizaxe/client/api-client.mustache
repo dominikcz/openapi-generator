@@ -16,8 +16,9 @@ uses
   rest.Authenticator.Basic,{{#apiInfo}}{{#apis}}{{#operations}}
   {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}}
-  ,Model.ExtInfo
-  ,System.Classes;
+  , Model.ExtInfo
+  , System.Classes
+  , superobject;
   
   
 type
@@ -52,8 +53,8 @@ type
     {{#pathParams}}
     /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/pathParams}}
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
-    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}
@@ -189,7 +190,7 @@ end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}}): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{baseName}}: {{{dataType}}}{{^-last}}; {{/-last}}{{/allParams}});{{/returnType}}
+{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{baseName}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject);{{/returnType}}
 var 
   restRequest: TRestRequest;
   restClient: TRestClient;
