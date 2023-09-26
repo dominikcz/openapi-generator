@@ -25,22 +25,17 @@ import jakarta.annotation.Generated;
 public class ContainerDefaultValue {
 
   
-  private JsonNullable<List<String>> nullableArray = JsonNullable.undefined();
+  private JsonNullable<List<String>> nullableArray = JsonNullable.<List<String>>undefined();
 
   
-  private JsonNullable<List<String>> nullableRequiredArray = JsonNullable.undefined();
+  private JsonNullable<List<String>> nullableRequiredArray = JsonNullable.<List<String>>undefined();
 
   
   private List<String> requiredArray = new ArrayList<>();
 
   
-  private JsonNullable<List<String>> nullableArrayWithDefault = JsonNullable.undefined();
+  private JsonNullable<List<String>> nullableArrayWithDefault = JsonNullable.<List<String>>undefined();
 
-  /**
-   * Default constructor
-   * @deprecated Use {@link ContainerDefaultValue#ContainerDefaultValue(List<String>, List<String>)}
-   */
-  @Deprecated
   public ContainerDefaultValue() {
     super();
   }

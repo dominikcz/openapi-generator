@@ -204,6 +204,11 @@
   infoLink: "https://www.fenergo.com/"
   pinned: false
 -
+  caption: "Flipkart"
+  image: "img/companies/flipkart.png"
+  infoLink: "https://www.flipkart.com/"
+  pinned: false
+-
   caption: FiNC Technologies
   image: "img/companies/finc-technologies.png"
   infoLink: "https://company.finc.com/"
@@ -287,6 +292,11 @@
   caption: Klarna
   image: "img/companies/klarna.svg"
   infoLink: "https://www.klarna.com/us/"
+  pinned: false
+-
+  caption: "Landeshauptstadt München - it@M"
+  image: "img/companies/it-at-m.png"
+  infoLink: "https://muenchen.digital/it-at-m/"
   pinned: false
 -
   caption: "Linode"
@@ -404,6 +414,11 @@
   infoLink: "https://www.plaid.com/"
   pinned: false
 -
+  caption: Pinterest 
+  image: "img/companies/pinterest.png"
+  infoLink: "https://www.pinterest.com/"
+  pinned: false
+-
   caption: Ponicode
   image: "img/companies/ponicode.png"
   infoLink: "https://ponicode.dev/"
@@ -488,6 +503,11 @@
   image: "img/companies/stingray.png"
   infoLink: "http://www.stingray.com/"
   pinned: true
+-
+  caption: SumUp
+  image: "img/companies/sumup.png"
+  infoLink: "https://www.sumup.com/"
+  pinned: false
 -
   caption: Suva
   image: "img/companies/suva.svg"

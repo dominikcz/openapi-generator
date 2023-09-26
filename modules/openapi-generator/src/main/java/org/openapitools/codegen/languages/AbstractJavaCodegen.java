@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import io.swagger.models.Model;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -65,12 +66,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
     private static final String ARTIFACT_VERSION_DEFAULT_VALUE = "1.0.0";
 
-    public static final String FULL_JAVA_UTIL = "fullJavaUtil";
     public static final String DEFAULT_LIBRARY = "<default>";
     public static final String DATE_LIBRARY = "dateLibrary";
     public static final String SUPPORT_ASYNC = "supportAsync";
     public static final String WITH_XML = "withXml";
-    public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String DISABLE_HTML_ESCAPING = "disableHtmlEscaping";
     public static final String BOOLEAN_GETTER_PREFIX = "booleanGetterPrefix";
     public static final String IGNORE_ANYOF_IN_ENUM = "ignoreAnyOfInEnum";
@@ -83,11 +82,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     public static final String TEST_OUTPUT = "testOutput";
     public static final String IMPLICIT_HEADERS = "implicitHeaders";
     public static final String IMPLICIT_HEADERS_REGEX = "implicitHeadersRegex";
+    public static final String AUTOSET_CONSTANTS = "autosetConstants";
     public static final String JAVAX_PACKAGE = "javaxPackage";
     public static final String USE_JAKARTA_EE = "useJakartaEe";
     public static final String CONTAINER_DEFAULT_TO_NULL = "containerDefaultToNull";
 
     public static final String CAMEL_CASE_DOLLAR_SIGN = "camelCaseDollarSign";
+    public static final String USE_ONE_OF_INTERFACES = "useOneOfInterfaces";
 
     public static final String DEFAULT_TEST_FOLDER = "${project.build.directory}/generated-test-sources/openapi";
 
@@ -114,14 +115,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     // this must not be OS-specific
     protected String sourceFolder = projectFolder + "/java";
     protected String testFolder = projectTestFolder + "/java";
-    protected boolean fullJavaUtil;
     protected boolean discriminatorCaseSensitive = true; // True if the discriminator value lookup should be case-sensitive.
-    protected String javaUtilPrefix = "";
     protected Boolean serializableModel = false;
     protected boolean serializeBigDecimalAsString = false;
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
-    protected boolean supportJava6 = false;
     protected boolean disableHtmlEscaping = false;
     protected String booleanGetterPrefix = "get";
     protected boolean ignoreAnyOfInEnum = false;
@@ -138,6 +136,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     protected AnnotationLibrary annotationLibrary;
     protected boolean implicitHeaders = false;
     protected String implicitHeadersRegex = null;
+    protected boolean autosetConstants = false;
     protected boolean camelCaseDollarSign = false;
     protected boolean useJakartaEe = false;
     protected boolean containerDefaultToNull = false;
@@ -150,8 +149,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         modifyFeatureSet(features -> features
                 .includeDocumentationFeatures(DocumentationFeature.Readme)
                 .wireFormatFeatures(EnumSet.of(WireFormatFeature.JSON, WireFormatFeature.XML))
-                .securityFeatures(EnumSet.noneOf(
-                        SecurityFeature.class
+                .securityFeatures(EnumSet.of(
+                        SecurityFeature.ApiKey,
+                        SecurityFeature.BasicAuth,
+                        SecurityFeature.BearerToken,
+                        SecurityFeature.OAuth2_Implicit
                 ))
                 .excludeGlobalFeatures(
                         GlobalFeature.XMLStructureDefinitions,
@@ -194,7 +196,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                         "import", "public", "throws", "case", "enum", "instanceof", "return", "transient",
                         "catch", "extends", "int", "short", "try", "char", "final", "interface", "static",
                         "void", "class", "finally", "long", "strictfp", "volatile", "const", "float",
-                        "native", "super", "while", "null")
+                        "native", "super", "while", "null", "offsetdatetime", "localdate", "localtime")
         );
 
         languageSpecificPrimitives = Sets.newHashSet("String",
@@ -252,10 +254,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         cliOptions.add(new CliOption(CodegenConstants.SOURCE_FOLDER, CodegenConstants.SOURCE_FOLDER_DESC).defaultValue(this.getSourceFolder()));
         cliOptions.add(CliOption.newBoolean(CodegenConstants.SERIALIZABLE_MODEL, CodegenConstants.SERIALIZABLE_MODEL_DESC, this.getSerializableModel()));
         cliOptions.add(CliOption.newBoolean(CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING, CodegenConstants.SERIALIZE_BIG_DECIMAL_AS_STRING_DESC, serializeBigDecimalAsString));
-        cliOptions.add(CliOption.newBoolean(FULL_JAVA_UTIL, "whether to use fully qualified name for classes under java.util. This option only works for Java API client", fullJavaUtil));
         cliOptions.add(CliOption.newBoolean(DISCRIMINATOR_CASE_SENSITIVE, "Whether the discriminator value lookup should be case-sensitive or not. This option only works for Java API client", discriminatorCaseSensitive));
         cliOptions.add(CliOption.newBoolean(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC, this.isHideGenerationTimestamp()));
         cliOptions.add(CliOption.newBoolean(WITH_XML, "whether to include support for application/xml content type and include XML annotations in the model (works with libraries that provide support for JSON and XML)"));
+        cliOptions.add(CliOption.newBoolean(USE_ONE_OF_INTERFACES, "whether to use a java interface to describe a set of oneOf options, where each option is a class that implements the interface"));
 
         CliOption dateLibrary = new CliOption(DATE_LIBRARY, "Option. Date library to use").defaultValue(this.getDateLibrary());
         Map<String, String> dateOptions = new HashMap<>();
@@ -356,11 +358,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             LOGGER.info("Environment variable JAVA_POST_PROCESS_FILE not defined so the Java code may not be properly formatted. To define it, try 'export JAVA_POST_PROCESS_FILE=\"/usr/local/bin/clang-format -i\"' (Linux/Mac)");
             LOGGER.info("NOTE: To enable file post-processing, 'enablePostProcessFile' must be set to `true` (--enable-post-process-file for CLI).");
         }
-
-        if (additionalProperties.containsKey(SUPPORT_JAVA6)) {
-            this.setSupportJava6(Boolean.parseBoolean(additionalProperties.get(SUPPORT_JAVA6).toString()));
-        }
-        additionalProperties.put(SUPPORT_JAVA6, supportJava6);
 
         if (additionalProperties.containsKey(DISABLE_HTML_ESCAPING)) {
             this.setDisableHtmlEscaping(Boolean.parseBoolean(additionalProperties.get(DISABLE_HTML_ESCAPING).toString()));
@@ -521,9 +518,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         // need to put back serializableModel (boolean) into additionalProperties as value in additionalProperties is string
         additionalProperties.put(CodegenConstants.SERIALIZABLE_MODEL, serializableModel);
 
-        if (additionalProperties.containsKey(FULL_JAVA_UTIL)) {
-            this.setFullJavaUtil(Boolean.parseBoolean(additionalProperties.get(FULL_JAVA_UTIL).toString()));
-        }
         if (additionalProperties.containsKey(DISCRIMINATOR_CASE_SENSITIVE)) {
             this.setDiscriminatorCaseSensitive(Boolean.parseBoolean(additionalProperties.get(DISCRIMINATOR_CASE_SENSITIVE).toString()));
         } else {
@@ -533,12 +527,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             this.setDiscriminatorCaseSensitive(Boolean.TRUE);
         }
         additionalProperties.put(DISCRIMINATOR_CASE_SENSITIVE, this.discriminatorCaseSensitive);
-
-        if (fullJavaUtil) {
-            javaUtilPrefix = "java.util.";
-        }
-        additionalProperties.put(FULL_JAVA_UTIL, fullJavaUtil);
-        additionalProperties.put("javaUtilPrefix", javaUtilPrefix);
 
         if (additionalProperties.containsKey(WITH_XML)) {
             this.setWithXml(Boolean.parseBoolean(additionalProperties.get(WITH_XML).toString()));
@@ -570,8 +558,16 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             this.setImplicitHeadersRegex(additionalProperties.get(IMPLICIT_HEADERS_REGEX).toString());
         }
 
+        if (additionalProperties.containsKey(AUTOSET_CONSTANTS)) {
+            this.setAutosetConstants(Boolean.parseBoolean(additionalProperties.get(AUTOSET_CONSTANTS).toString()));
+        }
+
         if (additionalProperties.containsKey(CAMEL_CASE_DOLLAR_SIGN)) {
             this.setCamelCaseDollarSign(Boolean.parseBoolean(additionalProperties.get(CAMEL_CASE_DOLLAR_SIGN).toString()));
+        }
+
+        if (additionalProperties.containsKey(USE_ONE_OF_INTERFACES)) {
+            this.setUseOneOfInterfaces(Boolean.parseBoolean(additionalProperties.get(USE_ONE_OF_INTERFACES).toString()));
         }
 
         if (!StringUtils.isEmpty(parentGroupId) && !StringUtils.isEmpty(parentArtifactId) && !StringUtils.isEmpty(parentVersion)) {
@@ -585,27 +581,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         importMapping.put("List", "java.util.List");
         importMapping.put("Set", "java.util.Set");
 
-        if (fullJavaUtil) {
-            typeMapping.put("array", "java.util.List");
-            typeMapping.put("set", "java.util.Set");
-            typeMapping.put("map", "java.util.Map");
-            typeMapping.put("DateTime", "java.util.Date");
-            typeMapping.put("UUID", "java.util.UUID");
-            typeMapping.remove("List");
-            importMapping.remove("Date");
-            importMapping.remove("Map");
-            importMapping.remove("HashMap");
-            importMapping.remove("Array");
-            importMapping.remove("ArrayList");
-            importMapping.remove("List");
-            importMapping.remove("Set");
-            importMapping.remove("DateTime");
-            importMapping.remove("UUID");
-            instantiationTypes.put("array", "java.util.ArrayList");
-            instantiationTypes.put("set", "java.util.LinkedHashSet");
-            instantiationTypes.put("map", "java.util.HashMap");
-        }
-
         this.sanitizeConfig();
 
         // optional jackson mappings for BigDecimal support
@@ -616,6 +591,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         // imports for pojos
         importMapping.put("ApiModelProperty", "io.swagger.annotations.ApiModelProperty");
         importMapping.put("ApiModel", "io.swagger.annotations.ApiModel");
+        importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
         importMapping.put("BigDecimal", "java.math.BigDecimal");
         importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
@@ -817,6 +793,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
     @Override
     public String toVarName(String name) {
+        // obtain the name from nameMapping directly if provided
+        if (nameMapping.containsKey(name)) {
+            return nameMapping.get(name);
+        }
+
         // sanitize name
         name = sanitizeName(name, "\\W-[\\$]"); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
 
@@ -876,6 +857,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
     @Override
     public String toParamName(String name) {
+        // obtain the name from paramterNameMapping directly if provided
+        if (parameterNameMapping.containsKey(name)) {
+            return parameterNameMapping.get(name);
+        }
+
         // to avoid conflicts with 'callback' parameter for async call
         if ("callback".equals(name)) {
             return "paramCallback";
@@ -954,7 +940,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         } else if (ModelUtils.isMapSchema(target)) {
             // Note: ModelUtils.isMapSchema(p) returns true when p is a composed schema that also defines
             // additionalproperties: true
-            Schema<?> inner = getAdditionalProperties(target);
+            Schema<?> inner = ModelUtils.getAdditionalProperties(target);
             if (inner == null) {
                 LOGGER.error("`{}` (map property) does not have a proper inner type defined. Default to type:string", p.getName());
                 inner = new StringSchema().description("TODO default missing map inner type to string");
@@ -990,13 +976,19 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
                 if (schema.getDefault() instanceof ArrayNode) { // array of default values
                     ArrayNode _default = (ArrayNode) schema.getDefault();
-                    if (_default.isEmpty()) {
-                        return "null";
+                    if (_default.isEmpty()) { // e.g. default: []
+                        return "new ArrayList<>()";
                     }
 
                     List<String> final_values = _values;
                     _default.elements().forEachRemaining((element) -> {
                         final_values.add(element.asText());
+                    });
+                } else if (schema.getDefault() instanceof Collection) {
+                    var _default = (Collection<Object>) schema.getDefault();
+                    List<String> final_values = _values;
+                    _default.forEach((element) -> {
+                        final_values.add(String.valueOf(element));
                     });
                 } else { // single value
                     _values = java.util.Collections.singletonList(String.valueOf(schema.getDefault()));
@@ -1010,7 +1002,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                         defaultValues.add(cp.items.datatypeWithEnum + "." + toEnumVarName(_value, cp.items.dataType));
                     }
                     defaultValue = StringUtils.join(defaultValues, ", ");
-                } else {
+                } else if (_values.size() > 0) {
                     if (cp.items.isString) { // array item is string
                         defaultValue = String.format(Locale.ROOT, "\"%s\"", StringUtils.join(_values, "\", \""));
                     } else if (cp.items.isNumeric) {
@@ -1030,7 +1022,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                     } else { // array item is non-string, e.g. integer
                         defaultValue = StringUtils.join(_values, ", ");
                     }
+                } else {
+                    return "new ArrayList<>()";
                 }
+
                 return String.format(Locale.ROOT, "new ArrayList<>(Arrays.asList(%s))", defaultValue);
             } else if (cp.isArray && cp.getUniqueItems()) { // set
                 // TODO
@@ -1066,7 +1061,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             } else { // has default value
                 return toArrayDefaultValue(cp, schema);
             }
-        } else if (ModelUtils.isMapSchema(schema) && !(schema instanceof ComposedSchema)) {
+        } else if (ModelUtils.isMapSchema(schema) && !(ModelUtils.isComposedSchema(schema))) {
             if (schema.getProperties() != null && schema.getProperties().size() > 0) {
                 // object is complex object with free-form additional properties
                 if (schema.getDefault() != null) {
@@ -1079,7 +1074,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                 return null;
             }
 
-            if (getAdditionalProperties(schema) == null) {
+            if (ModelUtils.getAdditionalProperties(schema) == null) {
                 return null;
             }
 
@@ -1235,7 +1230,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
         if (content.size() > 1) {
             // @see ModelUtils.getSchemaFromContent()
-            LOGGER.warn("Multiple MediaTypes found, using only the first one");
+            LOGGER.debug("Multiple MediaTypes found, using only the first one");
         }
 
         MediaType mediaType = content.values().iterator().next();
@@ -1353,8 +1348,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         if (example == null) {
             example = "null";
         } else if (Boolean.TRUE.equals(p.isArray)) {
-
-            if (p.items.defaultValue != null) {
+            if (p.items != null && p.items.defaultValue != null) {
                 String innerExample;
                 if ("String".equals(p.items.dataType)) {
                     innerExample = "\"" + p.items.defaultValue + "\"";
@@ -1426,7 +1420,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         Map<String, Schema> allDefinitions = ModelUtils.getSchemas(this.openAPI);
         CodegenModel codegenModel = super.fromModel(name, model);
         if (codegenModel.description != null) {
-            codegenModel.imports.add("ApiModel");
+            if (!AnnotationLibrary.SWAGGER2.equals(getAnnotationLibrary())) {
+                // TODO: should only be for SWAGGER1, but some NONE/MICROPROFILE templates still use it
+                codegenModel.imports.add("ApiModel");
+            }
         }
         if (codegenModel.discriminator != null && additionalProperties.containsKey(JACKSON)) {
             codegenModel.imports.add("JsonSubTypes");
@@ -1472,25 +1469,35 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             }
         }
 
-        if (!fullJavaUtil) {
-            if ("array".equals(property.containerType)) {
-                model.imports.add("ArrayList");
-            } else if ("set".equals(property.containerType)) {
-                model.imports.add("LinkedHashSet");
-                boolean canNotBeWrappedToNullable = !openApiNullable || !property.isNullable;
-                if (canNotBeWrappedToNullable) {
-                    model.imports.add("JsonDeserialize");
-                    property.vendorExtensions.put("x-setter-extra-annotation", "@JsonDeserialize(as = LinkedHashSet.class)");
-                }
-            } else if ("map".equals(property.containerType)) {
-                model.imports.add("HashMap");
+        // hard-coded Arrays import in Java client as it has been removed from the templates
+        if (this instanceof JavaClientCodegen &&
+                ("jersey2".equals(library) ||
+                        "jersey3".equals(library) ||
+                        "native".equals(library) ||
+                        "okhttp-gson".equals(library))) {
+            model.imports.add("Arrays");
+        }
+
+        if ("array".equals(property.containerType)) {
+            model.imports.add("ArrayList");
+            model.imports.add("Arrays");
+        } else if ("set".equals(property.containerType)) {
+            model.imports.add("LinkedHashSet");
+            if (!openApiNullable || !property.isNullable) { // cannot be wrapped to nullable
+                model.imports.add("JsonDeserialize");
+                property.vendorExtensions.put("x-setter-extra-annotation", "@JsonDeserialize(as = LinkedHashSet.class)");
             }
+        } else if ("map".equals(property.containerType)) {
+            model.imports.add("HashMap");
         }
 
         if (!BooleanUtils.toBoolean(model.isEnum)) {
             // needed by all pojos, but not enums
-            model.imports.add("ApiModelProperty");
-            model.imports.add("ApiModel");
+            if (!AnnotationLibrary.SWAGGER2.equals(getAnnotationLibrary())) {
+                // TODO: should only be for SWAGGER1, but some NONE/MICROPROFILE templates still use it
+                model.imports.add("ApiModelProperty");
+                model.imports.add("ApiModel");
+            }
         }
 
         if (openApiNullable) {
@@ -1570,6 +1577,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             op.vendorExtensions.put("x-java-import", operationImports);
 
             handleImplicitHeaders(op);
+            handleConstantParams(op);
         }
 
         return objs;
@@ -1590,8 +1598,8 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                 }
                 for (Operation operation : path.readOperations()) {
                     LOGGER.info("Processing operation {}", operation.getOperationId());
-                    if (hasBodyParameter(openAPI, operation) || hasFormParameter(openAPI, operation)) {
-                        String defaultContentType = hasFormParameter(openAPI, operation) ? "application/x-www-form-urlencoded" : "application/json";
+                    if (hasBodyParameter(operation) || hasFormParameter(operation)) {
+                        String defaultContentType = hasFormParameter(operation) ? "application/x-www-form-urlencoded" : "application/json";
                         List<String> consumes = new ArrayList<>(getConsumesInfo(openAPI, operation));
                         String contentType = consumes.isEmpty() ? defaultContentType : consumes.get(0);
                         operation.addExtension("x-content-type", contentType);
@@ -1608,7 +1616,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             // If none of them is provided then fallbacks to default version
             if (additionalProperties.containsKey(CodegenConstants.ARTIFACT_VERSION) && additionalProperties.get(CodegenConstants.ARTIFACT_VERSION) != null) {
                 this.setArtifactVersion((String) additionalProperties.get(CodegenConstants.ARTIFACT_VERSION));
-            } else if (openAPI.getInfo() != null && openAPI.getInfo().getVersion() != null) {
+            } else if (openAPI.getInfo() != null && !StringUtils.isBlank(openAPI.getInfo().getVersion())) {
                 this.setArtifactVersion(openAPI.getInfo().getVersion());
             } else {
                 this.setArtifactVersion(ARTIFACT_VERSION_DEFAULT_VALUE);
@@ -1637,11 +1645,11 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                                     .map(Schema::getProperties))
                     .forEach(schemas -> schemas.replaceAll(
                             (name, s) -> Stream.of(s)
-                                    .filter(schema -> schema instanceof ComposedSchema)
-                                    .map(schema -> (ComposedSchema) schema)
-                                    .filter(schema -> Objects.nonNull(schema.getAnyOf()))
-                                    .flatMap(schema -> schema.getAnyOf().stream())
-                                    .filter(schema -> Objects.nonNull(schema.getEnum()))
+                                    .filter(schema -> ModelUtils.isComposedSchema((Schema) schema))
+                                    //.map(schema -> (ComposedSchema) schema)
+                                    .filter(schema -> Objects.nonNull(((Schema) schema).getAnyOf()))
+                                    .flatMap(schema -> ((Schema) schema).getAnyOf().stream())
+                                    .filter(schema -> Objects.nonNull(((Schema) schema).getEnum()))
                                     .findFirst()
                                     .orElse((Schema) s)));
         }
@@ -1948,10 +1956,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         return p.replaceAll("\"", "%22");
     }
 
-    public void setFullJavaUtil(boolean fullJavaUtil) {
-        this.fullJavaUtil = fullJavaUtil;
-    }
-
     /**
      * Set whether discriminator value lookup is case-sensitive or not.
      *
@@ -2048,6 +2052,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         this.implicitHeadersRegex = implicitHeadersRegex;
     }
 
+    public void setAutosetConstants(boolean autosetConstants) {
+        this.autosetConstants = autosetConstants;
+    }
+
     public void setCamelCaseDollarSign(boolean camelCaseDollarSign) {
         this.camelCaseDollarSign = camelCaseDollarSign;
     }
@@ -2101,10 +2109,6 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             return version;
         }
         return version + "-SNAPSHOT";
-    }
-
-    public void setSupportJava6(boolean value) {
-        this.supportJava6 = value;
     }
 
     @Override
@@ -2241,7 +2245,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         }
 
         // See https://github.com/OpenAPITools/openapi-generator/pull/1729#issuecomment-449937728
-        Schema s = getAdditionalProperties(schema);
+        Schema s = ModelUtils.getAdditionalProperties(schema);
         // 's' may be null if 'additionalProperties: false' in the OpenAPI schema.
         if (s != null) {
             codegenModel.additionalPropertiesType = getSchemaType(s);
@@ -2284,6 +2288,45 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                 operation.headerParams.removeIf(header -> header.baseName.equals(p.baseName));
                 LOGGER.info("Update operation [{}]. Remove header [{}] because it's marked to be implicit", operation.operationId, p.baseName);
             } else {
+                operation.allParams.add(p);
+            }
+        }
+        operation.hasParams = !operation.allParams.isEmpty();
+    }
+
+    /**
+     * This method removes all constant Query, Header and Cookie Params from allParams and sets them as constantParams in the CodegenOperation.
+     * The definition of constant is single valued required enum params.
+     * The constantParams in the the generated code should be hardcoded to the constantValue if autosetConstants feature is enabled.
+     *
+     * @param operation - operation to be processed
+     */
+    protected void handleConstantParams(CodegenOperation operation) {
+        if (!autosetConstants || operation.allParams.isEmpty()) {            
+            return;
+        }
+        final ArrayList<CodegenParameter> copy = new ArrayList<>(operation.allParams);
+        // Remove all params from Params, Non constant params will be added back later.
+        operation.allParams.clear();
+
+        // Finds all constant params, removes them from allParams and adds them to constant params.
+        // Also, adds back non constant params to allParams.
+        for (CodegenParameter p : copy) {
+            if (p.isEnum && p.required && p._enum != null && p._enum.size() == 1) {
+                // Add to constantParams for use in the code generation templates. 
+                operation.constantParams.add(p);
+                if(p.isQueryParam) {
+                    operation.queryParams.removeIf(param -> param.baseName.equals(p.baseName));
+                }
+                if(p.isHeaderParam) {
+                    operation.headerParams.removeIf(param -> param.baseName.equals(p.baseName));
+                }
+                if(p.isCookieParam) {
+                    operation.cookieParams.removeIf(param -> param.baseName.equals(p.baseName));
+                }
+                LOGGER.info("Update operation [{}]. Remove parameter [{}] because it can only have a fixed value of [{}]", operation.operationId, p.baseName, p._enum.get(0));
+            } else {
+                // Add back to allParams as the param is not a constant.
                 operation.allParams.add(p);
             }
         }
