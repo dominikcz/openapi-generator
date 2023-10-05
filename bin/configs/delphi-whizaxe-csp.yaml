@@ -1,0 +1,13 @@
+generatorName: delphi-whizaxe
+outputDir: samples/server/csp/delphi/whizaxe
+inputSpec: ../api-csp/api-csp.yml
+templateDir: modules/openapi-generator/src/main/resources/delphi-whizaxe
+additionalProperties:
+  hideGenerationTimestamp: "true"
+  modelType: "properties"
+  modelNamePrefix: ""
+  modelFilenamePrefix: "ApiModel."
+  generateAliasAsModel: "true"
+  openApiSkipValidateSpec: "true"
+  useModelsFullNamespace: "true"
+  

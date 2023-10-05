@@ -6,6 +6,7 @@ interface
 uses
   System.SysUtils,
   System.Net.URLClient,
+  Neon.Core.Persistence,
   whizaxe.openapi.config,
   whizaxe.openapi.security,
   whizaxe.Rest.exceptions,
@@ -32,6 +33,7 @@ type
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
     function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
     function MakeRestClient: TRestClient;
+       function MakeNeonConfiguration: INeonConfiguration;
     function ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
     function TryExecuteRequest(ARequest: TRestRequest): boolean;
     
@@ -53,8 +55,8 @@ type
     {{#pathParams}}
     /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/pathParams}}
-    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
-    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
+    {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}
@@ -64,6 +66,8 @@ implementation
 
 uses
   System.Net.HttpClient,
+  Neon.Core.Types,
+  System.TypInfo,
   whizaxe.serialization;
 
 { TApiClient }
@@ -110,6 +114,17 @@ end;
 procedure T{{programName}}Client.SetOnAuthenticate(const Value: TAuthenticateEvent);
 begin
   FOnAuthenticate := Value;
+end;
+
+function T{{programName}}Client.MakeNeonConfiguration: INeonConfiguration;
+begin
+  {{^variableNameConvertUnderscoreToCamelCase}}Result := nil;{{/variableNameConvertUnderscoreToCamelCase}}{{#variableNameConvertUnderscoreToCamelCase}}Result := TNeonConfiguration.Default;
+  Result.SetMemberCase(TNeonCase.SnakeCase);
+  Result.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
+  Result.SetIgnoreFieldPrefix(True);
+  Result.SetVisibility([ mvPublic, mvPublished]);
+  Result.SetUseUTCDate(false);
+  Result.SetEnumAsInt(false);{{/variableNameConvertUnderscoreToCamelCase}}
 end;
 
 function T{{programName}}Client.MakeRestClient: TRestClient;
@@ -190,11 +205,13 @@ end;
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
-{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{baseName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{baseName}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject);{{/returnType}}
+{{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject);{{/returnType}}
 var 
   restRequest: TRestRequest;
   restClient: TRestClient;
+  neonConfiguration: INeonConfiguration;
 begin
+  neonConfiguration := MakeNeonConfiguration;
   restClient := MakeRestClient;
   {{#returnType}}{{^returnSimpleType}}Result := nil;{{/returnSimpleType}}{{/returnType}}
   restRequest := TRESTRequest.Create(restClient);
@@ -202,27 +219,28 @@ begin
     restRequest.Resource := '{{path}}';
     restRequest.Method := GetRESTRequestMethod('{{httpMethod}}');
     {{#pathParams}}
-    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{baseName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{baseName}}}){{/isNumber}}{{^isNumber}}{{{baseName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{baseName}}}{{/isString}}, pkURLSEGMENT);
+    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkURLSEGMENT);
     {{/pathParams}}
     {{#queryParams}}
-    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{baseName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{baseName}}}){{/isNumber}}{{^isNumber}}{{{baseName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{baseName}}}{{/isString}}, pkQUERY);
+    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkQUERY);
     {{/queryParams}}
     {{#bodyParams}}
-    restRequest.AddBody(TSerializer.SerializeObject({{baseName}}), TRESTContentType.ctAPPLICATION_JSON);
+    restRequest.AddBody(TSerializer.SerializeObject({{paramName}}, neonConfiguration), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
     
     {{#returnType}}if TryExecuteRequest(restRequest) then
     begin
       {{#vendorExtensions.x-delphi-returns-model}}
       result := {{{.}}}.Create;
-      TSerializer.DeserializeObject(result, restRequest.Response.Content);
+      TSerializer.DeserializeObject(result, restRequest.Response.Content, neonConfiguration);
       {{/vendorExtensions.x-delphi-returns-model}}
       {{^vendorExtensions.x-delphi-returns-model}}
       result := restRequest.Response.Content;
       {{/vendorExtensions.x-delphi-returns-model}}
     end
-	else
-	  result := nil;
+    else {{#vendorExtensions.x-delphi-returns-model}}
+      result := nil;{{/vendorExtensions.x-delphi-returns-model}}{{^vendorExtensions.x-delphi-returns-model}}
+      result := '';{{/vendorExtensions.x-delphi-returns-model}}
   {{/returnType}}
   {{^returnType}}TryExecuteRequest(restRequest);{{/returnType}}
    

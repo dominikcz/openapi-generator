@@ -7,7 +7,7 @@ begin
   item := TBasketItemRequest.Create;
   item.idRefuelling := 123;
   try
-    lClient.addItemToBasket('1234', item);
+    lClient.addItemToBasket('1234', item, nil);
   except
     on E: Exception do
     begin

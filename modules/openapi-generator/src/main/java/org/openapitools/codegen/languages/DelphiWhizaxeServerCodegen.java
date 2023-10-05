@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.Callables;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.servers.Server;
@@ -36,6 +37,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     public static final String OPTION_MODEL_FILENAME_PREFIX_DESC = "Prefix of model filename";
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE = "useModelsFullNamespace";
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE_DESC = "use full namespace for models dataType";
+
 
     private final Logger LOGGER = LoggerFactory.getLogger(DelphiWhizaxeServerCodegen.class);
     protected final String PREFIX = "";
@@ -80,6 +82,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         addOption(OPTION_MODEL_FILENAME_PREFIX, OPTION_MODEL_FILENAME_PREFIX_DESC, this.modelFilenamePrefix);
         addOption(OPTION_USE_MODELS_FULL_NAMESPACE, OPTION_USE_MODELS_FULL_NAMESPACE_DESC,
                 String.valueOf(this.useModelsFullNamespace));
+
         typeMapping = new HashMap<String, String>();
         typeMapping.put("date", "TDateTime");
         typeMapping.put("DateTime", "TDateTime");
@@ -243,14 +246,23 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     @Override
     public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, List<Server> servers) {
         CodegenOperation op = super.fromOperation(path, httpMethod, operation, servers);
+        String contentType;
 
         if (operation.getResponses() != null && !operation.getResponses().isEmpty()) {
             ApiResponse apiResponse = findMethodResponse(operation.getResponses());
 
             if (apiResponse != null) {
                 Schema response = ModelUtils.getSchemaFromResponse(apiResponse);
+
+                if (apiResponse.getContent() != null && apiResponse.getContent().keySet() != null && !apiResponse.getContent().keySet().isEmpty()){
+                    contentType = apiResponse.getContent().keySet().toArray()[0].toString();
+                    op.vendorExtensions.put("x-codegen-response-content-type", contentType);
+                }
+
                 if (response != null) {
                     CodegenProperty cm = fromProperty("response", response);
+
+
 
                     op.vendorExtensions.put("x-codegen-response", cm);
                     if ("HttpContent".equals(cm.dataType)) {
@@ -348,6 +360,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 // param.baseType = "Pistache::Optional<" + param.baseType + ">";
                 // }
                 // }
+
+              //  param.paramName = sanitizeName(param.paramName);
             }
 
             for (CodegenParameter param : op.bodyParams) {
@@ -445,7 +459,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             return schemaType + "<" + getTypeDeclaration(inner) + ">";
         }
         if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return getSchemaType(p) + "<string, " + getTypeDeclaration(inner) + ">";
         } else if (ModelUtils.isByteArraySchema(p)) {
             return "string";
@@ -537,7 +551,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 return "";
             }
         } else if (ModelUtils.isMapSchema(p)) {
-            String inner = getSchemaType(getAdditionalProperties(p));
+            String inner = getSchemaType(ModelUtils.getAdditionalProperties(p));
             return "std::map<std::string, " + inner + ">()";
         } else if (ModelUtils.isArraySchema(p)) {
             ArraySchema ap = (ArraySchema) p;

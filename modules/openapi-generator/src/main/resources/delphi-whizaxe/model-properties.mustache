@@ -38,7 +38,7 @@ type{{#models}}{{#model}}{{#isEnum}}
     procedure {{vendorExtensions.x-delphi-setter-name}}(AValue: {{{dataType}}});{{/isModel}}{{/vars}}
 
     {{#vars}}
-    function {{baseName}}IsValid(out AErrorMessage: string): boolean;
+    function {{vendorExtensions.x-delphi-camel-name}}IsValid(out AErrorMessage: string): boolean;
     {{/vars}}
 
   public
@@ -75,7 +75,7 @@ type{{#models}}{{#model}}{{#isEnum}}
     procedure UpdateFromJson(AJson: string);
 
     {{#vars}}{{#isModel}}
-    function {{{name}}}IsSet: boolean;{{/isModel}}{{/vars}}
+    function {{{vendorExtensions.x-delphi-camel-name}}}IsSet: boolean;{{/isModel}}{{/vars}}
   end;
 {{/isEnum}}{{/model}}{{/models}}{{#models}}{{#model}}
 
@@ -160,8 +160,8 @@ begin
     if obj_{{.}}.Validate(errorMsg) then
       exit;
     {{/oneOf}}{{^oneOf}}{{#vars}}
-    if not {{baseName}}IsValid(errorMsg) then
-      sb.AppendLine(format(MSG, ['{{name}}', errorMsg]));
+    if not {{vendorExtensions.x-delphi-camel-name}}IsValid(errorMsg) then
+      sb.AppendLine(format(MSG, ['{{baseName}}', errorMsg]));
     {{/vars}}
 
     {{#isArray}}{{#arrayModelType}}
@@ -194,7 +194,7 @@ end;
 {$region 'Getters and setters'}
 {{#vars}}
 
-{{#isModel}}function T{{classname}}.{{{name}}}IsSet: boolean;
+{{#isModel}}function T{{classname}}.{{{vendorExtensions.x-delphi-camel-name}}}IsSet: boolean;
 begin
   result :=  Assigned({{vendorExtensions.x-delphi-field-name}});
 end;
@@ -212,7 +212,7 @@ end;
 {$region 'Validations'}
 
 {{#vars}}
-function T{{classname}}.{{baseName}}IsValid(out AErrorMessage: string): boolean;
+function T{{classname}}.{{vendorExtensions.x-delphi-camel-name}}IsValid(out AErrorMessage: string): boolean;
 {{#hasValidation}}var
   validator: IValidator<{{{baseType}}}>;
 {{/hasValidation}}
@@ -232,8 +232,8 @@ begin
   {{#required}}
   validator.setRequired(true);{{/required}}{{^required}}{{#x-delphi-has-valid-default}}
   validator.setDefault({{{defaultValue}}});{{/x-delphi-has-valid-default}}{{/required}}
-  result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);{{/hasValidation}}{{^hasValidation}}
-  {{#isModel}}result := {{vendorExtensions.x-delphi-field-name}}.Validate(AErrorMessage);{{/isModel}}{{^isModel}}result := true;{{/isModel}}
+  result := validator.Validate({{vendorExtensions.x-delphi-field-name}}, AErrorMessage);{{/hasValidation}}{{^hasValidation}}{{^isArray}}
+  {{#isModel}}result := {{vendorExtensions.x-delphi-field-name}}.Validate(AErrorMessage);{{/isModel}}{{^isModel}}result := true;{{/isModel}}{{/isArray}}{{#isArray}}result := true;{{/isArray}}
   {{/hasValidation}}
 
 end;

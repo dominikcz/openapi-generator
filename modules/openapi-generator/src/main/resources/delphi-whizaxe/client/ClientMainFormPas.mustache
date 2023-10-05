@@ -71,7 +71,7 @@ procedure TMainForm.btn{{operationId}}Click(Sender: TObject);
 var
   lClient: T{{programName}}Client;{{#returnType}}
   resp: {{{.}}};{{/returnType}}{{#allParams}}
-  {{{baseName}}}: {{{dataType}}};{{/allParams}}
+  {{{paramName}}}: {{{dataType}}};{{/allParams}}
 begin
   // TODO: initilize params
 
@@ -86,7 +86,7 @@ begin
     resp := nil;
     try
     {{/vendorExtensions.x-delphi-returns-model}}
-      resp := lClient.{{operationId}}({{#allParams}} {{{baseName}}}, {{/allParams}}nil);
+      resp := lClient.{{operationId}}({{#allParams}} {{{paramName}}}, {{/allParams}}nil);
       {{^vendorExtensions.x-delphi-returns-model}}
       Memo1.Lines.Add(resp);
       {{/vendorExtensions.x-delphi-returns-model}}{{#vendorExtensions.x-delphi-returns-model}}
@@ -97,14 +97,14 @@ begin
       {{/vendorExtensions.x-delphi-returns-model}}
 
     {{/returnType}}{{^returnType}}
-    lClient.{{operationId}}({{#allParams}} {{{baseName}}}, {{/allParams}}nil);
+    lClient.{{operationId}}({{#allParams}} {{{paramName}}}, {{/allParams}}nil);
     Memo1.Lines.Add('OK');
     {{/returnType}}
 
   finally
     lClient.Free;
     {{#allParams}}
-    {{#isModel}}{{{baseName}}}.Free;{{/isModel}}
+    {{#isModel}}{{{paramName}}}.Free;{{/isModel}}
   {{/allParams}}
 
   end;

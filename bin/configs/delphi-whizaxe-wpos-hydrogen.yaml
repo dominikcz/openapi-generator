@@ -1,0 +1,13 @@
+generatorName: delphi-whizaxe
+outputDir: samples/server/vpos/delphi/whizaxe
+inputSpec: ../api-wpos/api-wpos.yml
+templateDir: modules/openapi-generator/src/main/resources/delphi-whizaxe
+additionalProperties:
+  hideGenerationTimestamp: "true"
+  modelType: "properties"
+  modelNamePrefix: ""
+  modelFilenamePrefix: "ApiModel."
+  generateAliasAsModel: "true"
+  openApiSkipValidateSpec: "true"
+  useModelsFullNamespace: "true"
+  variableNameFirstCharacterUppercase: "false"

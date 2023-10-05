@@ -37,7 +37,11 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.net.URL;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_CHAR;
+import static org.openapitools.codegen.utils.CamelizeOption.UPPERCASE_FIRST_CHAR;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
+import static org.openapitools.codegen.utils.StringUtils.underscore;
+import org.openapitools.codegen.utils.CamelizeOption;
 
 abstract public class AbstractDelphiCodegen extends DefaultCodegen implements CodegenConfig {
     protected Map<String, String> nullTypeMapping;
@@ -50,6 +54,12 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     protected static final String VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION = "variableNameFirstCharacterUppercase";
     protected static final String VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC = "Make first character of variable name uppercase (eg. value -> Value)";
     protected boolean variableNameFirstCharacterUppercase = false;
+    protected String sanitizedParamPrefixToSkip = "";
+    public static final String SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION = "sanitizedParamPrefixToSkip";
+    public static final String SANITIZED_PARAM_PREFIX_TO_SKIP_DESC = "sanitized param prefix to skip";
+    public static final String VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION = "variableConvertUnderscoreToCamelCase";
+    public static final String VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_DESC = "convert underscore to camel case";
+    protected boolean variableConvertUnderscoreToCamelCase = false;
 
     protected Set<String> languageSpecificTypes = new HashSet<String>();
 
@@ -175,10 +185,16 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         addOption(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION,
                 VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC,
                 Boolean.toString(this.variableNameFirstCharacterUppercase));
+        addOption(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION, SANITIZED_PARAM_PREFIX_TO_SKIP_DESC,
+                String.valueOf(this.sanitizedParamPrefixToSkip));
+        addOption(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION,
+                VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_DESC,
+                Boolean.toString(this.variableConvertUnderscoreToCamelCase));
     }
 
     protected void MyProcessProperty(CodegenProperty property) {
-        String camelName = camelize(property.name);
+        String camelName = camelize(property.baseName);
+
         Boolean isEnum = false;
         String nameInCamelCase = property.nameInCamelCase;
         if (isReservedWord(nameInCamelCase) || nameInCamelCase.matches("^\\d.*")) {
@@ -188,12 +204,21 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         if (isReservedWord(propName) || propName.matches("^\\d.*")) {
             propName = escapeReservedWord(propName);
         }
+
+        if (this.variableConvertUnderscoreToCamelCase) {
+            propName = camelize(propName, LOWERCASE_FIRST_CHAR);
+        }
+
+        if (this.variableNameFirstCharacterUppercase){
+            propName = (Character.toUpperCase(propName.charAt(0)) + propName.substring(1));
+        }
         property.nameInCamelCase = nameInCamelCase;
         property.name = propName;
         property.vendorExtensions.put("x-delphi-field-name", "F" + camelName);
         property.vendorExtensions.put("x-delphi-property-name", property.nameInCamelCase);
         property.vendorExtensions.put("x-delphi-getter-name", "get" + camelName);
         property.vendorExtensions.put("x-delphi-setter-name", "set" + camelName);
+        property.vendorExtensions.put("x-delphi-camel-name",  camelName);
         isEnum = property.isEnum || (property.allowableValues != null && property.allowableValues.size() > 0);
         property.vendorExtensions.put("x-delphi-enum", isEnum);
 
@@ -205,6 +230,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
 
         if (property.isArray && property.items != null && property.items.isModel) {
             property.dataType = "TObjectList<" + getTypeDeclaration(property.items.baseType) + ">";
+
         }
 
         if (!property.isPrimitiveType
@@ -215,6 +241,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         }
 
     }
+
 
     @Override
     public String escapeQuotationMark(String input) {
@@ -242,6 +269,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
 
     @Override
     public String toModelName(String type) {
+        String modelName = "";
         if (type == null) {
             LOGGER.warn("Model name can't be null. Default to 'UnknownModel'.");
             type = "UnknownModel";
@@ -255,7 +283,13 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
                 || nullTypeMapping.values().contains(type)) {
             return type;
         } else {
-            return sanitizeName(modelNamePrefix + Character.toUpperCase(type.charAt(0)) + type.substring(1));
+            modelName = sanitizeName(modelNamePrefix + Character.toUpperCase(type.charAt(0)) + type.substring(1));
+            if (this.variableConvertUnderscoreToCamelCase){
+               return camelize(modelName);
+            }
+            else {
+                return modelName;
+            }
         }
     }
 
@@ -305,11 +339,18 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
 
     @Override
     public String toParamName(String name) {
+        String paramName = "";
         if (isReservedWord(name) || name.matches("^\\d.*")) {
-            return escapeReservedWord(name);
+            paramName = escapeReservedWord(name);
         }
 
-        return sanitizeName(super.toParamName(name));
+        paramName = sanitizeName(super.toParamName(name));
+
+        if (!sanitizedParamPrefixToSkip.isEmpty() && paramName.startsWith(sanitizedParamPrefixToSkip))
+        {
+            paramName = paramName.substring(0, sanitizedParamPrefixToSkip.length());
+        }
+        return lowerCamelCase(paramName);
     }
 
     @SuppressWarnings("rawtypes")
@@ -343,19 +384,27 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         if (additionalProperties.containsKey(RESERVED_WORD_PREFIX_OPTION)) {
             reservedWordPrefix = (String) additionalProperties.get(RESERVED_WORD_PREFIX_OPTION);
         }
-
         additionalProperties.put(RESERVED_WORD_PREFIX_OPTION, reservedWordPrefix);
 
         if (additionalProperties.containsKey(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION))
             variableNameFirstCharacterUppercase = convertPropertyToBooleanAndWriteBack(
                     VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION);
         additionalProperties.put(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION, variableNameFirstCharacterUppercase);
+
+        if (additionalProperties.containsKey(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION))
+            sanitizedParamPrefixToSkip =  (String) additionalProperties.get(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION);
+        additionalProperties.put(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION, sanitizedParamPrefixToSkip);
+
+        if (additionalProperties.containsKey(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION))
+            variableConvertUnderscoreToCamelCase = convertPropertyToBooleanAndWriteBack(
+                    VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION);
+        additionalProperties.put(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION, variableConvertUnderscoreToCamelCase);
     }
 
     @Override
     protected Builder<String, Lambda> addMustacheLambdas() {
         return super.addMustacheLambdas()
-                .put("multiline_comment_4", new IndentedLambda(4, " ", "///"));
+                .put("multiline_comment_4", new IndentedLambda(4, "///", true));
     }
 
     @Override
@@ -422,7 +471,9 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
                 if (items != null) {
                     cm.dataType = (items.isModel ? "TObjectList" : "TList") + "<" + getTypeDeclaration(items.baseType)
                             + ">";
+
                 }
+                cm.setIsModel(false);
             }
         }
         return postProcessModelsEnum(objs);
