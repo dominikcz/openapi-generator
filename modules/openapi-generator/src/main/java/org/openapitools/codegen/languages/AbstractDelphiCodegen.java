@@ -348,7 +348,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
 
         if (!sanitizedParamPrefixToSkip.isEmpty() && paramName.startsWith(sanitizedParamPrefixToSkip))
         {
-            paramName = paramName.substring(0, sanitizedParamPrefixToSkip.length());
+            paramName = paramName.substring(sanitizedParamPrefixToSkip.length());
         }
         return lowerCamelCase(paramName);
     }
