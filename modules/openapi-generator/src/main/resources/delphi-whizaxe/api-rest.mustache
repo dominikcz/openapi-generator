@@ -60,6 +60,7 @@ constructor T{{classname}}Rest.Create();
 begin
   inherited;
   {{^variableConvertUnderscoreToCamelCase}}FNeonConfiguration := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}
+  FNeonConfiguration := TNeonConfiguration.Default;
   FNeonConfiguration.SetMemberCase(TNeonCase.SnakeCase);
   FNeonConfiguration.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
   FNeonConfiguration.SetIgnoreFieldPrefix(True);
