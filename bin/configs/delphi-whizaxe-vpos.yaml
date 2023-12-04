@@ -10,4 +10,5 @@ additionalProperties:
   generateAliasAsModel: "true"
   openApiSkipValidateSpec: "true"
   useModelsFullNamespace: "true"
+  sanitizedParamPrefixToSkip: "x"
   

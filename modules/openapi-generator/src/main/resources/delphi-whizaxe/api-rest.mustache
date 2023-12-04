@@ -59,13 +59,13 @@ uses
 constructor T{{classname}}Rest.Create();
 begin
   inherited;
-  {{^variableNameConvertUnderscoreToCamelCase}}FNeonConfiguration := nil;{{/variableNameConvertUnderscoreToCamelCase}}{{#variableNameConvertUnderscoreToCamelCase}}
+  {{^variableConvertUnderscoreToCamelCase}}FNeonConfiguration := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}
   FNeonConfiguration.SetMemberCase(TNeonCase.SnakeCase);
   FNeonConfiguration.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
   FNeonConfiguration.SetIgnoreFieldPrefix(True);
   FNeonConfiguration.SetVisibility([ mvPublic, mvPublished]);
   FNeonConfiguration.SetUseUTCDate(false);
-  FNeonConfiguration.SetEnumAsInt(false);{{/variableNameConvertUnderscoreToCamelCase}}
+  FNeonConfiguration.SetEnumAsInt(false);{{/variableConvertUnderscoreToCamelCase}}
 end;
 
 procedure T{{classname}}Rest.AskForApi;
