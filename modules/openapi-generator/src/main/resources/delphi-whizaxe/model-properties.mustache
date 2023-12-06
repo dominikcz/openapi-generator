@@ -45,9 +45,9 @@ type{{#models}}{{#model}}{{#isEnum}}
     {{^isArray}}
     constructor Create;
     destructor Destroy; override;
-    {{/isArray}}{{#isArray}}{{^items.isPrimitiveType}}
+    {{/isArray}}{{#isArray}}{{#items.isModel}}
     constructor Create;
-    {{/items.isPrimitiveType}}{{/isArray}}
+    {{/items.isModel}}{{/isArray}}
     {{#vars}}
     {{#vendorExtensions.x-delphi-nullable-type}}[NeonInclude(IncludeIf.NotNull)]
     property {{{name}}}: Nullable<{{{dataType}}}>{{/vendorExtensions.x-delphi-nullable-type}}{{^vendorExtensions.x-delphi-nullable-type}}
@@ -94,12 +94,12 @@ uses
 
 { T{{classname}} }
 
-{{#isArray}}{{^items.isPrimitiveType}}
+{{#isArray}}{{#items.isModel}}
 constructor T{{classname}}.Create;
 begin
   inherited Create(true);
 end;
-{{/items.isPrimitiveType}}{{/isArray}}{{^isArray}}
+{{/items.isModel}}{{/isArray}}{{^isArray}}
 constructor T{{classname}}.Create;
 begin
   inherited Create;
@@ -139,19 +139,19 @@ end;
 function T{{classname}}.Validate(out AErrorMsg: string): boolean;
 var
   errorMsg: string;{{^oneOf}}
-  sb: TStringBuilder;{{#isArray}}{{#arrayModelType}}
+  sb: TStringBuilder;{{#isArray}}{{#items.isModel}}
   item: T{{arrayModelType}};
-  itemIdx: integer;{{/arrayModelType}}{{/isArray}}
+  itemIdx: integer;{{/items.isModel}}{{/isArray}}
 const
-  MSG = 'Field %s is not set or has invalid value. %s';{{#isArray}}{{#arrayModelType}}
-  MSG_ITEM = 'Invalid item in array at index %d. %s';{{/arrayModelType}}{{/isArray}}{{/oneOf}}{{#oneOf}}
+  MSG = 'Field %s is not set or has invalid value. %s';{{#isArray}}{{#items.isModel}}
+  MSG_ITEM = 'Invalid item in array at index %d. %s';{{/items.isModel}}{{/isArray}}{{/oneOf}}{{#oneOf}}
   obj_{{.}}: T{{.}};{{/oneOf}}
 begin
   errorMsg := '';
   {{#oneOf}}{{#-first}}// OneOf:{{/-first}}
   obj_{{.}} := nil;{{/oneOf}}{{^oneOf}}
-  sb := TStringBuilder.Create;{{#isArray}}{{#arrayModelType}}
-  itemIdx := 0;{{/arrayModelType}}{{/isArray}}{{/oneOf}}
+  sb := TStringBuilder.Create;{{#isArray}}{{#items.isModel}}
+  itemIdx := 0;{{/items.isModel}}{{/isArray}}{{/oneOf}}
 
   try
     {{#oneOf}}
@@ -164,7 +164,7 @@ begin
       sb.AppendLine(format(MSG, ['{{baseName}}', errorMsg]));
     {{/vars}}
 
-    {{#isArray}}{{#arrayModelType}}
+    {{#isArray}}{{#items.isModel}}
     for item in Self do
     begin
       errorMsg := '';
@@ -172,7 +172,7 @@ begin
       if errorMsg <> '' then
         sb.AppendLine(format(MSG_ITEM, [itemIdx, errorMsg]));
        Inc(itemIdx);
-    end;{{/arrayModelType}}{{/isArray}}{{/oneOf}}
+    end;{{/items.isModel}}{{/isArray}}{{/oneOf}}
   finally
     {{#oneOf}}
     {{#-first}}
