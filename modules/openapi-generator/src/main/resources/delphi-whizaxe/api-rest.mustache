@@ -137,7 +137,7 @@ begin
     responseObj := FApi.{{operationId}}({{#allParams}}{{{paramName}}}, {{/allParams}}ARequest.Authorization);
     AResult.ContentType('{{vendorExtensions.x-codegen-response-content-type}}');{{#isResponseBinary}}
     AResult.SetResult(hs2xx_OK, TStringStream(responseObj).DataString, 'OK');{{/isResponseBinary}}
-    {{^isResponseBinary}}AResult.SetResult(hs2xx_OK, responseObj, 'OK');{{/isResponseBinary}}
+    {{^isResponseBinary}}AResult.SetResult(hs2xx_OK, responseObj, 'OK', FNeonConfiguration);{{/isResponseBinary}}
 {{/returnType}}
 {{^returnType}}
     FApi.{{operationId}}({{#allParams}}{{{paramName}}}, {{/allParams}}ARequest.Authorization);
