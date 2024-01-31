@@ -374,6 +374,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     isParsingSupported = false;
                 if (param.isCookieParam)
                     isParsingSupported = false;
+                if (param.isEnumRef)
+                    param.dataType =  param.getSchema().getDataType();
 
             }
 
@@ -384,7 +386,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     isParsingSupported = false;
                 if (param.isCookieParam)
                     isParsingSupported = false;
-
+                if (param.isEnumRef)
+                    param.dataType =  param.getSchema().getDataType();
             }
 
             // if (op.returnBaseType != null) {
