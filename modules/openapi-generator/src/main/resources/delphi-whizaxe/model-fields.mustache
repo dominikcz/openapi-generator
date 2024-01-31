@@ -123,7 +123,7 @@ begin
   try
     {{#vars}}
     if not {{nameInCamelCase}}IsValid then
-      sb.AppendLine(format(MSG, ['{{name}}']));
+      sb.AppendLine(System.SysUtils.Format(MSG, ['{{name}}']));
     {{/vars}}
     errorMsg := sb.Text;
     result := errorMsg = '';

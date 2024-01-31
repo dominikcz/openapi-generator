@@ -362,6 +362,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 // }
 
               //  param.paramName = sanitizeName(param.paramName);
+
+                if (param.isEnumRef)
+                    param.dataType =  param.getSchema().getDataType();
             }
 
             for (CodegenParameter param : op.bodyParams) {
@@ -470,6 +473,8 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 || languageSpecificPrimitives.contains(openAPIType)) {
             return toModelName(openAPIType);
         }
+
+
 
         String type = p.getType();
         if (!languageSpecificPrimitives.contains(type)

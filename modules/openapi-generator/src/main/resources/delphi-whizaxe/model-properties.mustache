@@ -161,7 +161,7 @@ begin
       exit;
     {{/oneOf}}{{^oneOf}}{{#vars}}
     if not {{vendorExtensions.x-delphi-camel-name}}IsValid(errorMsg) then
-      sb.AppendLine(format(MSG, ['{{baseName}}', errorMsg]));
+      sb.AppendLine(System.SysUtils.Format(MSG, ['{{baseName}}', errorMsg]));
     {{/vars}}
 
     {{#isArray}}{{#items.isModel}}
