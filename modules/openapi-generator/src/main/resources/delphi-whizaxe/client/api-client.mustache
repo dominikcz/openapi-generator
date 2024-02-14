@@ -118,13 +118,13 @@ end;
 
 function T{{programName}}Client.MakeNeonConfiguration: INeonConfiguration;
 begin
-  {{^variableNameConvertUnderscoreToCamelCase}}Result := nil;{{/variableNameConvertUnderscoreToCamelCase}}{{#variableNameConvertUnderscoreToCamelCase}}Result := TNeonConfiguration.Default;
+  {{^variableConvertUnderscoreToCamelCase}}Result := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}Result := TNeonConfiguration.Default;
   Result.SetMemberCase(TNeonCase.SnakeCase);
   Result.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
   Result.SetIgnoreFieldPrefix(True);
   Result.SetVisibility([ mvPublic, mvPublished]);
   Result.SetUseUTCDate(false);
-  Result.SetEnumAsInt(false);{{/variableNameConvertUnderscoreToCamelCase}}
+  Result.SetEnumAsInt(false);{{/variableConvertUnderscoreToCamelCase}}
 end;
 
 function T{{programName}}Client.MakeRestClient: TRestClient;
