@@ -390,6 +390,18 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     param.dataType =  param.getSchema().getDataType();
             }
 
+
+            for (CodegenParameter param : op.queryParams) {
+                if (param.isFormParam)
+                    isParsingSupported = false;
+                if (param.isFile)
+                    isParsingSupported = false;
+                if (param.isCookieParam)
+                    isParsingSupported = false;
+                if (param.isEnumRef)
+                    param.dataType =  param.getSchema().getDataType();
+            }
+
             // if (op.returnBaseType != null) {
             // if (op.returnContainer == "array") {
             // op.imports.add("TObjectList");
