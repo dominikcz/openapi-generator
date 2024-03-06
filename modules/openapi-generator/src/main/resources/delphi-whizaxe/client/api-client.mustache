@@ -147,9 +147,10 @@ end;
 
 function T{{programName}}Client.ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
 var
-  RestErrorModel: TWxRestErrorModel;
+  RestErrorModel: {{^variableConvertUnderscoreToCamelCase}}TWxRestErrorModel{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}TWxRestErrorModelForSnakeCaseApi{{/variableConvertUnderscoreToCamelCase}};
 begin
-  RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(AResponse.Content);
+  {{^variableConvertUnderscoreToCamelCase}}RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(AResponse.Content);{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}RestErrorModel := TWxRestErrorModelForSnakeCaseApi.Create;
+  TSerializer.DeserializeObject(RestErrorModel, AResponse.Content, MakeNeonConfiguration);{{/variableConvertUnderscoreToCamelCase}}
   try
     case AResponse.StatusCode of
       400:
@@ -159,6 +160,7 @@ begin
     else
       Result := EWxRestException.Create(RestErrorModel.message, AResponse.StatusCode, RestErrorModel.errorCode);
     end;
+    Result.debugMessage := RestErrorModel.DebugInfo;
   finally
     RestErrorModel.Free;
   end;
