@@ -86,7 +86,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         typeMapping = new HashMap<String, String>();
         typeMapping.put("date", "TDateTime");
         typeMapping.put("DateTime", "TDateTime");
-        typeMapping.put("long", "Cardinal");
+        typeMapping.put("long", "Int64");
         typeMapping.put("array", "TList");
         typeMapping.put("map", "TDictionary");
         typeMapping.put("set", "TList");
@@ -252,7 +252,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             ApiResponse apiResponse = findMethodResponse(operation.getResponses());
 
             if (apiResponse != null) {
-                Schema response = ModelUtils.getSchemaFromResponse(apiResponse);
+                Schema response = ModelUtils.getSchemaFromResponse(this.openAPI, apiResponse);
 
                 if (apiResponse.getContent() != null && apiResponse.getContent().keySet() != null && !apiResponse.getContent().keySet().isEmpty()){
                     contentType = apiResponse.getContent().keySet().toArray()[0].toString();

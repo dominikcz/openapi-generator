@@ -404,7 +404,7 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     @Override
     protected Builder<String, Lambda> addMustacheLambdas() {
         return super.addMustacheLambdas()
-                .put("multiline_comment_4", new IndentedLambda(4, "///", true));
+                .put("multiline_comment_4", new IndentedLambda(4, "///", true, false));
     }
 
     @Override
