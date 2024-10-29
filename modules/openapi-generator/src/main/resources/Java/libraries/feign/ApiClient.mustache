@@ -1,7 +1,10 @@
+{{>licenseInfo}}
+
 package {{invokerPackage}};
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -170,7 +173,12 @@ public class ApiClient {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
     objectMapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+    {{#failOnUnknownProperties}}
+    objectMapper.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    {{/failOnUnknownProperties}}
+    {{^failOnUnknownProperties}}
     objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    {{/failOnUnknownProperties}}
     objectMapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     objectMapper.setDateFormat(new RFC3339DateFormat());
@@ -263,6 +271,15 @@ public class ApiClient {
   public void setBearerToken(String bearerToken) {
     HttpBearerAuth apiAuthorization =  getAuthorization(HttpBearerAuth.class);
     apiAuthorization.setBearerToken(bearerToken);
+  }
+
+  /**
+   * Helper method to configure the supplier of bearer tokens.
+   * @param tokenSupplier the supplier of bearer tokens.
+   */
+  public void setBearerToken(Supplier<String> tokenSupplier) {
+    HttpBearerAuth apiAuthorization =  getAuthorization(HttpBearerAuth.class);
+    apiAuthorization.setBearerToken(tokenSupplier);
   }
 
   /**

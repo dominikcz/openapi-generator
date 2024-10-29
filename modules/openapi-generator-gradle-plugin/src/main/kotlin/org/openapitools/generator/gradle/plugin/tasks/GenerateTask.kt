@@ -81,6 +81,15 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
     val generatorName = project.objects.property<String>()
 
     /**
+     * This is the configuration for reference paths where schemas for openapi generation are stored
+     * The directory which contains the additional schema files
+     */
+    @Optional
+    @InputDirectory
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    val schemaLocation = project.objects.property<String>()
+
+    /**
      * The output target directory into which code will be generated.
      */
     @Optional
@@ -132,6 +141,13 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
     val templateDir = project.objects.property<String?>()
+
+    /**
+     * Resource path containing template files.
+     */
+    @Optional
+    @Input
+    val templateResourcePath = project.objects.property<String?>()
 
     /**
      * Adds authorization headers when fetching the OpenAPI definitions remotely.
@@ -245,6 +261,13 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
     val languageSpecificPrimitives = project.objects.listProperty<String>()
 
     /**
+     * Specifies .openapi-generator-ignore list in the form of relative/path/to/file1,relative/path/to/file2. For example: README.md,pom.xml.
+     */
+    @Optional
+    @Input
+    val openapiGeneratorIgnoreList = project.objects.listProperty<String>()
+
+    /**
      * Specifies mappings between a given class and the import that should be used for that class.
      */
     @Optional
@@ -292,6 +315,20 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
     @Optional
     @Input
     val modelNameMappings = project.objects.mapProperty<String, String>()
+
+    /**
+     * Specifies mappings between the enum name and the new name
+     */
+    @Optional
+    @Input
+    val enumNameMappings = project.objects.mapProperty<String, String>()
+
+    /**
+     * Specifies mappings between the operation id name and the new name
+     */
+    @Optional
+    @Input
+    val operationIdNameMappings = project.objects.mapProperty<String, String>()
 
     /**
      * Specifies mappings (rules) in OpenAPI normalizer
@@ -486,14 +523,6 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
     val generateApiDocumentation = project.objects.property<Boolean>()
 
     /**
-     * A special-case setting which configures some generators with XML support. In some cases,
-     * this forces json OR xml, so the default here is false.
-     */
-    @Optional
-    @Input
-    val withXml = project.objects.property<Boolean>()
-
-    /**
      * To write all log messages (not just errors) to STDOUT
      */
     @Optional
@@ -659,10 +688,6 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
                 GlobalSettings.setProperty(CodegenConstants.API_TESTS, generateApiTests.get().toString())
             }
 
-            if (withXml.isPresent) {
-                GlobalSettings.setProperty(CodegenConstants.WITH_XML, withXml.get().toString())
-            }
-
             if (inputSpec.isPresent && remoteInputSpec.isPresent) {
                 logger.warn("Both inputSpec and remoteInputSpec is specified. The remoteInputSpec will take priority over inputSpec.")
             }
@@ -695,6 +720,13 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
             }
 
             templateDir.ifNotEmpty { value ->
+                configurator.setTemplateDir(value)
+            }
+
+            templateResourcePath.ifNotEmpty { value ->
+                templateDir.ifNotEmpty {
+                    logger.warn("Both templateDir and templateResourcePath were configured. templateResourcePath overwrites templateDir.")
+                }
                 configurator.setTemplateDir(value)
             }
 
@@ -852,9 +884,21 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
                 }
             }
 
+            if (enumNameMappings.isPresent) {
+                enumNameMappings.get().forEach { entry ->
+                    configurator.addEnumNameMapping(entry.key, entry.value)
+                }
+            }
+
+            if (operationIdNameMappings.isPresent) {
+                operationIdNameMappings.get().forEach { entry ->
+                    configurator.addOperationIdNameMapping(entry.key, entry.value)
+                }
+            }
+
             if (openapiNormalizer.isPresent) {
                 openapiNormalizer.get().forEach { entry ->
-                    configurator.addOpenAPINormalizer(entry.key, entry.value)
+                    configurator.addOpenapiNormalizer(entry.key, entry.value)
                 }
             }
 
@@ -879,6 +923,12 @@ open class GenerateTask @Inject constructor(private val objectFactory: ObjectFac
             if (languageSpecificPrimitives.isPresent) {
                 languageSpecificPrimitives.get().forEach {
                     configurator.addLanguageSpecificPrimitive(it)
+                }
+            }
+
+            if (openapiGeneratorIgnoreList.isPresent) {
+                openapiGeneratorIgnoreList.get().forEach {
+                    configurator.addOpenapiGeneratorIgnoreList(it)
                 }
             }
 

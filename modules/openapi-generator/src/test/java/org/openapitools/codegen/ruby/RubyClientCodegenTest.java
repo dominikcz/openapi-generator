@@ -17,7 +17,6 @@
 
 package org.openapitools.codegen.ruby;
 
-import com.google.common.collect.ImmutableMap;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Schema;
@@ -386,8 +385,8 @@ public class RubyClientCodegenTest {
 
         CodegenDiscriminator codegenDiscriminator = person.getDiscriminator();
         Set<CodegenDiscriminator.MappedModel> mappedModels = new LinkedHashSet<CodegenDiscriminator.MappedModel>();
-        mappedModels.add(new CodegenDiscriminator.MappedModel("a", "Adult"));
-        mappedModels.add(new CodegenDiscriminator.MappedModel("c", "Child"));
+        mappedModels.add(new CodegenDiscriminator.MappedModel("a", "Adult", true));
+        mappedModels.add(new CodegenDiscriminator.MappedModel("c", "Child", true));
         Assert.assertEquals(codegenDiscriminator.getMappedModels(), mappedModels);
     }
 
@@ -405,8 +404,8 @@ public class RubyClientCodegenTest {
 
         CodegenDiscriminator codegenDiscriminator = person.getDiscriminator();
         Set<CodegenDiscriminator.MappedModel> mappedModels = new LinkedHashSet<CodegenDiscriminator.MappedModel>();
-        mappedModels.add(new CodegenDiscriminator.MappedModel("a", "Adult"));
-        mappedModels.add(new CodegenDiscriminator.MappedModel("c", "Child"));
+        mappedModels.add(new CodegenDiscriminator.MappedModel("a", "Adult", true));
+        mappedModels.add(new CodegenDiscriminator.MappedModel("c", "Child", true));
         Assert.assertEquals(codegenDiscriminator.getMappedModels(), mappedModels);
     }
 
