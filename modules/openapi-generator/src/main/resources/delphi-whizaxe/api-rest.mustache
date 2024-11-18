@@ -31,7 +31,7 @@ type
     /// <summary>{{{summary}}}</summary>{{#remarks}}
     /// <remarks>{{.}}</remarks>{{/remarks}}
     {{#allParams}}
-    /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
+    /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to "{{{.}}}"{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}
     [RestApi('{{httpMethod}}', '{{{path}}}'){{#authMethods}}, '*'{{/authMethods}}]
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}}; deprecated{{/isDeprecated}};

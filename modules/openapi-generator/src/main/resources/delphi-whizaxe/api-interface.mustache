@@ -20,7 +20,7 @@ type
     /// <summary>{{{summary}}}</summary>
     /// <remarks>{{remarks}}</remarks>
     {{#allParams}}
-    /// {{{baseName}}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
+    /// {{{baseName}}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to "{{{.}}}"{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}
     {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}

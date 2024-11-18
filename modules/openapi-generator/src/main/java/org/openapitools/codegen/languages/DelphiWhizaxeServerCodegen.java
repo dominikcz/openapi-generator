@@ -528,7 +528,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             if (p.getDefault() != null) {
                 return p.getDefault().toString();
             } else {
-                return "''";
+                return "";
             }
         } else if (ModelUtils.isBooleanSchema(p)) {
             if (p.getDefault() != null) {
