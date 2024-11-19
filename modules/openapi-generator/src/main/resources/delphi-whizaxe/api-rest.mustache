@@ -99,7 +99,7 @@ begin
   {{#isNumber}}{{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isNumber}}
   {{#isBoolean}}{{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
   {{#isString}}{{paramName}} := ARequest.GetPathParam('{{baseName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
-  {{#isEnumRef}}{{paramName}} :=  TSerializer.DeserializeSimple<{{dataType}}>(ARequest.GetQueryParam('{{baseName}}', '', {{required}}), FNeonConfiguration);{{/isEnumRef}}
+  {{#isEnumRef}}{{paramName}} :=  TSerializer.DeserializeSimple<{{dataType}}>(ARequest.GetPathParam('{{baseName}}', '', {{required}}), FNeonConfiguration);{{/isEnumRef}}
 {{/pathParams}}
 {{#queryParams}}
   {{#isInteger}}{{paramName}} := ARequest.GetQueryParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isInteger}}
