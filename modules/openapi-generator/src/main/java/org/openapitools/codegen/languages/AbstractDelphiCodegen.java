@@ -63,6 +63,10 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
 
     protected Set<String> languageSpecificTypes = new HashSet<String>();
 
+    protected static boolean nonEmpty(List<?> params) {
+        return params != null && !params.isEmpty();
+    }
+
     public AbstractDelphiCodegen() {
         super();
 

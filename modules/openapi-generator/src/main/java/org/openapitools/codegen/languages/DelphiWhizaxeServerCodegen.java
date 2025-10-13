@@ -282,7 +282,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
             op.imports.add("Generics.Collections");
         }
 
-        op.vendorExtensions.put("x-delphi-needs-var", op.returnType != null || op.hasParams);
+        op.vendorExtensions.put("x-delphi-needs-var", op.returnType != null || nonEmpty(op.allParams));
         op.vendorExtensions.put("x-delphi-needs-free",
                 (op.returnType != null && !op.returnTypeIsPrimitive) || op.bodyParams != null);
         op.vendorExtensions.put("x-delphi-returns-model",
