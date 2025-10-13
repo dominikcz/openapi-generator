@@ -258,6 +258,13 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: Content-Type
+          in: header
+          style: simple
+          description: Content type header parameter
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: successful operation
@@ -2594,12 +2601,16 @@ components:
       description: Values of scalar type
       oneOf:
         - type: string
+          format: uuid
+        - type: string
           maxLength: 1089
         - type: number
         - type: boolean
     ScalarAnyOf:
       description: Values of scalar type using anyOf
       anyOf:
+        - type: string
+          format: uuid
         - type: string
           maxLength: 1089
         - type: number
@@ -2610,10 +2621,6 @@ components:
       minItems: 1
       items:
         $ref: '#/components/schemas/Scalar'
-    AllOfRefToString:
-      allOf:
-        - $ref: '#/components/schemas/OuterString'
-      description: testing allOf with a ref to string
     NewPet:
       type: object
       required:
@@ -2624,12 +2631,6 @@ components:
           type: integer
           format: int64
           x-is-unique: true
-        category_ref_to_inline_allof_string:
-          $ref: '#/components/schemas/AllOfRefToString'
-        category_inline_allof_string:
-          allOf:
-            - $ref: '#/components/schemas/OuterString'
-          description: testing allOf with a ref to string
         category_inline_allof:
           allOf:
             - type: object
@@ -2812,3 +2813,20 @@ components:
           $ref: '#/components/schemas/ArrayOneOf'
         anyof_prop:
           $ref: '#/components/schemas/ArrayAnyOf'
+    NestedArrayWithDefaultValues:
+      type: object
+      properties:
+        nestedArray:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+            default: ["value1", "value2"]
+          default:
+            [
+              [ "h1", "Header 1" ],
+              [ "h2", "Header 2" ],
+              [ "h3", "Header 3" ],
+              [ "h4", "Header 4" ]
+            ]

@@ -14,6 +14,7 @@
 package org.openapitools.client.model;
 
 import java.util.Objects;
+import java.util.Locale;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
@@ -47,28 +48,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Locale;
 
 import org.openapitools.client.JSON;
 
 /**
  * NewPet
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0-SNAPSHOT")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.17.0-SNAPSHOT")
 public class NewPet {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)
   @javax.annotation.Nullable
   private Long id;
-
-  public static final String SERIALIZED_NAME_CATEGORY_REF_TO_INLINE_ALLOF_STRING = "category_ref_to_inline_allof_string";
-  @SerializedName(SERIALIZED_NAME_CATEGORY_REF_TO_INLINE_ALLOF_STRING)
-  @javax.annotation.Nullable
-  private String categoryRefToInlineAllofString;
-
-  public static final String SERIALIZED_NAME_CATEGORY_INLINE_ALLOF_STRING = "category_inline_allof_string";
-  @SerializedName(SERIALIZED_NAME_CATEGORY_INLINE_ALLOF_STRING)
-  @javax.annotation.Nullable
-  private String categoryInlineAllofString;
 
   public static final String SERIALIZED_NAME_CATEGORY_INLINE_ALLOF = "category_inline_allof";
   @SerializedName(SERIALIZED_NAME_CATEGORY_INLINE_ALLOF)
@@ -190,44 +182,6 @@ public class NewPet {
 
   public void setId(@javax.annotation.Nullable Long id) {
     this.id = id;
-  }
-
-
-  public NewPet categoryRefToInlineAllofString(@javax.annotation.Nullable String categoryRefToInlineAllofString) {
-    this.categoryRefToInlineAllofString = categoryRefToInlineAllofString;
-    return this;
-  }
-
-  /**
-   * testing allOf with a ref to string
-   * @return categoryRefToInlineAllofString
-   */
-  @javax.annotation.Nullable
-  public String getCategoryRefToInlineAllofString() {
-    return categoryRefToInlineAllofString;
-  }
-
-  public void setCategoryRefToInlineAllofString(@javax.annotation.Nullable String categoryRefToInlineAllofString) {
-    this.categoryRefToInlineAllofString = categoryRefToInlineAllofString;
-  }
-
-
-  public NewPet categoryInlineAllofString(@javax.annotation.Nullable String categoryInlineAllofString) {
-    this.categoryInlineAllofString = categoryInlineAllofString;
-    return this;
-  }
-
-  /**
-   * testing allOf with a ref to string
-   * @return categoryInlineAllofString
-   */
-  @javax.annotation.Nullable
-  public String getCategoryInlineAllofString() {
-    return categoryInlineAllofString;
-  }
-
-  public void setCategoryInlineAllofString(@javax.annotation.Nullable String categoryInlineAllofString) {
-    this.categoryInlineAllofString = categoryInlineAllofString;
   }
 
 
@@ -446,8 +400,6 @@ public class NewPet {
     }
     NewPet newPet = (NewPet) o;
     return Objects.equals(this.id, newPet.id) &&
-        Objects.equals(this.categoryRefToInlineAllofString, newPet.categoryRefToInlineAllofString) &&
-        Objects.equals(this.categoryInlineAllofString, newPet.categoryInlineAllofString) &&
         Objects.equals(this.categoryInlineAllof, newPet.categoryInlineAllof) &&
         Objects.equals(this.categoryAllOfRef, newPet.categoryAllOfRef) &&
         Objects.equals(this.categoryAllOfRefDescription, newPet.categoryAllOfRefDescription) &&
@@ -461,7 +413,7 @@ public class NewPet {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, categoryRefToInlineAllofString, categoryInlineAllofString, categoryInlineAllof, categoryAllOfRef, categoryAllOfRefDescription, categoryAllOfRefDescriptionReadonly, name, photoUrls, tags, status, additionalProperties);
+    return Objects.hash(id, categoryInlineAllof, categoryAllOfRef, categoryAllOfRefDescription, categoryAllOfRefDescriptionReadonly, name, photoUrls, tags, status, additionalProperties);
   }
 
   @Override
@@ -469,8 +421,6 @@ public class NewPet {
     StringBuilder sb = new StringBuilder();
     sb.append("class NewPet {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    categoryRefToInlineAllofString: ").append(toIndentedString(categoryRefToInlineAllofString)).append("\n");
-    sb.append("    categoryInlineAllofString: ").append(toIndentedString(categoryInlineAllofString)).append("\n");
     sb.append("    categoryInlineAllof: ").append(toIndentedString(categoryInlineAllof)).append("\n");
     sb.append("    categoryAllOfRef: ").append(toIndentedString(categoryAllOfRef)).append("\n");
     sb.append("    categoryAllOfRefDescription: ").append(toIndentedString(categoryAllOfRefDescription)).append("\n");
@@ -501,23 +451,10 @@ public class NewPet {
 
   static {
     // a set of all properties/fields (JSON key names)
-    openapiFields = new HashSet<String>();
-    openapiFields.add("id");
-    openapiFields.add("category_ref_to_inline_allof_string");
-    openapiFields.add("category_inline_allof_string");
-    openapiFields.add("category_inline_allof");
-    openapiFields.add("category_allOf_ref");
-    openapiFields.add("category_allOf_ref_description");
-    openapiFields.add("category_allOf_ref_description_readonly");
-    openapiFields.add("name");
-    openapiFields.add("photoUrls");
-    openapiFields.add("tags");
-    openapiFields.add("status");
+    openapiFields = new HashSet<String>(Arrays.asList("id", "category_inline_allof", "category_allOf_ref", "category_allOf_ref_description", "category_allOf_ref_description_readonly", "name", "photoUrls", "tags", "status"));
 
     // a set of required properties/fields (JSON key names)
-    openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("name");
-    openapiRequiredFields.add("photoUrls");
+    openapiRequiredFields = new HashSet<String>(Arrays.asList("name", "photoUrls"));
   }
 
   /**
@@ -529,23 +466,17 @@ public class NewPet {
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
         if (!NewPet.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in NewPet is not found in the empty JSON string", NewPet.openapiRequiredFields.toString()));
+          throw new IllegalArgumentException(String.format(Locale.ROOT, "The required field(s) %s in NewPet is not found in the empty JSON string", NewPet.openapiRequiredFields.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
       for (String requiredField : NewPet.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
-          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
+          throw new IllegalArgumentException(String.format(Locale.ROOT, "The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      if ((jsonObj.get("category_ref_to_inline_allof_string") != null && !jsonObj.get("category_ref_to_inline_allof_string").isJsonNull()) && !jsonObj.get("category_ref_to_inline_allof_string").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `category_ref_to_inline_allof_string` to be a primitive type in the JSON string but got `%s`", jsonObj.get("category_ref_to_inline_allof_string").toString()));
-      }
-      if ((jsonObj.get("category_inline_allof_string") != null && !jsonObj.get("category_inline_allof_string").isJsonNull()) && !jsonObj.get("category_inline_allof_string").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `category_inline_allof_string` to be a primitive type in the JSON string but got `%s`", jsonObj.get("category_inline_allof_string").toString()));
-      }
       // validate the optional field `category_inline_allof`
       if (jsonObj.get("category_inline_allof") != null && !jsonObj.get("category_inline_allof").isJsonNull()) {
         NewPetCategoryInlineAllof.validateJsonElement(jsonObj.get("category_inline_allof"));
@@ -563,20 +494,20 @@ public class NewPet {
         Category.validateJsonElement(jsonObj.get("category_allOf_ref_description_readonly"));
       }
       if (!jsonObj.get("name").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `name` to be a primitive type in the JSON string but got `%s`", jsonObj.get("name").toString()));
+        throw new IllegalArgumentException(String.format(Locale.ROOT, "Expected the field `name` to be a primitive type in the JSON string but got `%s`", jsonObj.get("name").toString()));
       }
       // ensure the required json array is present
       if (jsonObj.get("photoUrls") == null) {
         throw new IllegalArgumentException("Expected the field `linkedContent` to be an array in the JSON string but got `null`");
       } else if (!jsonObj.get("photoUrls").isJsonArray()) {
-        throw new IllegalArgumentException(String.format("Expected the field `photoUrls` to be an array in the JSON string but got `%s`", jsonObj.get("photoUrls").toString()));
+        throw new IllegalArgumentException(String.format(Locale.ROOT, "Expected the field `photoUrls` to be an array in the JSON string but got `%s`", jsonObj.get("photoUrls").toString()));
       }
       if (jsonObj.get("tags") != null && !jsonObj.get("tags").isJsonNull()) {
         JsonArray jsonArraytags = jsonObj.getAsJsonArray("tags");
         if (jsonArraytags != null) {
           // ensure the json data is an array
           if (!jsonObj.get("tags").isJsonArray()) {
-            throw new IllegalArgumentException(String.format("Expected the field `tags` to be an array in the JSON string but got `%s`", jsonObj.get("tags").toString()));
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "Expected the field `tags` to be an array in the JSON string but got `%s`", jsonObj.get("tags").toString()));
           }
 
           // validate the optional field `tags` (array)
@@ -586,7 +517,7 @@ public class NewPet {
         }
       }
       if ((jsonObj.get("status") != null && !jsonObj.get("status").isJsonNull()) && !jsonObj.get("status").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `status` to be a primitive type in the JSON string but got `%s`", jsonObj.get("status").toString()));
+        throw new IllegalArgumentException(String.format(Locale.ROOT, "Expected the field `status` to be a primitive type in the JSON string but got `%s`", jsonObj.get("status").toString()));
       }
       // validate the optional field `status`
       if (jsonObj.get("status") != null && !jsonObj.get("status").isJsonNull()) {
@@ -651,7 +582,7 @@ public class NewPet {
                    else if (entry.getValue().getAsJsonPrimitive().isBoolean())
                      instance.putAdditionalProperty(entry.getKey(), entry.getValue().getAsBoolean());
                    else
-                     throw new IllegalArgumentException(String.format("The field `%s` has unknown primitive type. Value: %s", entry.getKey(), entry.getValue().toString()));
+                     throw new IllegalArgumentException(String.format(Locale.ROOT, "The field `%s` has unknown primitive type. Value: %s", entry.getKey(), entry.getValue().toString()));
                  } else if (entry.getValue().isJsonArray()) {
                      instance.putAdditionalProperty(entry.getKey(), gson.fromJson(entry.getValue(), List.class));
                  } else { // JSON object

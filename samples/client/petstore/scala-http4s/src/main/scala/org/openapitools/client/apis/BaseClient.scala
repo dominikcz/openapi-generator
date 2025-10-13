@@ -42,7 +42,7 @@ abstract class BaseClient[F[*]: Concurrent](
       queryParameters: Seq[(String, Any)] = Nil,
       requestHeaders: Seq[(String, String)] = Nil,
       auth: Option[_Authorization] = None
-  )(handler: Response[F] => F[U])(implicit encoder: Encoder[T]): F[U] = {
+  )(handler: Response[F] => F[U])(using Encoder[T]): F[U] = {
 
     val m = Method.fromString(method) match {
       case Right(m) => m
@@ -75,7 +75,7 @@ abstract class BaseClient[F[*]: Concurrent](
         request.putHeaders(Header.Raw(CIString(name), value))
     }
     val formBody = formParameters.map { x =>
-      UrlForm(x.groupBy(_._1).map{case (k, v) => (k, v.mkString(","))}.toSeq*)
+      UrlForm(x.groupBy(_._1).map { case (k, v) => (k, v.map(_._2).mkString(",")) }.toSeq*)
     }
 
     import JsonSupports.*

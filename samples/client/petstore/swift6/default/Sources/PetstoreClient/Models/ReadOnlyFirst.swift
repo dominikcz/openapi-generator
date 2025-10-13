@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ReadOnlyFirst: Codable, JSONEncodable, Hashable {
+public struct ReadOnlyFirst: Sendable, Codable, ParameterConvertible, Hashable {
 
     public var bar: String?
     public var baz: String?

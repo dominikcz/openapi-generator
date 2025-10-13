@@ -2,7 +2,6 @@ package org.openapitools.codegen.languages;
 
 import com.google.common.collect.Sets;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.servers.Server;
@@ -577,6 +576,12 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
                 // inner items e.g. enums in collections, only works for one level
                 // but same is the case for DefaultCodegen
                 property.setDatatypeWithEnum(property.datatypeWithEnum.replace(property.items.datatypeWithEnum, enumName));
+                // Because properties are cached in org.openapitools.codegen.DefaultCodegen.fromProperty(java.lang.String, io.swagger.v3.oas.models.media.Schema, boolean, boolean)
+                // then the same object could be for multiple properties where the name of the inline enum is the same
+                // in 2 different classes and the following renaming will impact properties in other classes we
+                // therefore clone them before editing
+                property.items = property.items.clone();
+                property.mostInnerItems = property.items;
                 property.items.setDatatypeWithEnum(enumName);
                 property.items.setEnumName(enumName);
             } else {
@@ -593,7 +598,7 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
 
         // Handle composed properties and it's NOT allOf with a single ref only
         if (ModelUtils.isComposedSchema(p) && !(ModelUtils.isAllOf(p) && p.getAllOf().size() == 1)) {
-            ComposedSchema composed = (ComposedSchema) p;
+            Schema<Object> composed = (Schema<Object>) p;
 
             // Count the occurrences of allOf/anyOf/oneOf with exactly one child element
             long count = Stream.of(composed.getAllOf(), composed.getAnyOf(), composed.getOneOf())
@@ -753,7 +758,7 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
                 "int".equalsIgnoreCase(datatype)) {
             return value;
         } else {
-            return "'" + escapeText(value) + "'";
+            return "'" + escapeTextInSingleQuotes(value) + "'";
         }
     }
 
@@ -806,7 +811,7 @@ public abstract class AbstractDartCodegen extends DefaultCodegen {
         // process all files with dart extension
         if ("dart".equals(FilenameUtils.getExtension(file.toString()))) {
             // currently supported is "dartfmt -w" and "dart format"
-            this.executePostProcessor(new String[] {dartPostProcessFile, file.toString()});
+            this.executePostProcessor(new String[]{dartPostProcessFile, file.toString()});
         }
     }
 

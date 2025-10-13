@@ -36,6 +36,7 @@ import java.net.URL;
 import java.util.*;
 
 import static java.util.UUID.randomUUID;
+import static org.openapitools.codegen.CodegenConstants.X_CSHARP_VALUE_TYPE;
 
 public class CSharpFunctionsServerCodegen extends AbstractCSharpCodegen {
 
@@ -260,7 +261,7 @@ public class CSharpFunctionsServerCodegen extends AbstractCSharpCodegen {
     @Override
     protected Set<String> getNullableTypes() {
         return new HashSet<>(Arrays.asList("decimal", "bool", "int", "uint", "long", "ulong", "float", "double",
-            "DateTime", "DateTimeOffset", "Guid"));
+                "DateTime", "DateTimeOffset", "Guid"));
     }
 
     @Override
@@ -287,7 +288,7 @@ public class CSharpFunctionsServerCodegen extends AbstractCSharpCodegen {
         super.patchProperty(enumRefs, model, property);
 
         if (!property.isContainer && (this.getNullableTypes().contains(property.dataType) || property.isEnum)) {
-            property.vendorExtensions.put("x-csharp-value-type", true);
+            property.vendorExtensions.put(X_CSHARP_VALUE_TYPE, true);
         }
     }
 
@@ -295,7 +296,7 @@ public class CSharpFunctionsServerCodegen extends AbstractCSharpCodegen {
     protected void updateCodegenParameterEnum(CodegenParameter parameter, CodegenModel model) {
         super.updateCodegenParameterEnumLegacy(parameter, model);
 
-        if (!parameter.required && parameter.vendorExtensions.get("x-csharp-value-type") != null) { //optional
+        if (!parameter.required && parameter.vendorExtensions.get(X_CSHARP_VALUE_TYPE) != null) { //optional
             parameter.dataType = parameter.dataType + "?";
         }
     }
@@ -599,11 +600,11 @@ public class CSharpFunctionsServerCodegen extends AbstractCSharpCodegen {
         //set .NET target version
         String targetFrameworkVersion = "net" + netCoreVersion.getOptValue();
         additionalProperties.put(TARGET_FRAMEWORK, targetFrameworkVersion);
-        setAddititonalPropertyForFramework();
+        setAdditionalPropertyForFramework();
     }
 
-    private void setAddititonalPropertyForFramework() {
-        if (((String)additionalProperties.get(TARGET_FRAMEWORK)).startsWith("net6.0")) {
+    private void setAdditionalPropertyForFramework() {
+        if (((String) additionalProperties.get(TARGET_FRAMEWORK)).startsWith("net6.0")) {
             additionalProperties.put(NET_60_OR_LATER, true);
         }
     }

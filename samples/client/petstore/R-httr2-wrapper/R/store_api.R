@@ -171,13 +171,13 @@ StoreApi <- R6::R6Class(
     delete_order = function(order_id, ...) {
       local_var_response <- self$delete_order_with_http_info(order_id, ...)
       if (local_var_response$status_code >= 200 && local_var_response$status_code <= 299) {
-        local_var_response$content
+        return(local_var_response$content)
       } else if (local_var_response$status_code >= 300 && local_var_response$status_code <= 399) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 400 && local_var_response$status_code <= 499) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 500 && local_var_response$status_code <= 599) {
-        local_var_response
+        return(local_var_response)
       }
     },
 
@@ -205,6 +205,12 @@ StoreApi <- R6::R6Class(
                                                      reason = "Missing required parameter `order_id`."))
       }
 
+      if (!missing(`order_id`) && is.null(`order_id`)) {
+        rlang::abort(message = "Invalid value for `order_id` when calling StoreApi$delete_order, `order_id` is not nullable",
+                     .subclass = "ApiException",
+                      ApiException = ApiException$new(status = 0,
+                      reason = "Invalid value for `order_id` when calling StoreApi$delete_order, `order_id` is not nullable"))
+      }
 
       local_var_url_path <- "/store/order/{orderId}"
       if (!missing(`order_id`)) {
@@ -233,9 +239,12 @@ StoreApi <- R6::R6Class(
 
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
         local_var_resp$content <- NULL
-        local_var_resp
-      } else if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
-        local_var_error_msg <- local_var_resp$response
+        return(local_var_resp)
+      } 
+      
+      local_var_error_msg <- local_var_resp$response_as_text()      
+      if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
+        
         if (local_var_error_msg == "") {
           local_var_error_msg <- paste("Server returned ", local_var_resp$status_code, " response status code.")
         }
@@ -243,7 +252,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 400 && local_var_resp$status_code <= 499) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api client exception encountered."
         }
@@ -251,7 +259,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 500 && local_var_resp$status_code <= 599) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api server exception encountered."
         }
@@ -271,13 +278,13 @@ StoreApi <- R6::R6Class(
     get_inventory = function(data_file = NULL, ...) {
       local_var_response <- self$get_inventory_with_http_info(data_file = data_file, ...)
       if (local_var_response$status_code >= 200 && local_var_response$status_code <= 299) {
-        local_var_response$content
+        return(local_var_response$content)
       } else if (local_var_response$status_code >= 300 && local_var_response$status_code <= 399) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 400 && local_var_response$status_code <= 499) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 500 && local_var_response$status_code <= 599) {
-        local_var_response
+        return(local_var_response)
       }
     },
 
@@ -326,11 +333,11 @@ StoreApi <- R6::R6Class(
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
         # save response in a file
         if (!is.null(data_file)) {
-          write(local_var_resp$response, data_file)
+          self$api_client$WriteFile(local_var_resp, data_file)
         }
 
         deserialized_resp_obj <- tryCatch(
-          self$api_client$deserialize(local_var_resp$response_as_text(), "map(integer)", loadNamespace("petstore")),
+          self$api_client$DeserializeResponse(local_var_resp, "map(integer)"),
           error = function(e) {
             rlang::abort(message = "Failed to deserialize response",
                          .subclass = "ApiException",
@@ -338,9 +345,12 @@ StoreApi <- R6::R6Class(
           }
         )
         local_var_resp$content <- deserialized_resp_obj
-        local_var_resp
-      } else if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
-        local_var_error_msg <- local_var_resp$response
+        return(local_var_resp)
+      } 
+      
+      local_var_error_msg <- local_var_resp$response_as_text()      
+      if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
+        
         if (local_var_error_msg == "") {
           local_var_error_msg <- paste("Server returned ", local_var_resp$status_code, " response status code.")
         }
@@ -348,7 +358,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 400 && local_var_resp$status_code <= 499) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api client exception encountered."
         }
@@ -356,7 +365,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 500 && local_var_resp$status_code <= 599) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api server exception encountered."
         }
@@ -377,13 +385,13 @@ StoreApi <- R6::R6Class(
     get_order_by_id = function(order_id, data_file = NULL, ...) {
       local_var_response <- self$get_order_by_id_with_http_info(order_id, data_file = data_file, ...)
       if (local_var_response$status_code >= 200 && local_var_response$status_code <= 299) {
-        local_var_response$content
+        return(local_var_response$content)
       } else if (local_var_response$status_code >= 300 && local_var_response$status_code <= 399) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 400 && local_var_response$status_code <= 499) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 500 && local_var_response$status_code <= 599) {
-        local_var_response
+        return(local_var_response)
       }
     },
 
@@ -412,13 +420,19 @@ StoreApi <- R6::R6Class(
                                                      reason = "Missing required parameter `order_id`."))
       }
 
-      if (`order_id` > 5) {
+      if (!missing(`order_id`) && is.null(`order_id`)) {
+        rlang::abort(message = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, `order_id` is not nullable",
+                     .subclass = "ApiException",
+                      ApiException = ApiException$new(status = 0,
+                      reason = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, `order_id` is not nullable"))
+      }
+      if (!is.null(`order_id`) && `order_id` >  5) {
         rlang::abort(message = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, must be smaller than or equal to 5.",
                      .subclass = "ApiException",
                      ApiException = ApiException$new(status = 0,
                                                      reason = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, must be smaller than or equal to 5."))
       }
-      if (`order_id` < 1) {
+      if (!is.null(`order_id`) && `order_id` <  1) {
         rlang::abort(message = "Invalid value for `order_id` when calling StoreApi$get_order_by_id, must be bigger than or equal to 1.",
                      .subclass = "ApiException",
                      ApiException = ApiException$new(status = 0,
@@ -453,11 +467,11 @@ StoreApi <- R6::R6Class(
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
         # save response in a file
         if (!is.null(data_file)) {
-          write(local_var_resp$response, data_file)
+          self$api_client$WriteFile(local_var_resp, data_file)
         }
 
         deserialized_resp_obj <- tryCatch(
-          self$api_client$deserialize(local_var_resp$response_as_text(), "Order", loadNamespace("petstore")),
+          self$api_client$DeserializeResponse(local_var_resp, "Order"),
           error = function(e) {
             rlang::abort(message = "Failed to deserialize response",
                          .subclass = "ApiException",
@@ -465,9 +479,12 @@ StoreApi <- R6::R6Class(
           }
         )
         local_var_resp$content <- deserialized_resp_obj
-        local_var_resp
-      } else if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
-        local_var_error_msg <- local_var_resp$response
+        return(local_var_resp)
+      } 
+      
+      local_var_error_msg <- local_var_resp$response_as_text()      
+      if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
+        
         if (local_var_error_msg == "") {
           local_var_error_msg <- paste("Server returned ", local_var_resp$status_code, " response status code.")
         }
@@ -475,7 +492,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 400 && local_var_resp$status_code <= 499) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api client exception encountered."
         }
@@ -483,7 +499,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 500 && local_var_resp$status_code <= 599) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api server exception encountered."
         }
@@ -504,13 +519,13 @@ StoreApi <- R6::R6Class(
     place_order = function(order, data_file = NULL, ...) {
       local_var_response <- self$place_order_with_http_info(order, data_file = data_file, ...)
       if (local_var_response$status_code >= 200 && local_var_response$status_code <= 299) {
-        local_var_response$content
+        return(local_var_response$content)
       } else if (local_var_response$status_code >= 300 && local_var_response$status_code <= 399) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 400 && local_var_response$status_code <= 499) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 500 && local_var_response$status_code <= 599) {
-        local_var_response
+        return(local_var_response)
       }
     },
 
@@ -539,11 +554,17 @@ StoreApi <- R6::R6Class(
                                                      reason = "Missing required parameter `order`."))
       }
 
+      if (!missing(`order`) && is.null(`order`)) {
+        rlang::abort(message = "Invalid value for `order` when calling StoreApi$place_order, `order` is not nullable",
+                     .subclass = "ApiException",
+                      ApiException = ApiException$new(status = 0,
+                      reason = "Invalid value for `order` when calling StoreApi$place_order, `order` is not nullable"))
+      }
 
       if (!is.null(`order`)) {
         local_var_body <- `order`$toJSONString()
       } else {
-        body <- NULL
+        local_var_body <- NULL
       }
 
       local_var_url_path <- "/store/order"
@@ -570,11 +591,11 @@ StoreApi <- R6::R6Class(
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
         # save response in a file
         if (!is.null(data_file)) {
-          write(local_var_resp$response, data_file)
+          self$api_client$WriteFile(local_var_resp, data_file)
         }
 
         deserialized_resp_obj <- tryCatch(
-          self$api_client$deserialize(local_var_resp$response_as_text(), "Order", loadNamespace("petstore")),
+          self$api_client$DeserializeResponse(local_var_resp, "Order"),
           error = function(e) {
             rlang::abort(message = "Failed to deserialize response",
                          .subclass = "ApiException",
@@ -582,9 +603,12 @@ StoreApi <- R6::R6Class(
           }
         )
         local_var_resp$content <- deserialized_resp_obj
-        local_var_resp
-      } else if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
-        local_var_error_msg <- local_var_resp$response
+        return(local_var_resp)
+      } 
+      
+      local_var_error_msg <- local_var_resp$response_as_text()      
+      if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
+        
         if (local_var_error_msg == "") {
           local_var_error_msg <- paste("Server returned ", local_var_resp$status_code, " response status code.")
         }
@@ -592,7 +616,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 400 && local_var_resp$status_code <= 499) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api client exception encountered."
         }
@@ -600,7 +623,6 @@ StoreApi <- R6::R6Class(
                      .subclass = "ApiException",
                      ApiException = ApiException$new(http_response = local_var_resp))
       } else if (local_var_resp$status_code >= 500 && local_var_resp$status_code <= 599) {
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api server exception encountered."
         }

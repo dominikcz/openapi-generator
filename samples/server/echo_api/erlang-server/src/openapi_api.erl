@@ -81,6 +81,7 @@ accept_callback(Class, OperationID, Req0, Context0) ->
     'test/query/style_form/explode_true/array_string' | %% Test query parameter(s)
     'test/query/style_form/explode_true/object' | %% Test query parameter(s)
     'test/query/style_form/explode_true/object/allOf' | %% Test query parameter(s)
+    'test/query/style_jsonSerialization/object' | %% Test query parameter(s)
     {error, unknown_operation}.
 
 -type request_param() :: atom().
@@ -121,7 +122,7 @@ prepare_validator(SchemaVer) ->
     prepare_validator(get_openapi_path(), SchemaVer).
 
 -doc """
-Loads the JSON schema and the desired validation draft into a `t:jesse_state:state()`.
+Loads the JSON schema and the desired validation draft into a `t:jesse_state:state/0`.
 """.
 -spec prepare_validator(file:name_all(), binary()) -> jesse_state:state().
 prepare_validator(OpenApiPath, SchemaVer) ->
@@ -206,6 +207,8 @@ validate_response('test/query/style_form/explode_true/array_string', 200, Body, 
 validate_response('test/query/style_form/explode_true/object', 200, Body, ValidatorState) ->
     validate_response_body('binary', 'string', Body, ValidatorState);
 validate_response('test/query/style_form/explode_true/object/allOf', 200, Body, ValidatorState) ->
+    validate_response_body('binary', 'string', Body, ValidatorState);
+validate_response('test/query/style_jsonSerialization/object', 200, Body, ValidatorState) ->
     validate_response_body('binary', 'string', Body, ValidatorState);
 validate_response(_OperationID, _Code, _Body, _ValidatorState) ->
     ok.
@@ -335,6 +338,11 @@ request_params('test/query/style_form/explode_true/object') ->
 request_params('test/query/style_form/explode_true/object/allOf') ->
     [
         'query_object'
+    ];
+request_params('test/query/style_jsonSerialization/object') ->
+    [
+        'json_serialized_object_ref_string_query',
+        'json_serialized_object_array_ref_string_query'
     ];
 request_params(_) ->
     error(unknown_operation).
@@ -675,6 +683,20 @@ request_param_info('test/query/style_form/explode_true/object/allOf', 'query_obj
             not_required
         ]
     };
+request_param_info('test/query/style_jsonSerialization/object', 'json_serialized_object_ref_string_query') ->
+    #{
+        source => qs_val,
+        rules => [
+            not_required
+        ]
+    };
+request_param_info('test/query/style_jsonSerialization/object', 'json_serialized_object_array_ref_string_query') ->
+    #{
+        source => qs_val,
+        rules => [
+            not_required
+        ]
+    };
 request_param_info(OperationID, Name) ->
     error({unknown_param, OperationID, Name}).
 
@@ -686,7 +708,7 @@ populate_request_params(_, [], Req, _, Model) ->
 populate_request_params(OperationID, [ReqParamName | T], Req0, ValidatorState, Model0) ->
     case populate_request_param(OperationID, ReqParamName, Req0, ValidatorState) of
         {ok, V, Req} ->
-            Model = maps:put(ReqParamName, V, Model0),
+            Model = Model0#{ReqParamName => V},
             populate_request_params(OperationID, T, Req, ValidatorState, Model);
         Error ->
             Error

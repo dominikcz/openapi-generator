@@ -153,13 +153,13 @@
 
       {{/vendorExtensions.x-streaming}}
       if (local_var_response$status_code >= 200 && local_var_response$status_code <= 299) {
-        local_var_response$content
+        return(local_var_response$content)
       } else if (local_var_response$status_code >= 300 && local_var_response$status_code <= 399) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 400 && local_var_response$status_code <= 499) {
-        local_var_response
+        return(local_var_response)
       } else if (local_var_response$status_code >= 500 && local_var_response$status_code <= 599) {
-        local_var_response
+        return(local_var_response)
       }
     },
 
@@ -206,8 +206,21 @@
 
       {{/requiredParams}}
       {{#allParams}}
+      {{^isNullable}}
+      if (!missing(`{{paramName}}`) && is.null(`{{paramName}}`)) {
+        {{#useDefaultExceptionHandling}}
+        stop("Invalid value for `{{paramName}}` when calling {{classname}}${{operationId}}, `{{paramName}}` is not nullable")
+        {{/useDefaultExceptionHandling}}
+        {{#useRlangExceptionHandling}}
+        rlang::abort(message = "Invalid value for `{{paramName}}` when calling {{classname}}${{operationId}}, `{{paramName}}` is not nullable",
+                     .subclass = "ApiException",
+                      ApiException = ApiException$new(status = 0,
+                      reason = "Invalid value for `{{paramName}}` when calling {{classname}}${{operationId}}, `{{paramName}}` is not nullable"))
+        {{/useRlangExceptionHandling}}
+      }
+      {{/isNullable}}
       {{#maxLength}}
-      if (nchar(`{{paramName}}`) > {{maxLength}}) {
+      if (!is.null(`{{paramName}}`) && nchar(`{{paramName}}`) > {{maxLength}}) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid length for `{{paramName}}` when calling {{classname}}${{operationId}}, must be smaller than or equal to {{maxLength}}.")
         {{/useDefaultExceptionHandling}}
@@ -220,7 +233,7 @@
       }
       {{/maxLength}}
       {{#minLength}}
-      if (nchar(`{{paramName}}`) < {{minLength}}) {
+      if (!is.null(`{{paramName}}`) && nchar(`{{paramName}}`) < {{minLength}}) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid length for `{{paramName}}` when calling {{classname}}${{operationId}}, must be bigger than or equal to {{minLength}}.")
         {{/useDefaultExceptionHandling}}
@@ -233,7 +246,7 @@
       }
       {{/minLength}}
       {{#maximum}}
-      if (`{{paramName}}` >{{#exclusiveMaximum}}={{/exclusiveMaximum}} {{maximum}}) {
+      if (!is.null(`{{paramName}}`) && `{{paramName}}` > {{#exclusiveMaximum}}={{/exclusiveMaximum}} {{maximum}}) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid value for `{{paramName}}` when calling {{classname}}${{operationId}}, must be smaller than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}{{maximum}}.")
         {{/useDefaultExceptionHandling}}
@@ -246,7 +259,7 @@
       }
       {{/maximum}}
       {{#minimum}}
-      if (`{{paramName}}` <{{#exclusiveMinimum}}={{/exclusiveMinimum}} {{minimum}}) {
+      if (!is.null(`{{paramName}}`) && `{{paramName}}` < {{#exclusiveMinimum}}={{/exclusiveMinimum}} {{minimum}}) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid value for `{{paramName}}` when calling {{classname}}${{operationId}}, must be bigger than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}{{minimum}}.")
         {{/useDefaultExceptionHandling}}
@@ -259,7 +272,7 @@
       }
       {{/minimum}}
       {{#pattern}}
-      if (!str_detect(`{{paramName}}`, "{{{pattern}}}")) {
+      if (!is.null(`{{paramName}}`) && !stringr::str_detect(`{{paramName}}`, "{{{pattern}}}")) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid value for `{{paramName}}` when calling {{classname}}${{operationId}}, must conform to the pattern {{{pattern}}}.")
         {{/useDefaultExceptionHandling}}
@@ -272,7 +285,7 @@
       }
       {{/pattern}}
       {{#maxItems}}
-      if (length(`{{paramName}}`) > {{maxItems}}) {
+      if (!is.null(`{{paramName}}`) && length(`{{paramName}}`) > {{maxItems}}) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid length for `{{paramName}}` when calling {{classname}}${{operationId}}, number of items must be less than or equal to {{maxItems}}.")
         {{/useDefaultExceptionHandling}}
@@ -285,7 +298,7 @@
       }
       {{/maxItems}}
       {{#minItems}}
-      if (length(`{{paramName}}`) < {{minItems}}) {
+      if (!is.null(`{{paramName}}`) && length(`{{paramName}}`) < {{minItems}}) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid length for `{{paramName}}` when calling {{classname}}${{operationId}}, number of items must be greater than or equal to {{minItems}}.")
         {{/useDefaultExceptionHandling}}
@@ -307,7 +320,7 @@
       {{#isArray}}
       {{#uniqueItems}}
       # check if items are unique
-      if (!identical(`{{{paramName}}}`, unique(`{{{paramName}}}`))) {
+      if (!is.null(`{{paramName}}`) && !identical(`{{{paramName}}}`, unique(`{{{paramName}}}`))) {
         {{#useDefaultExceptionHandling}}
         stop("Invalid value for {{{paramName}}} when calling {{classname}}${{operationId}}. Items must be unique.")
         {{/useDefaultExceptionHandling}}
@@ -456,7 +469,7 @@
         local_var_body <- `{{paramName}}`$toJSONString()
         {{/isArray}}
       } else {
-        body <- NULL
+        local_var_body <- NULL
       }
 
       {{/bodyParams}}
@@ -543,12 +556,9 @@
       if (local_var_resp$status_code >= 200 && local_var_resp$status_code <= 299) {
         {{#returnType}}
         {{#isPrimitiveType}}
-        local_var_content <- local_var_resp$response
-          local_var_resp, "text", encoding = "UTF-8", simplifyVector = FALSE
-        )
         # save response in a file
         if (!is.null(data_file)) {
-          write(local_var_content, data_file)
+          self$api_client$WriteFile(local_var_resp, data_file)
         }
 
         ApiResponse$new(content,resp)
@@ -556,11 +566,11 @@
         {{^isPrimitiveType}}
         # save response in a file
         if (!is.null(data_file)) {
-          write(local_var_resp$response, data_file)
+          self$api_client$WriteFile(local_var_resp, data_file)
         }
 
         deserialized_resp_obj <- tryCatch(
-          self$api_client$deserialize(local_var_resp$response_as_text(), "{{returnType}}", loadNamespace("{{packageName}}")),
+          self$api_client$DeserializeResponse(local_var_resp, "{{returnType}}"),
           error = function(e) {
             {{#useDefaultExceptionHandling}}
             stop("Failed to deserialize response")
@@ -579,10 +589,13 @@
         {{! Returning the ApiResponse object with NULL object when the endpoint doesn't return anything}}
         local_var_resp$content <- NULL
         {{/returnType}}
-        local_var_resp
-      } else if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
+        return(local_var_resp)
+      } 
+      
+      local_var_error_msg <- local_var_resp$response_as_text()      
+      if (local_var_resp$status_code >= 300 && local_var_resp$status_code <= 399) {
       {{#returnExceptionOnFailure}}
-        local_var_error_msg <- local_var_resp$response
+        
         if (local_var_error_msg == "") {
           local_var_error_msg <- paste("Server returned ", local_var_resp$status_code, " response status code.")
         }
@@ -600,7 +613,6 @@
         {{/returnExceptionOnFailure}}
       } else if (local_var_resp$status_code >= 400 && local_var_resp$status_code <= 499) {
         {{#returnExceptionOnFailure}}
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api client exception encountered."
         }
@@ -618,7 +630,6 @@
         {{/returnExceptionOnFailure}}
       } else if (local_var_resp$status_code >= 500 && local_var_resp$status_code <= 599) {
         {{#returnExceptionOnFailure}}
-        local_var_error_msg <- local_var_resp$response
         if (local_var_error_msg == "") {
           local_var_error_msg <- "Api server exception encountered."
         }
@@ -635,7 +646,7 @@
         if (is.null(local_var_resp$response) || local_var_resp$response == "") {
           local_var_resp$response <- "API server error"
         }
-        local_var_resp
+        return(local_var_resp)
         {{/returnExceptionOnFailure}}
       }
     }{{^-last}},{{/-last}}

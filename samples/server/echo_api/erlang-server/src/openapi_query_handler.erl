@@ -42,6 +42,10 @@ Test query parameter(s)
 Test query parameter(s).
 Test query parameter(s)
 
+- `GET` to `/query/style_jsonSerialization/object`, OperationId: `test/query/style_jsonSerialization/object`:
+Test query parameter(s).
+Test query parameter(s)
+
 """.
 
 -behaviour(cowboy_rest).
@@ -74,14 +78,15 @@ Test query parameter(s)
     | 'test/query/style_form/explode_false/array_string' %% Test query parameter(s)
     | 'test/query/style_form/explode_true/array_string' %% Test query parameter(s)
     | 'test/query/style_form/explode_true/object' %% Test query parameter(s)
-    | 'test/query/style_form/explode_true/object/allOf'. %% Test query parameter(s)
+    | 'test/query/style_form/explode_true/object/allOf' %% Test query parameter(s)
+    | 'test/query/style_jsonSerialization/object'. %% Test query parameter(s)
 
 
 -record(state,
         {operation_id :: operation_id(),
          accept_callback :: openapi_logic_handler:accept_callback(),
          provide_callback :: openapi_logic_handler:provide_callback(),
-         api_key_handler :: openapi_logic_handler:api_key_callback(),
+         api_key_callback :: openapi_logic_handler:api_key_callback(),
          context = #{} :: openapi_logic_handler:context()}).
 
 -type state() :: #state{}.
@@ -97,7 +102,7 @@ init(Req, {Operations, Module}) ->
     State = #state{operation_id = OperationID,
                    accept_callback = fun Module:accept_callback/4,
                    provide_callback = fun Module:provide_callback/4,
-                   api_key_handler = fun Module:authorize_api_key/2},
+                   api_key_callback = fun Module:api_key_callback/2},
     {cowboy_rest, Req, State}.
 
 -spec allowed_methods(cowboy_req:req(), state()) ->
@@ -121,6 +126,8 @@ allowed_methods(Req, #state{operation_id = 'test/query/style_form/explode_true/a
 allowed_methods(Req, #state{operation_id = 'test/query/style_form/explode_true/object'} = State) ->
     {[<<"GET">>], Req, State};
 allowed_methods(Req, #state{operation_id = 'test/query/style_form/explode_true/object/allOf'} = State) ->
+    {[<<"GET">>], Req, State};
+allowed_methods(Req, #state{operation_id = 'test/query/style_jsonSerialization/object'} = State) ->
     {[<<"GET">>], Req, State};
 allowed_methods(Req, State) ->
     {[], Req, State}.
@@ -152,6 +159,8 @@ content_types_accepted(Req, #state{operation_id = 'test/query/style_form/explode
     {[], Req, State};
 content_types_accepted(Req, #state{operation_id = 'test/query/style_form/explode_true/object/allOf'} = State) ->
     {[], Req, State};
+content_types_accepted(Req, #state{operation_id = 'test/query/style_jsonSerialization/object'} = State) ->
+    {[], Req, State};
 content_types_accepted(Req, State) ->
     {[], Req, State}.
 
@@ -176,6 +185,8 @@ valid_content_headers(Req, #state{operation_id = 'test/query/style_form/explode_
 valid_content_headers(Req, #state{operation_id = 'test/query/style_form/explode_true/object'} = State) ->
     {true, Req, State};
 valid_content_headers(Req, #state{operation_id = 'test/query/style_form/explode_true/object/allOf'} = State) ->
+    {true, Req, State};
+valid_content_headers(Req, #state{operation_id = 'test/query/style_jsonSerialization/object'} = State) ->
     {true, Req, State};
 valid_content_headers(Req, State) ->
     {false, Req, State}.
@@ -222,6 +233,10 @@ content_types_provided(Req, #state{operation_id = 'test/query/style_form/explode
     {[
       {<<"text/plain">>, handle_type_provided}
      ], Req, State};
+content_types_provided(Req, #state{operation_id = 'test/query/style_jsonSerialization/object'} = State) ->
+    {[
+      {<<"text/plain">>, handle_type_provided}
+     ], Req, State};
 content_types_provided(Req, State) ->
     {[], Req, State}.
 
@@ -240,7 +255,7 @@ handle_type_accepted(Req, #state{operation_id = OperationID,
     {Res, Req1, State#state{context = Context1}}.
 
 -spec handle_type_provided(cowboy_req:req(), state()) ->
-    {cowboy_req:resp_body(), cowboy_req:req(), state()}.
+    { openapi_logic_handler:provide_callback_return(), cowboy_req:req(), state()}.
 handle_type_provided(Req, #state{operation_id = OperationID,
                                  provide_callback = Handler,
                                  context = Context} = State) ->

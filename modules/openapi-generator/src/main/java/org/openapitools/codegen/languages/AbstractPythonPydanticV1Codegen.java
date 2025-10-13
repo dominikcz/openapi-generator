@@ -39,6 +39,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.openapitools.codegen.CodegenConstants.X_MODIFIERS;
+import static org.openapitools.codegen.CodegenConstants.X_REGEX;
 import static org.openapitools.codegen.utils.StringUtils.*;
 
 public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen implements CodegenConfig {
@@ -308,7 +310,7 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
 
         // only process files with py extension
         if ("py".equals(FilenameUtils.getExtension(file.toString()))) {
-            this.executePostProcessor(new String[] {pythonPostProcessFile, file.toString()});
+            this.executePostProcessor(new String[]{pythonPostProcessFile, file.toString()});
         }
     }
 
@@ -864,9 +866,9 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
             if (!model.allOf.isEmpty()) { // allOf
                 for (CodegenProperty cp : model.allVars) {
                     if (!cp.isPrimitiveType || cp.isModel) {
-                        if (cp.isArray || cp.isMap){ // if array or map
+                        if (cp.isArray || cp.isMap) { // if array or map
                             modelImports.add(cp.items.dataType);
-                        }else{ // if model
+                        } else { // if model
                             modelImports.add(cp.dataType);
                         }
                     }
@@ -984,7 +986,7 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
             model.getVendorExtensions().putIfAbsent("x-py-readonly", readOnlyFields);
 
             // remove the items of postponedModelImports in modelImports to avoid circular imports error
-            if (!modelImports.isEmpty() && !postponedModelImports.isEmpty()){
+            if (!modelImports.isEmpty() && !postponedModelImports.isEmpty()) {
                 modelImports.removeAll(postponedModelImports);
             }
 
@@ -1090,7 +1092,7 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
                 pydanticImports.add("constr");
                 return String.format(Locale.ROOT, "constr(%s)", StringUtils.join(fieldCustomization, ", "));
             } else {
-                if ("password".equals(cp.getFormat())) { // TDOO avoid using format, use `is` boolean flag instead
+                if ("password".equals(cp.getFormat())) { // TODO avoid using format, use `is` boolean flag instead
                     pydanticImports.add("SecretStr");
                     return "SecretStr";
                 } else {
@@ -1375,7 +1377,7 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
                 pydanticImports.add("constr");
                 return String.format(Locale.ROOT, "constr(%s)", StringUtils.join(fieldCustomization, ", "));
             } else {
-                if ("password".equals(cp.getFormat())) { // TDOO avoid using format, use `is` boolean flag instead
+                if ("password".equals(cp.getFormat())) { // TODO avoid using format, use `is` boolean flag instead
                     pydanticImports.add("SecretStr");
                     return "SecretStr";
                 } else {
@@ -1593,6 +1595,8 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
     }
 
     public String toEnumVariableName(String name, String datatype) {
+        name = name.replace(".", "_DOT_");
+
         if ("int".equals(datatype)) {
             return "NUMBER_" + name.replace("-", "MINUS_");
         }
@@ -1687,7 +1691,7 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
     }
 
     /**
-     * Update set of imports from codegen model recursivly
+     * Update set of imports from codegen model recursively
      *
      * @param modelName model name
      * @param cm        codegen model
@@ -1896,7 +1900,7 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
         if (pattern != null) {
             int i = pattern.lastIndexOf('/');
 
-            // TOOD update the check below follow python convention
+            // TODO update the check below follow python convention
             //Must follow Perl /pattern/modifiers convention
             if (pattern.charAt(0) != '/' || i < 2) {
                 throw new IllegalArgumentException("Pattern must follow the Perl "
@@ -1913,9 +1917,9 @@ public abstract class AbstractPythonPydanticV1Codegen extends DefaultCodegen imp
                 }
             }
 
-            vendorExtensions.put("x-regex", regex.replace("\"", "\\\""));
+            vendorExtensions.put(X_REGEX, regex.replace("\"", "\\\""));
             vendorExtensions.put("x-pattern", pattern.replace("\"", "\\\""));
-            vendorExtensions.put("x-modifiers", modifiers);
+            vendorExtensions.put(X_MODIFIERS, modifiers);
         }
     }
 

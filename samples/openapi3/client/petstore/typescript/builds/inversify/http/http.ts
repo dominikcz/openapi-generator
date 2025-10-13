@@ -1,5 +1,5 @@
 // TODO: evaluate if we can easily get rid of this library
-import * as FormData from "form-data";
+import  FormData from "form-data";
 import { URL, URLSearchParams } from 'url';
 import * as http from 'http';
 import * as https from 'https';
@@ -57,6 +57,7 @@ export class RequestContext {
     private headers: Headers = {};
     private body: RequestBody = undefined;
     private url: URL;
+    private signal: AbortSignal | undefined = undefined;
     private agent: http.Agent | https.Agent | undefined = undefined;
 
     /**
@@ -134,7 +135,16 @@ export class RequestContext {
     public setHeaderParam(key: string, value: string): void  {
         this.headers[key] = value;
     }
-    
+
+    public setSignal(signal: AbortSignal): void {
+        this.signal = signal;
+    }
+
+    public getSignal(): AbortSignal | undefined {
+        return this.signal;
+    }
+
+
     public setAgent(agent: http.Agent | https.Agent) {
         this.agent = agent;
     }

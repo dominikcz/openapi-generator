@@ -157,11 +157,11 @@ export function FormatTestFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     };
 }
 
-  export function FormatTestToJSON(json: any): FormatTest {
-      return FormatTestToJSONTyped(json, false);
-  }
+export function FormatTestToJSON(json: any): FormatTest {
+    return FormatTestToJSONTyped(json, false);
+}
 
-  export function FormatTestToJSONTyped(value?: FormatTest | null, ignoreDiscriminator: boolean = false): any {
+export function FormatTestToJSONTyped(value?: FormatTest | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -178,8 +178,8 @@ export function FormatTestFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'string': value['string'],
         'byte': value['_byte'],
         'binary': value['binary'],
-        'date': ((value['date']).toISOString().substring(0,10)),
-        'dateTime': value['dateTime'] == null ? undefined : ((value['dateTime']).toISOString()),
+        'date': value['date'].toISOString().substring(0,10),
+        'dateTime': value['dateTime'] == null ? value['dateTime'] : value['dateTime'].toISOString(),
         'uuid': value['uuid'],
         'password': value['password'],
         'pattern_with_digits': value['patternWithDigits'],

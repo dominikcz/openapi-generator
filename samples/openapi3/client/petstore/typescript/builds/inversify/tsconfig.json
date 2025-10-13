@@ -2,9 +2,13 @@
   "compilerOptions": {
     "strict": true,
     /* Basic Options */
-    "target": "es5",
+    "target": "es6",
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "declaration": true,
+    "typeRoots": [
+        "node_modules/@types"
+    ],
 
     /* Additional Checks */
      "noUnusedLocals": false,                     /* Report errors on unused locals. */ // TODO: reenable (unused imports!)

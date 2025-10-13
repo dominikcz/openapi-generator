@@ -16,32 +16,25 @@
 
 package org.openapitools.codegen.languages;
 
+import io.swagger.v3.oas.models.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.GeneratorMetadata;
 import org.openapitools.codegen.meta.Stability;
-
 import org.openapitools.codegen.meta.features.*;
 import org.openapitools.codegen.model.ModelsMap;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.openapitools.codegen.utils.StringUtils.camelize;
-
+import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class AvroSchemaCodegen extends DefaultCodegen implements CodegenConfig {
     private final Logger LOGGER = LoggerFactory.getLogger(AvroSchemaCodegen.class);
@@ -162,6 +155,25 @@ public class AvroSchemaCodegen extends DefaultCodegen implements CodegenConfig {
         }
     }
 
+    /**
+     * Return the default value of the property
+     *
+     * @param p OpenAPI property object
+     * @return string presentation of the default value of the property
+     */
+    @Override
+    public String toDefaultValue(Schema p) {
+        if (p.getDefault() == null) {
+            return null;
+        }
+
+        if (ModelUtils.isDateSchema(p) || ModelUtils.isDateTimeSchema(p) || ModelUtils.isStringSchema(p)) {
+            return "\"" + p.getDefault().toString() + "\"";
+        }
+
+        return p.getDefault().toString();
+    }
+
     @Override
     public CodegenType getTag() {
         return CodegenType.SCHEMA;
@@ -199,9 +211,9 @@ public class AvroSchemaCodegen extends DefaultCodegen implements CodegenConfig {
         }
         // only process files with avsc extension
         if ("avsc".equals(FilenameUtils.getExtension(file.toString()))) {
-            this.executePostProcessor(new String[] {avroPostProcessFile, file.toString()});
+            this.executePostProcessor(new String[]{avroPostProcessFile, file.toString()});
         }
-    }    
+    }
 
     @Override
     protected void setNonArrayMapProperty(CodegenProperty property, String type) {
@@ -226,10 +238,10 @@ public class AvroSchemaCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     protected List<Map<String, Object>> buildEnumVars(List<Object> values, String dataType) {
         List<Object> sanitizedValues = values.stream()
-            .filter(x -> x != null)
-            .map(Object::toString)
-            .map(this::sanitizeEnumValue)
-            .collect(Collectors.toList());
+                .filter(x -> x != null)
+                .map(Object::toString)
+                .map(this::sanitizeEnumValue)
+                .collect(Collectors.toList());
         removeEnumValueCollisions(sanitizedValues);
         return super.buildEnumVars(sanitizedValues, dataType);
     }

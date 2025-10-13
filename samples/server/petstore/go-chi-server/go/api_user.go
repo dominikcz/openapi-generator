@@ -51,42 +51,56 @@ func NewUserAPIController(s UserAPIServicer, opts ...UserAPIOption) *UserAPICont
 // Routes returns all the api routes for the UserAPIController
 func (c *UserAPIController) Routes() Routes {
 	return Routes{
+		"CreateUserNullable": Route{
+			"CreateUserNullable",
+			strings.ToUpper("Put"),
+			"/v2/user",
+			c.CreateUserNullable,
+		},
 		"CreateUser": Route{
+			"CreateUser",
 			strings.ToUpper("Post"),
 			"/v2/user",
 			c.CreateUser,
 		},
 		"CreateUsersWithArrayInput": Route{
+			"CreateUsersWithArrayInput",
 			strings.ToUpper("Post"),
 			"/v2/user/createWithArray",
 			c.CreateUsersWithArrayInput,
 		},
 		"CreateUsersWithListInput": Route{
+			"CreateUsersWithListInput",
 			strings.ToUpper("Post"),
 			"/v2/user/createWithList",
 			c.CreateUsersWithListInput,
 		},
 		"LoginUser": Route{
+			"LoginUser",
 			strings.ToUpper("Get"),
 			"/v2/user/login",
 			c.LoginUser,
 		},
 		"LogoutUser": Route{
+			"LogoutUser",
 			strings.ToUpper("Get"),
 			"/v2/user/logout",
 			c.LogoutUser,
 		},
 		"GetUserByName": Route{
+			"GetUserByName",
 			strings.ToUpper("Get"),
 			"/v2/user/{username}",
 			c.GetUserByName,
 		},
 		"UpdateUser": Route{
+			"UpdateUser",
 			strings.ToUpper("Put"),
 			"/v2/user/{username}",
 			c.UpdateUser,
 		},
 		"DeleteUser": Route{
+			"DeleteUser",
 			strings.ToUpper("Delete"),
 			"/v2/user/{username}",
 			c.DeleteUser,
@@ -94,9 +108,98 @@ func (c *UserAPIController) Routes() Routes {
 	}
 }
 
+// OrderedRoutes returns all the api routes in a deterministic order for the UserAPIController
+func (c *UserAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"CreateUserNullable",
+			strings.ToUpper("Put"),
+			"/v2/user",
+			c.CreateUserNullable,
+		},
+		Route{
+			"CreateUser",
+			strings.ToUpper("Post"),
+			"/v2/user",
+			c.CreateUser,
+		},
+		Route{
+			"CreateUsersWithArrayInput",
+			strings.ToUpper("Post"),
+			"/v2/user/createWithArray",
+			c.CreateUsersWithArrayInput,
+		},
+		Route{
+			"CreateUsersWithListInput",
+			strings.ToUpper("Post"),
+			"/v2/user/createWithList",
+			c.CreateUsersWithListInput,
+		},
+		Route{
+			"LoginUser",
+			strings.ToUpper("Get"),
+			"/v2/user/login",
+			c.LoginUser,
+		},
+		Route{
+			"LogoutUser",
+			strings.ToUpper("Get"),
+			"/v2/user/logout",
+			c.LogoutUser,
+		},
+		Route{
+			"GetUserByName",
+			strings.ToUpper("Get"),
+			"/v2/user/{username}",
+			c.GetUserByName,
+		},
+		Route{
+			"UpdateUser",
+			strings.ToUpper("Put"),
+			"/v2/user/{username}",
+			c.UpdateUser,
+		},
+		Route{
+			"DeleteUser",
+			strings.ToUpper("Delete"),
+			"/v2/user/{username}",
+			c.DeleteUser,
+		},
+	}
+}
+
+
+
+// CreateUserNullable - Create user
+func (c *UserAPIController) CreateUserNullable(w http.ResponseWriter, r *http.Request) {
+	var userNullableParam UserNullable
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&userNullableParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertUserNullableRequired(userNullableParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertUserNullableConstraints(userNullableParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.CreateUserNullable(r.Context(), &userNullableParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+}
+
 // CreateUser - Create user
 func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	userParam := User{}
+	var userParam User
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&userParam); err != nil {
@@ -123,7 +226,7 @@ func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // CreateUsersWithArrayInput - Creates list of users with given input array
 func (c *UserAPIController) CreateUsersWithArrayInput(w http.ResponseWriter, r *http.Request) {
-	userParam := []User{}
+	var userParam []User
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&userParam); err != nil {
@@ -148,7 +251,7 @@ func (c *UserAPIController) CreateUsersWithArrayInput(w http.ResponseWriter, r *
 
 // CreateUsersWithListInput - Creates list of users with given input array
 func (c *UserAPIController) CreateUsersWithListInput(w http.ResponseWriter, r *http.Request) {
-	userParam := []User{}
+	var userParam []User
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&userParam); err != nil {
@@ -256,7 +359,7 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"username"}, nil)
 		return
 	}
-	userParam := User{}
+	var userParam User
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&userParam); err != nil {

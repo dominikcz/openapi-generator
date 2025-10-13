@@ -27,13 +27,13 @@ public class BearerOpenAPIInterceptor: OpenAPIInterceptor {
             newUrlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             
             // Change the global headers
-            requestBuilder.openAPIClient.customHeaders["Authorization"] = "Bearer \(token)"
+            requestBuilder.apiConfiguration.customHeaders["Authorization"] = "Bearer \(token)"
             
             completion(.success(newUrlRequest))
         }
     }
     
-    public func retry<T>(urlRequest: URLRequest, urlSession: URLSessionProtocol, requestBuilder: RequestBuilder<T>, data: Data?, response: URLResponse, error: Error, completion: @escaping (OpenAPIInterceptorRetry) -> Void) {
+    public func retry<T>(urlRequest: URLRequest, urlSession: URLSessionProtocol, requestBuilder: RequestBuilder<T>, data: Data?, response: URLResponse?, error: Error, completion: @escaping (OpenAPIInterceptorRetry) -> Void) {
         // We will analyse the response to see if it's a 401, and if it's a 401, we will refresh the token and retry the request
         refreshTokenIfUnauthorizedRequestResponse(
             data: data,
@@ -44,7 +44,7 @@ public class BearerOpenAPIInterceptor: OpenAPIInterceptor {
             if wasTokenRefreshed, let newToken = newToken {
                 
                 // Change the global headers
-                requestBuilder.openAPIClient.customHeaders["Authorization"] = "Bearer \(newToken)"
+                requestBuilder.apiConfiguration.customHeaders["Authorization"] = "Bearer \(newToken)"
                 
                 completion(.retry)
             } else {
@@ -66,7 +66,7 @@ public class BearerOpenAPIInterceptor: OpenAPIInterceptor {
         }
     }
     
-    func refreshTokenIfUnauthorizedRequestResponse(data: Data?, response: URLResponse, error: Error, completionHandler: @escaping (Bool, String?) -> Void) {
+    func refreshTokenIfUnauthorizedRequestResponse(data: Data?, response: URLResponse?, error: Error, completionHandler: @escaping (Bool, String?) -> Void) {
         if let response = response as? HTTPURLResponse, response.statusCode == 401 {
             startRefreshingToken { token in
                 completionHandler(true, token)

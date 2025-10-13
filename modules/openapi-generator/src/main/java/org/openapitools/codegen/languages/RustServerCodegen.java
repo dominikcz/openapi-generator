@@ -21,11 +21,7 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
-import io.swagger.v3.oas.models.media.FileSchema;
-import io.swagger.v3.oas.models.media.XML;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -38,11 +34,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.features.*;
-import org.openapitools.codegen.model.ApiInfoMap;
-import org.openapitools.codegen.model.ModelMap;
-import org.openapitools.codegen.model.ModelsMap;
-import org.openapitools.codegen.model.OperationMap;
-import org.openapitools.codegen.model.OperationsMap;
+import org.openapitools.codegen.model.*;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.openapitools.codegen.utils.URLPathUtils;
 import org.slf4j.Logger;
@@ -54,6 +46,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 import static org.openapitools.codegen.utils.StringUtils.underscore;
@@ -230,7 +223,7 @@ public class RustServerCodegen extends AbstractRustCodegen implements CodegenCon
          */
         supportingFiles.add(new SupportingFile("openapi.mustache", "api", "openapi.yaml"));
         supportingFiles.add(new SupportingFile("Cargo.mustache", "", "Cargo.toml"));
-        supportingFiles.add(new SupportingFile("cargo-config", ".cargo", "config"));
+        supportingFiles.add(new SupportingFile("cargo-config", ".cargo", "config.toml"));
         supportingFiles.add(new SupportingFile("gitignore", "", ".gitignore"));
         supportingFiles.add(new SupportingFile("lib.mustache", "src", "lib.rs"));
         supportingFiles.add(new SupportingFile("context.mustache", "src", "context.rs"));
@@ -591,7 +584,7 @@ public class RustServerCodegen extends AbstractRustCodegen implements CodegenCon
         op.vendorExtensions.put("x-is-delete", isDelete);
 
         if (isDelete) {
-          additionalProperties.put("apiHasDeleteMethods", true);
+            additionalProperties.put("apiHasDeleteMethods", true);
         }
 
         if (!op.vendorExtensions.containsKey("x-must-use-response")) {
@@ -821,7 +814,7 @@ public class RustServerCodegen extends AbstractRustCodegen implements CodegenCon
 
         operationList.sort((one, another) -> {
             int params_compare = ObjectUtils.compare(one.pathParams.size(), another.pathParams.size());
-                if (params_compare == 0) {
+            if (params_compare == 0) {
                 return ObjectUtils.compare(one.operationId, another.operationId);
             } else {
                 return params_compare;
@@ -863,7 +856,7 @@ public class RustServerCodegen extends AbstractRustCodegen implements CodegenCon
             }
         }
 
-        if (op.bodyParams.size() > 0 || op.formParams.size() > 0){
+        if (op.bodyParams.size() > 0 || op.formParams.size() > 0) {
             op.vendorExtensions.put("x-has-request-body", true);
         }
 
@@ -1226,7 +1219,7 @@ public class RustServerCodegen extends AbstractRustCodegen implements CodegenCon
             }
         }
 
-        // Do we suppport doing ToString/FromStr conversions for query parameters?
+        // Do we support doing ToString/FromStr conversions for query parameters?
         boolean toStringSupport = true;
         boolean isString = "String".equals(mdl.dataType);
 
@@ -1539,7 +1532,16 @@ public class RustServerCodegen extends AbstractRustCodegen implements CodegenCon
             }
         } else if (param.isArray) {
             param.vendorExtensions.put("x-format-string", "{:?}");
-            example = (param.example != null) ? param.example : "&Vec::new()";
+            if (param.items.isString) {
+                // We iterate through the list of string and ensure they end up in the format vec!["example".to_string()]
+                example = (param.example != null)
+                    ? "&vec![" + Arrays.stream(param.example.replace("[", "").replace("]", "").split(","))
+                        .map(item -> item + ".to_string()")
+                        .collect(Collectors.joining(", ")) + "]"
+                    : "&Vec::new()";
+            } else {
+                example = (param.example != null) ? param.example : "&Vec::new()";
+            }
         } else {
             param.vendorExtensions.put("x-format-string", "{:?}");
             if (param.example != null) {
@@ -1583,7 +1585,7 @@ public class RustServerCodegen extends AbstractRustCodegen implements CodegenCon
 
         // only process files with .rs extension
         if ("rs".equals(FilenameUtils.getExtension(file.toString()))) {
-            this.executePostProcessor(new String[] {commandPrefix, file.toString()});
+            this.executePostProcessor(new String[]{commandPrefix, file.toString()});
         }
     }
 
