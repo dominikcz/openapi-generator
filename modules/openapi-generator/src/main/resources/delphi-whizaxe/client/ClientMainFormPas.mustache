@@ -90,7 +90,7 @@ begin
       {{^vendorExtensions.x-delphi-returns-model}}
       Memo1.Lines.Add(resp);
       {{/vendorExtensions.x-delphi-returns-model}}{{#vendorExtensions.x-delphi-returns-model}}
-      Memo1.Lines.Add(TSerializer.SerializeObject(resp));
+      Memo1.Lines.Add(TSerializer.SerializeObject(resp, lClient.NeonConfiguration));
     finally
       resp.Free;
     end;

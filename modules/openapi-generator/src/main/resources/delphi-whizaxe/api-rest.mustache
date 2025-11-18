@@ -51,6 +51,7 @@ uses
   whizaxe.REST.Exceptions,
   Neon.Core.Types,
   System.TypInfo,
+  ExtInfoSerializer,  
   {{classname}}{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
@@ -67,6 +68,8 @@ begin
   FNeonConfiguration.SetVisibility([ mvPublic, mvPublished]);
   FNeonConfiguration.SetUseUTCDate(false);
   FNeonConfiguration.SetEnumAsInt(false);{{/variableConvertUnderscoreToCamelCase}}
+
+  FNeonConfiguration.GetSerializers().RegisterSerializer(TExtInfoSerializer);  
 end;
 
 procedure T{{classname}}Rest.AskForApi;

@@ -30,10 +30,11 @@ type
     FConfig: TOpenApiConfig;
     FAuth: IOpenApiSecurity;
     FParseResponseErrors: boolean;
+    FNeonConfiguration: INeonConfiguration;
     procedure SetOnAuthenticate(const Value: TAuthenticateEvent);
     function GetRESTRequestMethod(const AMethodName: string): TRESTRequestMethod;
     function MakeRestClient: TRestClient;
-       function MakeNeonConfiguration: INeonConfiguration;
+    procedure InitNeonConfiguration;
     function ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
     function TryExecuteRequest(ARequest: TRestRequest): boolean;
     
@@ -60,6 +61,7 @@ type
     
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}
+    property NeonConfiguration: INeonConfiguration read FNeonCOnfiguration;
   end;
 
 implementation
@@ -68,7 +70,8 @@ uses
   System.Net.HttpClient,
   Neon.Core.Types,
   System.TypInfo,
-  whizaxe.serialization;
+  whizaxe.serialization,
+  ExtInfoSerializer;
 
 { TApiClient }
 
@@ -83,7 +86,7 @@ begin
   {{#isBasicBearer}}FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil){{/isBasicBearer}}
   {{^isBasicBearer}}FAuth := TOpenApiSecurityNone.Create(){{/isBasicBearer}}  
   {{/authMethods}}
-
+  InitNeonConfiguration;
 end;
 
 destructor T{{programName}}Client.Destroy;
@@ -116,15 +119,16 @@ begin
   FOnAuthenticate := Value;
 end;
 
-function T{{programName}}Client.MakeNeonConfiguration: INeonConfiguration;
+procedure T{{programName}}Client.InitNeonConfiguration;
 begin
-  {{^variableConvertUnderscoreToCamelCase}}Result := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}Result := TNeonConfiguration.Default;
-  Result.SetMemberCase(TNeonCase.SnakeCase);
-  Result.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
-  Result.SetIgnoreFieldPrefix(True);
-  Result.SetVisibility([ mvPublic, mvPublished]);
-  Result.SetUseUTCDate(false);
-  Result.SetEnumAsInt(false);{{/variableConvertUnderscoreToCamelCase}}
+  {{^variableConvertUnderscoreToCamelCase}}Result := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}FNeonConfiguration := TNeonConfiguration.Default;
+  FNeonConfiguration.SetMemberCase(TNeonCase.SnakeCase);
+  FNeonConfiguration.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
+  FNeonConfiguration.SetIgnoreFieldPrefix(True);
+  FNeonConfiguration.SetVisibility([ mvPublic, mvPublished]);
+  FNeonConfiguration.SetUseUTCDate(false);
+  FNeonConfiguration.SetEnumAsInt(false);
+  FNeonConfiguration.GetSerializers().RegisterSerializer(TExtInfoSerializer);{{/variableConvertUnderscoreToCamelCase}}
 end;
 
 function T{{programName}}Client.MakeRestClient: TRestClient;
@@ -150,7 +154,7 @@ var
   RestErrorModel: {{^variableConvertUnderscoreToCamelCase}}TWxRestErrorModel{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}TWxRestErrorModelForSnakeCaseApi{{/variableConvertUnderscoreToCamelCase}};
 begin
   {{^variableConvertUnderscoreToCamelCase}}RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(AResponse.Content);{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}RestErrorModel := TWxRestErrorModelForSnakeCaseApi.Create;
-  TSerializer.DeserializeObject(RestErrorModel, AResponse.Content, MakeNeonConfiguration);{{/variableConvertUnderscoreToCamelCase}}
+  TSerializer.DeserializeObject(RestErrorModel, AResponse.Content, FNeonConfiguration);{{/variableConvertUnderscoreToCamelCase}}
   try
     case AResponse.StatusCode of
       400:
@@ -211,9 +215,7 @@ end;
 var 
   restRequest: TRestRequest;
   restClient: TRestClient;
-  neonConfiguration: INeonConfiguration;
 begin
-  neonConfiguration := MakeNeonConfiguration;
   restClient := MakeRestClient;
   {{#returnType}}{{^returnSimpleType}}Result := nil;{{/returnSimpleType}}{{/returnType}}
   restRequest := TRESTRequest.Create(restClient);
