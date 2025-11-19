@@ -17,11 +17,11 @@ uses
   rest.Authenticator.Basic,{{#apiInfo}}{{#apis}}{{#operations}}
   {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}}
-  , Model.ExtInfo
+  , whizaxe.ExtInfo
   , System.Classes
   , superobject;
-  
-  
+
+
 type
   T{{programName}}Client = class(TInterfacedObject, {{#apiInfo}}{{#apis}}{{#operations}}
     I{{classname}}{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}})
@@ -37,7 +37,7 @@ type
     procedure InitNeonConfiguration;
     function ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
     function TryExecuteRequest(ARequest: TRestRequest): boolean;
-    
+
     procedure hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
   public
     constructor Create(AConfig: TOpenApiConfig; AParseResponseErrors: boolean = false);
@@ -58,7 +58,7 @@ type
     {{/pathParams}}
     {{#returnType}}function {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}}{{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
     {{^returnType}}procedure {{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject){{#isDeprecated}}; deprecated{{/isDeprecated}};{{/returnType}}
-    
+
     {{/operation}}
     {{/operations}}{{/apis}}{{/apiInfo}}
     property NeonConfiguration: INeonConfiguration read FNeonCOnfiguration;
@@ -84,7 +84,7 @@ begin
   FParseResponseErrors := AParseResponseErrors;
   {{#authMethods}}
   {{#isBasicBearer}}FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil){{/isBasicBearer}}
-  {{^isBasicBearer}}FAuth := TOpenApiSecurityNone.Create(){{/isBasicBearer}}  
+  {{^isBasicBearer}}FAuth := TOpenApiSecurityNone.Create(){{/isBasicBearer}}
   {{/authMethods}}
   InitNeonConfiguration;
 end;
@@ -135,8 +135,8 @@ function T{{programName}}Client.MakeRestClient: TRestClient;
 begin
   Result := TRESTClient.Create(FConfig.basePath);
   Result.SecureProtocols  := FConfig.TLSVersions;
-  Result.OnValidateCertificate := hndValidateCertificate;  
-  
+  Result.OnValidateCertificate := hndValidateCertificate;
+
   {{#authMethods}}{{#isBasicBearer}}
   Result.Authenticator := FAuth.CreateAuthenticator;
   {{/isBasicBearer}}{{/authMethods}}
@@ -212,7 +212,7 @@ end;
 {{#apiInfo}}{{#apis}}{{#operations}}
 {{#operation}}
 {{#returnType}}function T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{{paramName}}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject): {{{returnType}}};{{/returnType}}{{^returnType}}procedure T{{programName}}Client.{{{operationId}}}({{#allParams}}const {{paramName}}: {{{dataType}}}; {{/allParams}}const authorization: ISuperObject);{{/returnType}}
-var 
+var
   restRequest: TRestRequest;
   restClient: TRestClient;
 begin
@@ -231,7 +231,7 @@ begin
     {{#bodyParams}}
     restRequest.AddBody(TSerializer.SerializeObject({{paramName}}, neonConfiguration), TRESTContentType.ctAPPLICATION_JSON);
     {{/bodyParams}}
-    
+
     {{#returnType}}if TryExecuteRequest(restRequest) then
     begin
       {{#vendorExtensions.x-delphi-returns-model}}
@@ -247,7 +247,7 @@ begin
       result := '';{{/vendorExtensions.x-delphi-returns-model}}
   {{/returnType}}
   {{^returnType}}TryExecuteRequest(restRequest);{{/returnType}}
-   
+
   finally
     restClient.Authenticator.Free;
     restClient.Free;

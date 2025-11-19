@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  Model.ExtInfo,
+  whizaxe.ExtInfo,
   Neon.Core.Utils;
 
 { TExtInfoSerializer }

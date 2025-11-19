@@ -10,7 +10,7 @@ uses
   {{classname}}.Rest in 'apis\{{classname}}.Rest.pas',
   {{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}},
   {{programName}}Server in '{{programName}}Server.pas',
-  Model.ExtInfo in 'models\Model.ExtInfo.pas',
+  whizaxe.ExtInfo,
   ExtInfoSerializer in 'ExtInfoSerializer.pas';
 
 {$R *.res}

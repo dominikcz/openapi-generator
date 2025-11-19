@@ -7,7 +7,7 @@ uses
   ClientMainForm in 'ClientMainForm.pas' {MainForm},
   {{programName}}Client in '{{programName}}Client.pas',
   whizaxe.openapi.config,
-  Model.ExtInfo in 'models\Model.ExtInfo.pas',
+  whizaxe.ExtInfo,
   ExtInfoSerializer in 'ExtInfoSerializer.pas', {{#models}}{{#model}}
   {{classFilename}} in 'models\{{classFilename}}.pas',{{/model}}{{/models}}{{#apiInfo}}{{#apis}}{{#operations}}
   {{classname}}Interface in 'apis\{{classname}}Interface.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};

@@ -5,7 +5,7 @@ program {{programName}}Srv;
 uses
   Vcl.Forms,
   ServiceMain in 'ServiceMain.pas' {ServiceMain{{programName}}: TService},
-  Model.ExtInfo in 'models\Model.ExtInfo.pas',
+  whizaxe.ExtInfo,
   ExtInfoSerializer in 'ExtInfoSerializer.pas',
 {{#apiInfo}}{{#apis}}
   {{#operations}}{{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}
