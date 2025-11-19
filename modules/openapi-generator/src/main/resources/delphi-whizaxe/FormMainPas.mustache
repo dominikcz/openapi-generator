@@ -68,6 +68,8 @@ begin
 
   FServer := T{{programName}}Server.Create;
   FServer.ApplyConfig(lConfig);
+//  Fserver.SetOnSSL('d:\mccomp\mccomp.key', 'd:\mccomp\mccomp.crt');
+
   fServer.OnAfterRequest := hndAfterRequest;
   fServer.OnAfterCommand := hndAfterCommand;
   lConfig.Free;

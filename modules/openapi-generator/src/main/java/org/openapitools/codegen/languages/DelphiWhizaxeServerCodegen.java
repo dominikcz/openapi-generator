@@ -168,7 +168,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         supportingFiles.add(new SupportingFile("client\\api-client.mustache", "", this.programName + "Client.pas"));
         supportingFiles.add(new SupportingFile("client\\ClientMainFormPas.mustache", "", "ClientMainForm.pas").doNotOverwrite());
         supportingFiles.add(new SupportingFile("client\\ClientMainFormDfm.mustache", "", "ClientMainForm.dfm").doNotOverwrite());
-        supportingFiles.add(new SupportingFile("Model.ExtInfo.pas", "models", "Model.ExtInfo.pas"));
+        supportingFiles.add(new SupportingFile("ExtInfoSerializer.pas", "", "ExtInfoSerializer.pas"));
 
     }
 
@@ -194,7 +194,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     || languageSpecificPrimitives.contains(name) || usedModels.contains(name)
                     || nullTypeMapping.values().contains(name)) {
                 if (name == "TExtInfo") {
-                    return "Model.ExtInfo";
+                    return "whizaxe.ExtInfo";
                 } else
                     return name;
             } else {
