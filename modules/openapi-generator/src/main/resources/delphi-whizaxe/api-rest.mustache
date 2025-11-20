@@ -67,9 +67,10 @@ begin
   FNeonConfiguration.SetIgnoreFieldPrefix(True);
   FNeonConfiguration.SetVisibility([ mvPublic, mvPublished]);
   FNeonConfiguration.SetUseUTCDate(false);
-  FNeonConfiguration.SetEnumAsInt(false);{{/variableConvertUnderscoreToCamelCase}}
+  FNeonConfiguration.SetEnumAsInt(false);
+  FNeonConfiguration.GetSerializers().RegisterSerializer(TExtInfoSerializer);{{/variableConvertUnderscoreToCamelCase}}
 
-  FNeonConfiguration.GetSerializers().RegisterSerializer(TExtInfoSerializer);  
+  
 end;
 
 procedure T{{classname}}Rest.AskForApi;

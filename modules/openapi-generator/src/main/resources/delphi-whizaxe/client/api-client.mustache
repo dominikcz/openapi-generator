@@ -83,8 +83,8 @@ begin
   FConfig := AConfig;
   FParseResponseErrors := AParseResponseErrors;
   {{#authMethods}}
-  {{#isBasicBearer}}FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil){{/isBasicBearer}}
-  {{^isBasicBearer}}FAuth := TOpenApiSecurityNone.Create(){{/isBasicBearer}}
+  {{#isBasicBearer}}FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil);{{/isBasicBearer}}
+  {{^isBasicBearer}}FAuth := TOpenApiSecurityNone.Create();{{/isBasicBearer}}
   {{/authMethods}}
   InitNeonConfiguration;
 end;
@@ -121,7 +121,7 @@ end;
 
 procedure T{{programName}}Client.InitNeonConfiguration;
 begin
-  {{^variableConvertUnderscoreToCamelCase}}Result := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}FNeonConfiguration := TNeonConfiguration.Default;
+  {{^variableConvertUnderscoreToCamelCase}}FNeonConfiguration := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}FNeonConfiguration := TNeonConfiguration.Default;
   FNeonConfiguration.SetMemberCase(TNeonCase.SnakeCase);
   FNeonConfiguration.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
   FNeonConfiguration.SetIgnoreFieldPrefix(True);
