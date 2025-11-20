@@ -51,7 +51,7 @@ uses
   whizaxe.REST.Exceptions,
   Neon.Core.Types,
   System.TypInfo,
-  ExtInfoSerializer,  
+  whizaxe.ExtInfo,
   {{classname}}{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
@@ -60,15 +60,7 @@ uses
 constructor T{{classname}}Rest.Create();
 begin
   inherited;
-  {{^variableConvertUnderscoreToCamelCase}}FNeonConfiguration := nil;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}
-  FNeonConfiguration := TNeonConfiguration.Default;
-  FNeonConfiguration.SetMemberCase(TNeonCase.SnakeCase);
-  FNeonConfiguration.SetMembers([TNeonMembers.Fields, TNeonMembers.Properties]);
-  FNeonConfiguration.SetIgnoreFieldPrefix(True);
-  FNeonConfiguration.SetVisibility([ mvPublic, mvPublished]);
-  FNeonConfiguration.SetUseUTCDate(false);
-  FNeonConfiguration.SetEnumAsInt(false);{{/variableConvertUnderscoreToCamelCase}}
-
+  {{^variableConvertUnderscoreToCamelCase}}FNeonConfiguration := getDefaultNeonConfig;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}FNeonConfiguration := getNeonConfigSnakeCase;{{/variableConvertUnderscoreToCamelCase}}
   FNeonConfiguration.GetSerializers().RegisterSerializer(TExtInfoSerializer);  
 end;
 
