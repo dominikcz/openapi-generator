@@ -59,7 +59,10 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     public static final String SANITIZED_PARAM_PREFIX_TO_SKIP_DESC = "sanitized param prefix to skip";
     public static final String VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION = "variableConvertUnderscoreToCamelCase";
     public static final String VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_DESC = "convert underscore to camel case";
+    public static final String USE_DEMO_SNIPPETS_OPTION = "useDemoSnippets";
+    public static final String USE_DEMO_SNIPPETS_DESC = "use demo snippets";
     protected boolean variableConvertUnderscoreToCamelCase = false;
+    protected boolean useDemoSnippets = false;
 
     protected Set<String> languageSpecificTypes = new HashSet<String>();
 
@@ -194,6 +197,9 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         addOption(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION,
                 VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_DESC,
                 Boolean.toString(this.variableConvertUnderscoreToCamelCase));
+        addOption(USE_DEMO_SNIPPETS_OPTION,
+                USE_DEMO_SNIPPETS_DESC,
+                Boolean.toString(this.useDemoSnippets));
     }
 
     protected void MyProcessProperty(CodegenProperty property) {
@@ -390,19 +396,26 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
         }
         additionalProperties.put(RESERVED_WORD_PREFIX_OPTION, reservedWordPrefix);
 
-        if (additionalProperties.containsKey(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION))
-            variableNameFirstCharacterUppercase = convertPropertyToBooleanAndWriteBack(
-                    VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION);
+        if (additionalProperties.containsKey(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION)) {
+            variableNameFirstCharacterUppercase = convertPropertyToBooleanAndWriteBack(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION);
+        }
         additionalProperties.put(VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_OPTION, variableNameFirstCharacterUppercase);
 
-        if (additionalProperties.containsKey(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION))
-            sanitizedParamPrefixToSkip =  (String) additionalProperties.get(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION);
+        if (additionalProperties.containsKey(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION)) {
+            sanitizedParamPrefixToSkip = (String) additionalProperties.get(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION);
+        }
         additionalProperties.put(SANITIZED_PARAM_PREFIX_TO_SKIP_OPTION, sanitizedParamPrefixToSkip);
 
-        if (additionalProperties.containsKey(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION))
-            variableConvertUnderscoreToCamelCase = convertPropertyToBooleanAndWriteBack(
-                    VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION);
+        if (additionalProperties.containsKey(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION)) {
+            variableConvertUnderscoreToCamelCase = convertPropertyToBooleanAndWriteBack(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION);
+        }
         additionalProperties.put(VARIABLE_CONVERT_UNDERSCORE_TO_CAMEL_CASE_OPTION, variableConvertUnderscoreToCamelCase);
+
+        if (additionalProperties.containsKey(USE_DEMO_SNIPPETS_OPTION)) {
+            useDemoSnippets = convertPropertyToBooleanAndWriteBack(USE_DEMO_SNIPPETS_OPTION);
+        }
+        additionalProperties.put(USE_DEMO_SNIPPETS_OPTION, useDemoSnippets);
+
     }
 
     @Override

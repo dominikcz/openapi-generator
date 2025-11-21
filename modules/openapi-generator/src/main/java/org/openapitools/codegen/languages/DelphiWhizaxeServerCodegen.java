@@ -603,28 +603,31 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
     protected String doGetSnippet(String fileName) {
         String s = null;
-        fileName = (templateDir + "/DemoSnippets/" + fileName).replace("/", File.separator);
-        Path p = Path.of(fileName);
-        if (Files.exists(p)) {
-            try {
-                s = Files.readString(p);
-            } catch (IOException e) {
+        if (this.useDemoSnippets) {
 
+            fileName = (templateDir + "/DemoSnippets/" + fileName).replace("/", File.separator);
+            Path p = Path.of(fileName);
+            if (Files.exists(p)) {
+                try {
+                    s = Files.readString(p);
+                } catch (IOException e) {
+
+                }
             }
         }
         return s;
     }
 
     public String getOperationDemoSnippet(String operationId) {
-        return doGetSnippet("operations/" + operationId + ".pas");
+        return this.useDemoSnippets ? doGetSnippet("operations/" + operationId + ".pas") : null;
     }
 
     public String getApiUsesDemoSnippet(String classname) {
-        return doGetSnippet("operations/uses/" + classname + ".pas");
+        return this.useDemoSnippets ? doGetSnippet("operations/uses/" + classname + ".pas") : null;
     }
 
     public String getClientOperationDemoSnippet(String operationId) {
-        return doGetSnippet("client/" + operationId + ".pas");
+        return this.useDemoSnippets ? doGetSnippet("client/" + operationId + ".pas") : null;
     }
 
     /**
