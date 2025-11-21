@@ -192,7 +192,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     || importMapping.values().contains(name) || defaultIncludes.contains(name)
                     || languageSpecificPrimitives.contains(name) || usedModels.contains(name)
                     || nullTypeMapping.values().contains(name)) {
-                if (name == "TExtInfo") {
+                if (name == "TExtInfo" || name == "TExtInfoSerializer") {
                     return "whizaxe.ExtInfo";
                 } else
                     return name;

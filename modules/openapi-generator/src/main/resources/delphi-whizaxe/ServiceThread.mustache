@@ -100,7 +100,7 @@ end;
 constructor TServiceThread.Create;
 begin
   inherited Create;
-  //  sleep(10*1000); //do debugowania usï¿½ugi
+  //  sleep(10*1000); //do debugowania us˜ugi
   CfgFile.LoadFromIniFile(ExtractFileDir(ParamStr(0)) + '\McVPos.ini');
 
   initGlobalAuthClient(TDbAppTypes.datVPos);
