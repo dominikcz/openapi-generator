@@ -6,7 +6,6 @@ uses
   Vcl.Forms,
   ServiceMain in 'ServiceMain.pas' {ServiceMain{{programName}}: TService},
   whizaxe.ExtInfo,
-  ExtInfoSerializer in 'ExtInfoSerializer.pas',
 {{#apiInfo}}{{#apis}}
   {{#operations}}{{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}
 {{/apis}}{{/apiInfo}};
