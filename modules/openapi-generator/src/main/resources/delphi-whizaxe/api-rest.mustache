@@ -33,7 +33,7 @@ type
     {{#allParams}}
     /// {{baseName}}: {{description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to "{{{.}}}"{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
     {{/allParams}}
-    [RestApi('{{httpMethod}}', '{{{path}}}'){{#authMethods}}, '*'{{/authMethods}}]
+    [RestApi('{{httpMethod}}', '{{{path}}}'{{#authMethods}}, '*'{{/authMethods}})]
     procedure {{operationId}}(ARequest: TRestRequest; var AResult: THTTPResult){{#isDeprecated}}; deprecated{{/isDeprecated}};
 
     {{/operation}}
@@ -61,7 +61,7 @@ constructor T{{classname}}Rest.Create();
 begin
   inherited;
   {{^variableConvertUnderscoreToCamelCase}}FNeonConfiguration := getDefaultNeonConfig;{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}FNeonConfiguration := getNeonConfigSnakeCase;{{/variableConvertUnderscoreToCamelCase}}
-  FNeonConfiguration.GetSerializers().RegisterSerializer(TExtInfoSerializer);  
+  FNeonConfiguration.GetSerializers().RegisterSerializer(TExtInfoSerializer);
 end;
 
 procedure T{{classname}}Rest.AskForApi;
