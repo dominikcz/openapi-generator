@@ -206,11 +206,12 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     public CodegenModel fromModel(String name, Schema model) {
         CodegenModel codegenModel = super.fromModel(name, model);
 
+        String selfFilename = toModelFilename(name);
         Set<String> oldImports = codegenModel.imports;
         codegenModel.imports = new HashSet<>();
         for (String imp : oldImports) {
             String newImp = toModelImport(imp);
-            if (!(newImp.isEmpty())) {
+            if (!(newImp.isEmpty()) && !newImp.equals(selfFilename)) {
                 codegenModel.imports.add(newImp);
                 usedModels.add(newImp);
             }
