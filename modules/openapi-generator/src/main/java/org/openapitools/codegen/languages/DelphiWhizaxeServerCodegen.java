@@ -400,6 +400,13 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     isParsingSupported = false;
                 if (param.isEnumRef)
                     param.dataType =  param.getSchema().getDataType();
+                if (param.isDateTime || param.isDate)
+                    operations.put("x-delphi-has-datetime-param", true);
+            }
+
+            for (CodegenParameter param : op.pathParams) {
+                if (param.isDateTime || param.isDate)
+                    operations.put("x-delphi-has-datetime-param", true);
             }
 
             // if (op.returnBaseType != null) {

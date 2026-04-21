@@ -38,7 +38,7 @@ type
     function ParseResponseErrorToRestException(AResponse: TCustomRestResponse): EWxRestException;
     function TryExecuteRequest(ARequest: TRestRequest): boolean;
 
-    procedure hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
+    procedure hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: System.Net.URLClient.TCertificate; var Accepted: Boolean);
   public
     constructor Create(AConfig: TOpenApiConfig; AParseResponseErrors: boolean = false);
     destructor Destroy; override;
@@ -69,7 +69,8 @@ implementation
 uses
   System.Net.HttpClient,
   Neon.Core.Types,
-  System.TypInfo,
+  System.TypInfo,{{#apiInfo}}{{#apis}}{{#operations}}{{#x-delphi-has-datetime-param}}
+  System.DateUtils,{{/x-delphi-has-datetime-param}}{{/operations}}{{/apis}}{{/apiInfo}}
   whizaxe.serialization;
 
 { TApiClient }
@@ -137,7 +138,7 @@ begin
     Result.Authenticator.OnAuthenticate := OnAuthenticate;
 end;
 
-procedure T{{programName}}Client.hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
+procedure T{{programName}}Client.hndValidateCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: System.Net.URLClient.TCertificate; var Accepted: Boolean);
 begin
   Accepted := Accepted or FConfig.ignoreCertificateErrors;
 end;
@@ -217,10 +218,10 @@ begin
     restRequest.Resource := '{{path}}';
     restRequest.Method := GetRESTRequestMethod('{{httpMethod}}');
     {{#pathParams}}
-    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{#isEnumRef}}TSerializer.SerializeSimple<{{{dataType}}}>({{{paramName}}}, neonConfiguration){{/isEnumRef}}{{^isEnumRef}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isEnumRef}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkURLSEGMENT);
+    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isDateTime}}DateToISO8601({{{paramName}}}, false){{/isDateTime}}{{^isDateTime}}{{#isDate}}DateToISO8601({{{paramName}}}, false){{/isDate}}{{^isDate}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{#isEnumRef}}TSerializer.SerializeSimple<{{{dataType}}}>({{{paramName}}}, neonConfiguration){{/isEnumRef}}{{^isEnumRef}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isEnumRef}}{{/isDate}}{{/isDateTime}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkURLSEGMENT);
     {{/pathParams}}
     {{#queryParams}}
-    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{#isEnumRef}}TSerializer.SerializeSimple<{{{dataType}}}>({{{paramName}}}, neonConfiguration){{/isEnumRef}}{{^isEnumRef}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isEnumRef}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkQUERY);
+    restRequest.AddParameter('{{baseName}}', {{^isString}}{{#isBoolean}}BoolToStr({{{paramName}}}, true){{/isBoolean}}{{^isBoolean}}{{#isDateTime}}DateToISO8601({{{paramName}}}, false){{/isDateTime}}{{^isDateTime}}{{#isDate}}DateToISO8601({{{paramName}}}, false){{/isDate}}{{^isDate}}{{#isNumber}}CurrToStr({{{paramName}}}){{/isNumber}}{{#isEnumRef}}TSerializer.SerializeSimple<{{{dataType}}}>({{{paramName}}}, neonConfiguration){{/isEnumRef}}{{^isEnumRef}}{{^isNumber}}{{{paramName}}}.ToString(){{/isNumber}}{{/isEnumRef}}{{/isDate}}{{/isDateTime}}{{/isBoolean}}{{/isString}}{{#isString}}{{{paramName}}}{{/isString}}, pkQUERY);
     {{/queryParams}}
     {{#bodyParams}}
     restRequest.AddBody(TSerializer.SerializeObject({{paramName}}, neonConfiguration), TRESTContentType.ctAPPLICATION_JSON);
