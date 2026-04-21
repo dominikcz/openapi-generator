@@ -96,7 +96,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         typeMapping.put("number", "Currency");
         typeMapping.put("UUID", "string");
         typeMapping.put("URI", "string");
-        typeMapping.put("ByteArray", "TBytes");
+        typeMapping.put("ByteArray", "string");
         typeMapping.put("BigDecimal", "Currency");
 
         nullTypeMapping = new HashMap<>();
