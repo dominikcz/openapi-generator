@@ -203,6 +203,16 @@ abstract public class AbstractDelphiCodegen extends DefaultCodegen implements Co
     }
 
     protected void MyProcessProperty(CodegenProperty property) {
+        // Handle free-form objects (type: object, additionalProperties: true) -> TExtInfo
+        if (property.isFreeFormObject) {
+            property.dataType = "TExtInfo";
+            property.baseType = "TExtInfo";
+            property.isMap = false;
+            property.isFreeFormObject = false;
+            property.isPrimitiveType = false;
+            property.isModel = false;
+        }
+
         String camelName = camelize(property.baseName);
 
         Boolean isEnum = false;

@@ -94,6 +94,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         typeMapping.put("object", "TExtInfo");
         typeMapping.put("binary", "TBytes");
         typeMapping.put("number", "Currency");
+        typeMapping.put("float", "Currency");
         typeMapping.put("UUID", "string");
         typeMapping.put("URI", "string");
         typeMapping.put("ByteArray", "string");
@@ -123,6 +124,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         importMapping.put("NullDouble", "Neon.Core.Nullables");
         importMapping.put("NullDateTime", "Neon.Core.Nullables");
         importMapping.put("NullCurrency", "Neon.Core.Nullables");
+        importMapping.put("TExtInfo", "whizaxe.ExtInfo");
     }
 
     @Override
@@ -192,7 +194,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     || importMapping.values().contains(name) || defaultIncludes.contains(name)
                     || languageSpecificPrimitives.contains(name) || usedModels.contains(name)
                     || nullTypeMapping.values().contains(name)) {
-                if (name == "TExtInfo" || name == "TExtInfoSerializer") {
+                if ("TExtInfo".equals(name) || "TExtInfoSerializer".equals(name)) {
                     return "whizaxe.ExtInfo";
                 } else
                     return name;
