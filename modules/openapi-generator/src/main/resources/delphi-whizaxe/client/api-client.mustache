@@ -69,8 +69,8 @@ implementation
 uses
   System.Net.HttpClient,
   Neon.Core.Types,
-  System.TypInfo,{{#apiInfo}}{{#apis}}{{#operations}}{{#x-delphi-has-datetime-param}}
-  System.DateUtils,{{/x-delphi-has-datetime-param}}{{/operations}}{{/apis}}{{/apiInfo}}
+  System.TypInfo,{{#x-delphi-has-any-datetime-param}}
+  System.DateUtils,{{/x-delphi-has-any-datetime-param}}
   whizaxe.serialization;
 
 { TApiClient }
