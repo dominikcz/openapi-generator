@@ -163,7 +163,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
         supportingFiles.add(new SupportingFile("ServiceMainPas.mustache", "", "ServiceMain.pas")/* .doNotOverwrite() */);
         supportingFiles.add(new SupportingFile("ServiceMainDfm.mustache", "", "ServiceMain.dfm")/* .doNotOverwrite() */);
-        supportingFiles.add(new SupportingFile("ServiceThread.mustache", "", "u" + this.programName + "Thread")/* .doNotOverwrite() */);
+        supportingFiles.add(new SupportingFile("ServiceThread.mustache", "", "u" + this.programName + "Thread.pas")/* .doNotOverwrite() */);
         supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
 
         supportingFiles.add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
