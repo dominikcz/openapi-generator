@@ -9,7 +9,7 @@ uses
   whizaxe.openapi.config,
   whizaxe.ExtInfo, {{#models}}{{#model}}
   {{classFilename}} in 'models\{{classFilename}}.pas',{{/model}}{{/models}}{{#apiInfo}}{{#apis}}{{#operations}}
-  {{classname}}Interface in 'apis\{{classname}}Interface.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
+  {{apiFilenamePrefix}}{{classname}}Interface in 'apis\{{apiFilenamePrefix}}{{classname}}Interface.pas'{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}};
 
 {$R *.res}
 

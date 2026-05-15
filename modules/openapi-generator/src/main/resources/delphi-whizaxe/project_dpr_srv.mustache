@@ -6,7 +6,7 @@ uses
   Vcl.Forms,
   ServiceMain in 'ServiceMain.pas' {ServiceMain{{programName}}: TService},
 {{#apiInfo}}{{#apis}}
-  {{#operations}}{{classname}} in 'apis\{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}
+  {{#operations}}{{apiFilenamePrefix}}{{classname}} in 'apis\{{apiFilenamePrefix}}{{classname}}.pas'{{^-last}}, {{/-last}}{{/operations}}
 {{/apis}}{{/apiInfo}};
 
 {$R *.res}

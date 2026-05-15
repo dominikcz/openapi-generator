@@ -1,14 +1,14 @@
 {{>header_for_modifications}}
 // template: api-interface
 
-unit {{classname}};
+unit  {{apiFilenamePrefix}}{{classname}};
 
 interface
 
 uses
   System.SysUtils,
   superobject,
-  {{classname}}Interface{{#imports}}{{#-first}},{{/-first}}
+  {{apiFilenamePrefix}}{{classname}}Interface{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
 type

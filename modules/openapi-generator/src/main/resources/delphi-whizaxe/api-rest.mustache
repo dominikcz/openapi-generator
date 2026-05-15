@@ -1,7 +1,7 @@
 {{>header_autogen}}
 // template: api-rest
 
-unit {{classname}}.Rest;
+unit  {{apiFilenamePrefix}}{{classname}}.Rest;
 
 interface
 
@@ -11,7 +11,7 @@ uses
   whizaxe.rest.CommandHandler,
   whizaxe.http.types,
   whizaxe.rest.Request,
-  {{classname}}Interface;
+  {{apiFilenamePrefix}}{{classname}}Interface;
 
 type
 {{#operations}}
@@ -52,7 +52,7 @@ uses
   Neon.Core.Types,
   System.TypInfo,
   whizaxe.ExtInfo,
-  {{classname}}{{#imports}}{{#-first}},{{/-first}}
+  {{apiFilenamePrefix}}{{classname}}{{#imports}}{{#-first}},{{/-first}}
   {{{import}}}{{^-last}},{{/-last}}{{/imports}};
 
 { T{{classname}} }

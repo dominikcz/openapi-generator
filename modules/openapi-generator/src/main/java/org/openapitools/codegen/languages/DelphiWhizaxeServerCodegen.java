@@ -155,6 +155,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         additionalProperties.put("apiNamespaceDeclarations", apiPackage.split("\\."));
         additionalProperties.put("apiNamespace", apiPackage.replaceAll("\\.", "::"));
         additionalProperties.put(RESERVED_WORD_PREFIX_OPTION, reservedWordPrefix);
+        additionalProperties.put(OPTION_API_FILENAME_PREFIX, apiFilenamePrefix);
 
         setupModelTemplate();
     }

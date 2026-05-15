@@ -9,8 +9,8 @@ uses
   whizaxe.rest.Request,
   whizaxe.rest.Server,
   whizaxe.http.types,{{#apiInfo}}{{#apis}}{{#operations}}
-  {{classname}}Interface,
-  {{classname}},{{/operations}}{{/apis}}{{/apiInfo}}
+  {{apiFilenamePrefix}}{{classname}}Interface,
+  {{apiFilenamePrefix}}{{classname}},{{/operations}}{{/apis}}{{/apiInfo}}
 
   {{programName}}Server;
 

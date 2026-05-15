@@ -15,7 +15,7 @@ uses
   Rest.Client,
   Rest.Authenticator.OAuth,
   rest.Authenticator.Basic,{{#apiInfo}}{{#apis}}{{#operations}}
-  {{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
+  {{apiFilenamePrefix}}{{classname}}Interface{{^-last}}, {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}{{#models}}{{#-first}},{{/-first}}{{#model}}
   {{classFilename}}{{/model}}{{^-last}}, {{/-last}}{{/models}}
   , whizaxe.ExtInfo
   , System.Classes
