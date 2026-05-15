@@ -171,7 +171,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
         supportingFiles.add(new SupportingFile("ServiceMainPas.mustache", "", "ServiceMain.pas")/* .doNotOverwrite() */);
         supportingFiles.add(new SupportingFile("ServiceMainDfm.mustache", "", "ServiceMain.dfm")/* .doNotOverwrite() */);
-        supportingFiles.add(new SupportingFile("ServiceThread.mustache", "", "u" + this.programName + "Thread")/* .doNotOverwrite() */);
+        supportingFiles.add(new SupportingFile("ServiceThread.mustache", "", "u" + this.programName + "Thread.pas")/* .doNotOverwrite() */);
         supportingFiles.add(new SupportingFile("server-class.mustache", "", this.programName + "Server.pas").doNotOverwrite());
 
         supportingFiles.add(new SupportingFile("client\\project_dpr_app.mustache", "", this.programName + "ClientApp.dpr"));
@@ -410,13 +410,17 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     isParsingSupported = false;
                 if (param.isEnumRef)
                     param.dataType =  param.getSchema().getDataType();
-                if (param.isDateTime || param.isDate)
+                if (param.isDateTime || param.isDate) {
                     operations.put("x-delphi-has-datetime-param", true);
+                    additionalProperties().put("x-delphi-has-any-datetime-param", true);
+                }
             }
 
             for (CodegenParameter param : op.pathParams) {
-                if (param.isDateTime || param.isDate)
+                if (param.isDateTime || param.isDate) {
                     operations.put("x-delphi-has-datetime-param", true);
+                    additionalProperties().put("x-delphi-has-any-datetime-param", true);
+                }
             }
 
             // if (op.returnBaseType != null) {

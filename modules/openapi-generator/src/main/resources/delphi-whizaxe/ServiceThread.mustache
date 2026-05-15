@@ -1,4 +1,4 @@
-unit uServiceThread;
+unit u{{programName}}Thread;
 
 interface
 
@@ -24,7 +24,7 @@ uses
   whizaxe.REST.Exceptions,
 
 type
-  TServiceThread = class(TBaseThread)
+  T{{programName}}Thread = class(TBaseThread)
   private
     FPort: integer;
     FServer: TRESTServer;
@@ -84,7 +84,7 @@ uses
   Auth.Consts
   ;
 
-procedure TServiceThread.ConnectionFailed;
+procedure T{{programName}}Thread.ConnectionFailed;
 var
   sqlLoader: TSQLLoader;
 begin
@@ -97,10 +97,10 @@ begin
   end;
 end;
 
-constructor TServiceThread.Create;
+constructor T{{programName}}Thread.Create;
 begin
   inherited Create;
-  //  sleep(10*1000); //do debugowania us˜ugi
+  //  sleep(10*1000); //do debugowania usï¿½ugi
   CfgFile.LoadFromIniFile(ExtractFileDir(ParamStr(0)) + '\McVPos.ini');
 
   initGlobalAuthClient(TDbAppTypes.datVPos);
@@ -109,7 +109,7 @@ begin
   FVposApi := TVposApi.apiVPOS4;
 end;
 
-destructor TServiceThread.Destroy;
+destructor T{{programName}}Thread.Destroy;
 begin
   Stop;
   FCommandsAuth.Free;
@@ -119,7 +119,7 @@ begin
   inherited;
 end;
 
-procedure TServiceThread.Execute;
+procedure T{{programName}}Thread.Execute;
 begin
   while not terminated do
   begin
@@ -127,7 +127,7 @@ begin
   end;
 end;
 
-procedure TServiceThread.hndMapVPosException(const Source: Exception; var HttpCode: Word; Error: TWxRestErrorModel);
+procedure T{{programName}}Thread.hndMapVPosException(const Source: Exception; var HttpCode: Word; Error: TWxRestErrorModel);
 begin
   Error.debugInfo := EVPosException(Source).debugMessage;
   //Error.checkInterval := 12;
@@ -140,7 +140,7 @@ begin
   HttpCode := 422;
 end;
 
-procedure TServiceThread.hndOnAuthorization(ARequest: TRestRequest; var AResult: THTTPResult; var AllowToExecute : Boolean);
+procedure T{{programName}}Thread.hndOnAuthorization(ARequest: TRestRequest; var AResult: THTTPResult; var AllowToExecute : Boolean);
 var
   auth: TJWTAuthenticator;
   payload: ISuperObject;
@@ -173,9 +173,9 @@ begin
   end;
 end;
 
-procedure TServiceThread.Initialize;
+procedure T{{programName}}Thread.Initialize;
 begin
-  AddToLog(lsLogInfo, 'TServiceThread.Initialize START');
+  AddToLog(lsLogInfo, 'T{{programName}}Thread.Initialize START');
   FInitialized := false;
 
   if FVposLauncher = nil then
@@ -202,15 +202,15 @@ begin
 
   end;
 
-//  AddToLog(lsLogInfo, 'TServiceThread.Initialize END');
+//  AddToLog(lsLogInfo, 'T{{programName}}Thread.Initialize END');
 end;
 
-procedure TServiceThread.CreateRestServer;
+procedure T{{programName}}Thread.CreateRestServer;
 begin
   CreateRestServerVPOS4;
 end;
 
-procedure TServiceThread.CreateRestServerBase<T>;
+procedure T{{programName}}Thread.CreateRestServerBase<T>;
 var
   LPath: string;
 begin
@@ -244,7 +244,7 @@ begin
   FServer.ServeFiles := true;
 end;
 
-procedure TServiceThread.CreateRestServerVPOS4;
+procedure T{{programName}}Thread.CreateRestServerVPOS4;
 var
   Server: TvPOSAPIServer;
 begin
@@ -274,7 +274,7 @@ begin
 
 end;
 
-procedure TServiceThread.Start;
+procedure T{{programName}}Thread.Start;
 begin
   AddToLog(lsLogInfo, 'Starting server');
   try
@@ -298,7 +298,7 @@ begin
   end;
 end;
 
-procedure TServiceThread.Stop;
+procedure T{{programName}}Thread.Stop;
 begin
   try
     if FInitialized then
@@ -315,7 +315,7 @@ begin
   except
     on e: Exception do
     begin
-      AddToLog(lsLogError, 'TServiceThread.Stop', e.Message);
+      AddToLog(lsLogError, 'T{{programName}}Thread.Stop', e.Message);
     end;
   end;
 end;
