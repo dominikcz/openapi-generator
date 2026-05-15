@@ -29,12 +29,15 @@ import static org.openapitools.codegen.utils.StringUtils.camelize;
 public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
     protected String modelType = "properties"; // properties/files - must match template file name!
     protected String modelFilenamePrefix = "ApiModel.";
+    protected String apiFilenamePrefix = "";
     protected boolean useModelsFullNamespace = true;
     public static final String PROJECT_NAME = "projectName";
     public static final String OPTION_MODEL_TYPE = "modelType";
     public static final String OPTION_MODEL_TYPE_DESC = "type of model to use";
     public static final String OPTION_MODEL_FILENAME_PREFIX = "modelFilenamePrefix";
     public static final String OPTION_MODEL_FILENAME_PREFIX_DESC = "Prefix of model filename";
+    public static final String OPTION_API_FILENAME_PREFIX = "apiFilenamePrefix";
+    public static final String OPTION_API_FILENAME_PREFIX_DESC = "Prefix of api filename";
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE = "useModelsFullNamespace";
     public static final String OPTION_USE_MODELS_FULL_NAMESPACE_DESC = "use full namespace for models dataType";
 
@@ -80,6 +83,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                 VARIABLE_NAME_FIRST_CHARACTER_UPPERCASE_DESC,
                 Boolean.toString(this.variableNameFirstCharacterUppercase));
         addOption(OPTION_MODEL_FILENAME_PREFIX, OPTION_MODEL_FILENAME_PREFIX_DESC, this.modelFilenamePrefix);
+        addOption(OPTION_API_FILENAME_PREFIX, OPTION_API_FILENAME_PREFIX_DESC, this.apiFilenamePrefix);
         addOption(OPTION_USE_MODELS_FULL_NAMESPACE, OPTION_USE_MODELS_FULL_NAMESPACE_DESC,
                 String.valueOf(this.useModelsFullNamespace));
 
@@ -125,6 +129,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         importMapping.put("NullDateTime", "Neon.Core.Nullables");
         importMapping.put("NullCurrency", "Neon.Core.Nullables");
         importMapping.put("TExtInfo", "whizaxe.ExtInfo");
+        importMapping.put("AnyType", "whizaxe.ExtInfo");
     }
 
     @Override
@@ -132,6 +137,9 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
         super.processOpts();
         if (additionalProperties.containsKey(OPTION_MODEL_FILENAME_PREFIX)) {
             this.modelFilenamePrefix = (String) additionalProperties.get(OPTION_MODEL_FILENAME_PREFIX);
+        }
+        if (additionalProperties.containsKey(OPTION_API_FILENAME_PREFIX)) {
+            this.apiFilenamePrefix = (String) additionalProperties.get(OPTION_API_FILENAME_PREFIX);
         }
         if (additionalProperties.containsKey("modelNamePrefix")) {
             additionalProperties().put("prefix", modelNamePrefix);
@@ -464,7 +472,7 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
 
     @Override
     public String toApiFilename(String name) {
-        return toApiName(name);
+        return apiFilenamePrefix + toApiName(name);
     }
 
     /**

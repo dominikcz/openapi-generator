@@ -215,6 +215,7 @@ begin
   {{#returnType}}{{^returnSimpleType}}Result := nil;{{/returnSimpleType}}{{/returnType}}
   restRequest := TRESTRequest.Create(restClient);
   try
+    restRequest.SynchronizedEvents := false;
     restRequest.Resource := '{{path}}';
     restRequest.Method := GetRESTRequestMethod('{{httpMethod}}');
     {{#pathParams}}
