@@ -83,9 +83,46 @@ begin
   FConfig := AConfig;
   FParseResponseErrors := AParseResponseErrors;
   {{#authMethods}}
-  {{#isBasicBearer}}FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil);{{/isBasicBearer}}
-  {{^isBasicBearer}}FAuth := TOpenApiSecurityNone.Create();{{/isBasicBearer}}
+{{#isBasicBearer}}
+  FAuth := TOpenApiSecurityBearer.Create('<put your token here>', nil);
+{{/isBasicBearer}}
+{{#isBasicBasic}}
+  FAuth := TOpenApiSecurityBasic.Create('<username>', '<password>');
+{{/isBasicBasic}}
+{{#isApiKey}}
+{{#isKeyInHeader}}
+  FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.header, '<put your api key here>', FConfig.APIKey));
+{{/isKeyInHeader}}
+{{#isKeyInQuery}}
+   FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.query, '<put your api key here>', FConfig.APIKey));
+{{/isKeyInQuery}}
+{{#isKeyInCookie}}
+  FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.cookie, '<put your api key here>', FConfig.APIKey));
+{{/isKeyInCookie}}
+{{^isKeyInHeader}}{{^isKeyInQuery}}{{^isKeyInCookie}}  FAuth := TOpenApiSecurityApiKeys.Create;
+{{/isKeyInCookie}}{{/isKeyInQuery}}{{/isKeyInHeader}}
+{{/isApiKey}}
+{{#isOAuth}}
+{{#isCode}}
+  FAuth := TOpenApiSecurityOAuthCode.Create;
+{{/isCode}}
+{{#isPassword}}
+  FAuth := TOpenApiSecurityOAuthPassword.Create;
+{{/isPassword}}
+{{#isApplication}}
+  FAuth := TOpenApiSecurityOAuthApplication.Create;
+{{/isApplication}}
+{{#isImplicit}}
+  FAuth := TOpenApiSecurityOAuthImplicit.Create;
+{{/isImplicit}}
+{{/isOAuth}}
+{{#isHttpSignature}}
+  FAuth := TOpenApiSecurityHttpSignature.Create;
+{{/isHttpSignature}}
   {{/authMethods}}
+{{^authMethods}}
+  FAuth := TOpenApiSecurityNone.Create();
+{{/authMethods}}
   InitNeonConfiguration;
 end;
 
@@ -131,9 +168,23 @@ begin
   Result.SecureProtocols  := FConfig.TLSVersions;
   Result.OnValidateCertificate := hndValidateCertificate;
 
-  {{#authMethods}}{{#isBasicBearer}}
+  {{#authMethods}}
+{{#isBasicBearer}}
   Result.Authenticator := FAuth.CreateAuthenticator;
-  {{/isBasicBearer}}{{/authMethods}}
+{{/isBasicBearer}}
+{{#isBasicBasic}}
+  Result.Authenticator := FAuth.CreateAuthenticator;
+{{/isBasicBasic}}
+{{#isApiKey}}
+  Result.Authenticator := FAuth.CreateAuthenticator;
+{{/isApiKey}}
+{{#isOAuth}}
+  Result.Authenticator := FAuth.CreateAuthenticator;
+{{/isOAuth}}
+{{#isHttpSignature}}
+  Result.Authenticator := FAuth.CreateAuthenticator;
+{{/isHttpSignature}}
+  {{/authMethods}}
   if Assigned(Result.Authenticator) then
     Result.Authenticator.OnAuthenticate := OnAuthenticate;
 end;
@@ -147,6 +198,11 @@ function T{{programName}}Client.ParseResponseErrorToRestException(AResponse: TCu
 var
   RestErrorModel: {{^variableConvertUnderscoreToCamelCase}}TWxRestErrorModel{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}TWxRestErrorModelForSnakeCaseApi{{/variableConvertUnderscoreToCamelCase}};
 begin
+  if AResponse.Content = '' then  // timeout lub brak połączenia
+  begin
+    Result := EWxRestException.Create('Response content empty!', 500);
+    Exit;
+  end;
   {{^variableConvertUnderscoreToCamelCase}}RestErrorModel := TSerializer.JsonToObject<TWxRestErrorModel>(AResponse.Content);{{/variableConvertUnderscoreToCamelCase}}{{#variableConvertUnderscoreToCamelCase}}RestErrorModel := TWxRestErrorModelForSnakeCaseApi.Create;
   TSerializer.DeserializeObject(RestErrorModel, AResponse.Content, FNeonConfiguration);{{/variableConvertUnderscoreToCamelCase}}
   try

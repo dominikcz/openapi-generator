@@ -83,58 +83,133 @@ var
 {{#allParams}}
   {{{paramName}}}: {{{dataType}}};
 {{/allParams}}
-  {{#returnType}}responseObj: {{{.}}};{{/returnType}}
+{{#vendorExtensions.x-delphi-has-array-query-param}}
+  tmp: String;
+{{/vendorExtensions.x-delphi-has-array-query-param}}
+{{#returnType}}
+  responseObj: {{{.}}};
+{{/returnType}}
 begin
   AskForApi;
 {{#vendorExtensions.x-delphi-returns-model}}
   responseObj := nil;
 {{/vendorExtensions.x-delphi-returns-model}}
+{{#queryParams}}
+{{#isArray}}
+  {{paramName}} := nil;
+{{/isArray}}
+{{#isModel}}
+  {{paramName}} := nil;
+{{/isModel}}
+{{/queryParams}}
 {{#pathParams}}
-  {{#isInteger}}{{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isInteger}}
-  {{#isNumber}}{{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isNumber}}
-  {{#isBoolean}}{{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
-  {{#isString}}{{paramName}} := ARequest.GetPathParam('{{baseName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
-  {{#isEnumRef}}{{paramName}} :=  TSerializer.DeserializeSimple<{{dataType}}>(ARequest.GetPathParam('{{baseName}}', '', {{required}}), FNeonConfiguration);{{/isEnumRef}}
+{{#isInteger}}
+  {{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isInteger}}
+{{#isNumber}}
+  {{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isNumber}}
+{{#isBoolean}}
+  {{paramName}} := ARequest.GetPathParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isBoolean}}
+{{#isString}}
+  {{paramName}} := ARequest.GetPathParam('{{baseName}}', '{{{defaultValue}}}', {{required}});
+{{/isString}}
+{{#isEnumRef}}
+  {{paramName}} :=  TSerializer.DeserializeSimple<{{dataType}}>(ARequest.GetPathParam('{{baseName}}', '', {{required}}), FNeonConfiguration);
+{{/isEnumRef}}
 {{/pathParams}}
 {{#queryParams}}
-  {{#isInteger}}{{paramName}} := ARequest.GetQueryParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isInteger}}
-  {{#isNumber}}{{paramName}} := ARequest.GetQueryParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isNumber}}
-  {{#isBoolean}}{{paramName}} := ARequest.GetQueryParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
-  {{#isString}}{{paramName}} := ARequest.GetQueryParam('{{baseName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
-  {{#isEnumRef}}{{paramName}} :=  TSerializer.DeserializeSimple<{{dataType}}>(ARequest.GetQueryParam('{{baseName}}', '', {{required}}), FNeonConfiguration);{{/isEnumRef}}
+{{#isInteger}}
+  {{paramName}} := ARequest.GetQueryParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isInteger}}
+{{#isNumber}}
+  {{paramName}} := ARequest.GetQueryParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isNumber}}
+{{#isBoolean}}
+  {{paramName}} := ARequest.GetQueryParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isBoolean}}
+{{#isString}}
+  {{paramName}} := ARequest.GetQueryParam('{{baseName}}', '{{{defaultValue}}}', {{required}});
+{{/isString}}
+{{#isEnumRef}}
+  {{paramName}} :=  TSerializer.DeserializeSimple<{{dataType}}>(ARequest.GetQueryParam('{{baseName}}', '', {{required}}), FNeonConfiguration);
+{{/isEnumRef}}
+{{#isArray}}
+  tmp := ARequest.GetQueryParam('{{baseName}}', '', {{required}});
+  if tmp.StartsWith('[') and tmp.EndsWith(']') then begin
+{{#items.isModel}}
+    {{paramName}} := TObjectList<{{{items.dataType}}}>.Create;
+{{/items.isModel}}
+{{^items.isModel}}
+{{#vendorExtensions.x-delphi-array-wrap-in-tlist}}
+    {{paramName}} := TList<{{{dataType}}}>.Create;
+{{/vendorExtensions.x-delphi-array-wrap-in-tlist}}
+{{^vendorExtensions.x-delphi-array-wrap-in-tlist}}
+    {{paramName}} := TList<{{{items.dataType}}}>.Create;
+{{/vendorExtensions.x-delphi-array-wrap-in-tlist}}
+{{/items.isModel}}
+    TSerializer.DeserializeObject({{paramName}}, tmp, FNeonConfiguration);
+  end;
+{{/isArray}}
 {{/queryParams}}
 {{#bodyParam}}
   {{paramName}} := ARequest.GetBodyParam<{{{dataType}}}>({{required}}, FNeonConfiguration);
 {{/bodyParam}}
-
 {{#pathParams}}
-  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
-  {{#isNumber}}TRestParamValidator.ValidateCurrencyParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}}, 0);{{/isNumber}}
-  {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
+{{#isInteger}}
+  TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});
+{{/isInteger}}
+{{#isNumber}}
+  TRestParamValidator.ValidateCurrencyParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}}, 0);
+{{/isNumber}}
+{{#isString}}
+  TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});
+{{/isString}}
 {{/pathParams}}
 {{#queryParams}}
-  {{#isInteger}}TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});{{/isInteger}}
-  {{#isNumber}}TRestParamValidator.ValidateCurrencyParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}}, 0);{{/isNumber}}
-  {{#isString}}TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});{{/isString}}
+{{#isInteger}}
+  TRestParamValidator.ValidateIntegerParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}});
+{{/isInteger}}
+{{#isNumber}}
+  TRestParamValidator.ValidateCurrencyParam({{paramName}}, {{#minimum}}true, {{minimum}}{{/minimum}}{{^minimum}}false, 0{{/minimum}}, {{#maximum}}true, {{maximum}}{{/maximum}}{{^maximum}}false, 0{{/maximum}}, 0);
+{{/isNumber}}
+{{#isString}}
+  TRestParamValidator.ValidateStringParam({{paramName}}, {{required}}, {{#minLength}}{{minLength}}{{/minLength}}{{^minLength}}0{{/minLength}}, {{#maxLength}}{{maxLength}}{{/maxLength}}{{^maxLength}}0{{/maxLength}});
+{{/isString}}
 {{/queryParams}}
 
 {{#vendorExtensions.x-delphi-needs-free}}
   try
 {{/vendorExtensions.x-delphi-needs-free}}
 {{#bodyParam}}
-    {{^isArray}}{{paramName}}.Validate;{{/isArray}}
+{{^isArray}}
+    {{paramName}}.Validate;
+{{/isArray}}
 {{/bodyParam}}
 {{#headerParams}}
-    {{#isInteger}}{{paramName}} := ARequest.GetHeaderParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isInteger}}
-    {{#isNumber}}{{paramName}} := ARequest.GetHeaderParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isNumber}}
-    {{#isBoolean}}{{paramName}} := ARequest.GetHeaderParam('{{baseName}}', {{defaultValue}}, {{required}});{{/isBoolean}}
-    {{#isString}}{{paramName}} := ARequest.GetHeaderParam('{{baseName}}', '{{{defaultValue}}}', {{required}});{{/isString}}
+{{#isInteger}}
+    {{paramName}} := ARequest.GetHeaderParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isInteger}}
+{{#isNumber}}
+    {{paramName}} := ARequest.GetHeaderParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isNumber}}
+{{#isBoolean}}
+    {{paramName}} := ARequest.GetHeaderParam('{{baseName}}', {{defaultValue}}, {{required}});
+{{/isBoolean}}
+{{#isString}}
+    {{paramName}} := ARequest.GetHeaderParam('{{baseName}}', '{{{defaultValue}}}', {{required}});
+{{/isString}}
 {{/headerParams}}
 {{#returnType}}
     responseObj := FApi.{{operationId}}({{#allParams}}{{{paramName}}}, {{/allParams}}ARequest.Authorization);
-    AResult.ContentType('{{vendorExtensions.x-codegen-response-content-type}}');{{#isResponseBinary}}
-    AResult.SetResult(hs2xx_OK, TStringStream(responseObj).DataString, 'OK');{{/isResponseBinary}}
-    {{^isResponseBinary}}AResult.SetResult(hs2xx_OK, responseObj, 'OK', FNeonConfiguration);{{/isResponseBinary}}
+    AResult.ContentType('{{vendorExtensions.x-codegen-response-content-type}}');
+{{#isResponseBinary}}
+    AResult.SetResult(hs2xx_OK, TStringStream(responseObj).DataString, 'OK');
+{{/isResponseBinary}}
+{{^isResponseBinary}}
+    AResult.SetResult(hs2xx_OK, responseObj, 'OK', FNeonConfiguration);
+{{/isResponseBinary}}
 {{/returnType}}
 {{^returnType}}
     FApi.{{operationId}}({{#allParams}}{{{paramName}}}, {{/allParams}}ARequest.Authorization);
@@ -145,6 +220,14 @@ begin
 {{#vendorExtensions.x-delphi-returns-model}}
     responseObj.Free;
 {{/vendorExtensions.x-delphi-returns-model}}
+{{#queryParams}}
+{{#isArray}}
+    {{paramName}}.Free;
+{{/isArray}}
+{{#isModel}}
+    {{paramName}}.Free;
+{{/isModel}}
+{{/queryParams}}
 {{#bodyParam}}
     {{paramName}}.Free;
 {{/bodyParam}}

@@ -415,6 +415,24 @@ public class DelphiWhizaxeServerCodegen extends AbstractDelphiCodegen {
                     operations.put("x-delphi-has-datetime-param", true);
                     additionalProperties().put("x-delphi-has-any-datetime-param", true);
                 }
+                if (param.isArray) {
+                    if (param.items != null) {
+                        if (param.items.isModel) {
+                            param.dataType = "TObjectList<" + getTypeDeclaration(param.baseType) + ">";
+                        } else {
+                            param.dataType = "TList<" + param.items.dataType + ">";
+                        }
+                    }
+                    if (!param.dataType.startsWith("TList") && !param.dataType.startsWith("TObjectList")) {
+                        param.vendorExtensions.put("x-delphi-array-wrap-in-tlist", true);
+                    }
+                    op.vendorExtensions.put("x-delphi-has-array-query-param", true);
+                    op.vendorExtensions.put("x-delphi-needs-var", true);
+                    op.vendorExtensions.put("x-delphi-needs-free", true);
+                }
+                if (param.isModel) {
+                    op.vendorExtensions.put("x-delphi-needs-free", true);
+                }
             }
 
             for (CodegenParameter param : op.pathParams) {
