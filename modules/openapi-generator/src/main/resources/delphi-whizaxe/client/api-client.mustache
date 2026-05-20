@@ -91,13 +91,13 @@ begin
 {{/isBasicBasic}}
 {{#isApiKey}}
 {{#isKeyInHeader}}
-  FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.header, '<put your api key here>', FConfig.APIKey));
+  FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.header, 'X-API-KEY', FConfig.APIKey));
 {{/isKeyInHeader}}
 {{#isKeyInQuery}}
-   FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.query, '<put your api key here>', FConfig.APIKey));
+   FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.query, 'X-API-KEY', FConfig.APIKey));
 {{/isKeyInQuery}}
 {{#isKeyInCookie}}
-  FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.cookie, '<put your api key here>', FConfig.APIKey));
+  FAuth := TOpenApiSecurityApiKeys.Create(TApiKey.Create(TApiKey.TLocation.cookie, 'X-API-KEY', FConfig.APIKey));
 {{/isKeyInCookie}}
 {{^isKeyInHeader}}{{^isKeyInQuery}}{{^isKeyInCookie}}  FAuth := TOpenApiSecurityApiKeys.Create;
 {{/isKeyInCookie}}{{/isKeyInQuery}}{{/isKeyInHeader}}
