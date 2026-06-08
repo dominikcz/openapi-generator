@@ -76,9 +76,6 @@ uses
 { TApiClient }
 
 constructor T{{programName}}Client.Create(AConfig: TOpenApiConfig; AParseResponseErrors: boolean);
-var
-  lClient: TRESTClient;
-  auth: TOAuth2Authenticator;
 begin
   FConfig := AConfig;
   FParseResponseErrors := AParseResponseErrors;
